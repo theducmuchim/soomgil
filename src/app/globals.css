@@ -1,0 +1,208 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────
+   숨쉬는길 디자인 토큰
+   공공서비스 톤: 낮은 채도의 신뢰감 있는 블루 + 데이터용 4단계 위험 색상.
+   위험 색상(초록~빨강)은 브랜드 색과 절대 겹치지 않게 분리한다.
+   ────────────────────────────────────────────────────────── */
+@theme {
+  /* 브랜드 — 공공 블루 */
+  --color-brand-50: #eef5fb;
+  --color-brand-100: #d7e7f5;
+  --color-brand-200: #b0cfea;
+  --color-brand-300: #7fb0da;
+  --color-brand-400: #4d8fc7;
+  --color-brand-500: #2b73b0;
+  --color-brand-600: #1b5b94;
+  --color-brand-700: #164a79;
+  --color-brand-800: #143c60;
+  --color-brand-900: #12314c;
+
+  /* 잉크(텍스트) / 라인 / 표면 */
+  --color-ink-900: #14181d;
+  --color-ink-700: #333b45;
+  --color-ink-500: #5b6774;
+  --color-ink-400: #7c8895;
+  --color-ink-300: #a8b2bd;
+  --color-line: #e2e7ec;
+  --color-line-strong: #cbd3db;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f5f7f9;
+  --color-surface-raised: #fafbfc;
+
+  /* 위험 4단계 — 기상청 낮음/보통/높음/매우높음 */
+  --color-risk-low: #1a9e5c;
+  --color-risk-moderate: #e0a800;
+  --color-risk-high: #e4692b;
+  /*
+   * 매우높음 색.
+   *
+   * 처음에는 #d02f3a 였는데 '높음'(#e4692b)과의 색차가 정상 시야 기준 ΔE 12로
+   * 붙어 있어서, 지도에서 높음과 매우높음 지역이 잘 구분되지 않았다.
+   * 더 어둡고 짙은 적색으로 내려 ΔE 15.2까지 벌렸다 (색각 이상 기준 10.3).
+   */
+  --color-risk-very-high: #a3132b;
+
+  /* 지표 레이어 색 (레이어 지도 범례) */
+  --color-layer-pollen: #7c5cc4;
+  --color-layer-dust: #8a6a4a;
+  --color-layer-heat: #d94f2b;
+  --color-layer-ozone: #2f9bb5;
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  /* 헤더 높이 — sticky 오프셋 계산에 재사용 */
+  --spacing-header: 3.5rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* 앵커 이동 시 sticky 헤더에 가리지 않게 */
+  scroll-padding-top: calc(var(--spacing-header) + 1rem);
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  /* 한글 가독성: 자간 살짝 좁히고 줄간격 넉넉히 */
+  letter-spacing: -0.01em;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 숫자는 표에서 자리가 흔들리지 않게 고정폭으로 */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 키보드 포커스 링 — 공공서비스 접근성 기본 */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Leaflet 컨테이너가 부모 높이를 채우도록 */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-sans);
+  background: var(--color-surface-sunken);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Leaflet 커스터마이징 ─────────────────────────────────
+   지도 위 요소는 Leaflet이 직접 DOM을 만들기 때문에 Tailwind 클래스가 닿지 않는다.
+   여기서 전역 스타일로 맞춘다.
+   ──────────────────────────────────────────────────────── */
+
+/* 지역명 + 점수 라벨 */
+.soomgil-area-label {
+  pointer-events: none;
+  white-space: nowrap;
+}
+.soomgil-area-label > span {
+  display: inline-block;
+  transform: translate(-50%, -50%);
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  box-shadow: 0 1px 3px rgb(20 24 29 / 0.22);
+}
+
+/* 마우스오버 툴팁 */
+.leaflet-tooltip.soomgil-tooltip {
+  padding: 4px 9px;
+  border: 1px solid var(--color-line);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-ink-900);
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgb(20 24 29 / 0.12);
+}
+.leaflet-tooltip.soomgil-tooltip::before {
+  display: none;
+}
+.soomgil-tooltip .tabular {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.soomgil-tooltip .font-semibold {
+  font-weight: 600;
+}
+
+/* 기본 컨트롤을 서비스 톤에 맞춘다 */
+.leaflet-control-zoom a {
+  color: var(--color-ink-700);
+  border-color: var(--color-line);
+}
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: rgb(255 255 255 / 0.82);
+  color: var(--color-ink-400);
+}
+.leaflet-control-attribution a {
+  color: var(--color-ink-500);
+}
+
+/* 경로 지도의 출발·도착 표시 */
+.soomgil-endpoint {
+  pointer-events: none;
+  white-space: nowrap;
+}
+.soomgil-endpoint > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transform: translate(-50%, -140%);
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  box-shadow: 0 2px 6px rgb(20 24 29 / 0.28);
+}
+.soomgil-endpoint b {
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+/*
+ * 좁은 화면에서는 지도 확대/축소 버튼을 키운다 (Leaflet 기본 30px는 손가락으로 누르기 작다).
+ * pointer:coarse 로 걸면 터치 지원을 브라우저가 어떻게 보고하느냐에 따라 적용이 갈려서,
+ * 화면 폭 기준으로 잡는다.
+ */
+@media (max-width: 767px) {
+  .leaflet-touch .leaflet-bar a,
+  .leaflet-control-zoom a {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 20px;
+  }
+}
