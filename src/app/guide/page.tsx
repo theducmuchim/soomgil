@@ -294,14 +294,26 @@ export default function GuidePage() {
 
                 <li className="rounded-xl border border-line bg-surface p-4">
                   <p className="text-[14px] font-semibold text-ink-900">
-                    경로는 도로망이 아니라 격자 위에서 계산합니다
+                    경로 엔진은 두 가지이고, 화면에 어느 쪽인지 표시합니다
                   </p>
                   <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-500">
-                    실제 도로망 데이터는 별도 인증키가 필요해, 지금은 대전 전역에 깐 약
-                    550m 격자 위에서 A* 탐색으로 경로를 만듭니다. 도로를 정확히 따라가지는
-                    않지만 어느 지역을 지나가는지는 정확하며, 이 서비스가 비교하려는 것도
-                    그 부분입니다. 하천변 보정(갑천·유등천·대전천 주변은 확산이 좋아
-                    농도가 낮음)도 실제 물길을 단순화한 근사치를 씁니다.
+                    TMAP 앱키가 연결돼 있으면 <strong className="font-semibold">TMAP
+                    보행자 경로 API</strong>로 실제 도로를 따라가는 경로를 받아옵니다. 그
+                    경로 위를 100m 간격으로 샘플링해 어느 행정동을 지나는지 판정하고,
+                    구간마다 위험도와 풍향 보정을 적용합니다. TMAP은 대안 경로를 여러 개
+                    주지 않아, 경유지를 다르게 준 후보를 따로 받아 그중 노출이 가장 적은
+                    것을 안전 경로로 제시합니다.
+                  </p>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-ink-500">
+                    앱키가 없거나 호출이 실패하면 대전 전역에 깐 약 550m 격자 위에서 A*
+                    탐색으로 만든 <strong className="font-semibold">근사 경로</strong>로
+                    자동 전환됩니다. 도로를 정확히 따라가지는 않지만 어느 지역을
+                    지나가는지는 정확합니다. 경로 안내 화면 상단에 지금 어느 엔진으로
+                    계산된 경로인지 항상 표시합니다.
+                  </p>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-ink-500">
+                    하천변 보정(갑천·유등천·대전천 주변은 확산이 좋아 농도가 낮음)은 실제
+                    물길을 단순화한 근사치를 씁니다.
                   </p>
                 </li>
               </ul>

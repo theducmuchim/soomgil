@@ -1,5 +1,5 @@
-import type { Geometry, Position } from 'geojson';
 import { DONG_GEOJSON } from '@/data/geo/dong';
+import { geometryBbox, inBbox, pointInGeometry } from './geometry';
 
 /**
  * 경로 탐색용 격자.
@@ -63,14 +63,7 @@ export function getGrid(): Grid {
 
       let dongId: string | null = null;
       for (const dong of dongs) {
-        if (
-          lng < dong.bbox.minLng ||
-          lng > dong.bbox.maxLng ||
-          lat < dong.bbox.minLat ||
-          lat > dong.bbox.maxLat
-        ) {
-          continue;
-        }
+        if (!inBbox(dong.bbox, lat, lng)) continue;
         if (pointInGeometry(lng, lat, dong.geometry)) {
           dongId = dong.id;
           break;
@@ -103,16 +96,8 @@ export function nearestNode(grid: Grid, lat: number, lng: number): GridNode {
   return best;
 }
 
-/** 위경도 두 점 사이 거리 (m) — 대전 규모에서는 평면 근사로 충분 */
-export function distanceM(
-  a: { lat: number; lng: number },
-  b: { lat: number; lng: number },
-): number {
-  const midLat = ((a.lat + b.lat) / 2) * (Math.PI / 180);
-  const dLat = (b.lat - a.lat) * 111_320;
-  const dLng = (b.lng - a.lng) * 111_320 * Math.cos(midLat);
-  return Math.sqrt(dLat * dLat + dLng * dLng);
-}
+/** 위경도 두 점 사이 거리 (m) — geometry.ts 재수출 */
+export { distanceM } from './geometry';
 
 /* ── 내부 ──────────────────────────────────────────────── */
 
@@ -130,58 +115,4 @@ function computeBbox() {
     maxLng = Math.max(maxLng, b.maxLng);
   }
   return { minLat, maxLat, minLng, maxLng };
-}
-
-function geometryBbox(geometry: Geometry) {
-  let minLat = Infinity;
-  let maxLat = -Infinity;
-  let minLng = Infinity;
-  let maxLng = -Infinity;
-
-  for (const ring of ringsOf(geometry)) {
-    for (const [lng, lat] of ring) {
-      minLat = Math.min(minLat, lat);
-      maxLat = Math.max(maxLat, lat);
-      minLng = Math.min(minLng, lng);
-      maxLng = Math.max(maxLng, lng);
-    }
-  }
-  return { minLat, maxLat, minLng, maxLng };
-}
-
-/** Polygon / MultiPolygon의 모든 외곽선을 평평하게 편다 */
-function ringsOf(geometry: Geometry): Position[][] {
-  if (geometry.type === 'Polygon') return geometry.coordinates;
-  if (geometry.type === 'MultiPolygon') return geometry.coordinates.flat();
-  return [];
-}
-
-/** ray casting */
-function pointInGeometry(lng: number, lat: number, geometry: Geometry): boolean {
-  if (geometry.type === 'Polygon') return pointInPolygon(lng, lat, geometry.coordinates);
-  if (geometry.type === 'MultiPolygon') {
-    return geometry.coordinates.some((poly) => pointInPolygon(lng, lat, poly));
-  }
-  return false;
-}
-
-function pointInPolygon(lng: number, lat: number, polygon: Position[][]): boolean {
-  // polygon[0] = 외곽선, 이후는 구멍
-  if (!inRing(lng, lat, polygon[0])) return false;
-  for (let i = 1; i < polygon.length; i++) {
-    if (inRing(lng, lat, polygon[i])) return false;
-  }
-  return true;
-}
-
-function inRing(lng: number, lat: number, ring: Position[]): boolean {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [xi, yi] = ring[i];
-    const [xj, yj] = ring[j];
-    const intersects =
-      yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
-    if (intersects) inside = !inside;
-  }
-  return inside;
 }

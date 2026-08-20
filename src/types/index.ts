@@ -196,4 +196,11 @@ export interface RouteResult {
   destination: RoutePoint;
   options: RouteOption[];
   baseTime: string;
+  /**
+   * 이 경로를 무엇으로 만들었는지.
+   *  tmap : TMAP 보행자 경로 API — 실제 도로를 따라간다
+   *  grid : 대전 전역 격자 위 A* — 앱키가 없거나 호출이 실패했을 때
+   * 화면에 그대로 표시한다. 근사 경로를 실제 도로인 것처럼 보이면 안 된다.
+   */
+  engine: 'tmap' | 'grid';
 }

@@ -17,6 +17,18 @@ export const DATA_MODE: DataMode =
 export const SERVICE_KEY = process.env.DATA_GO_KR_SERVICE_KEY ?? '';
 
 /**
+ * TMAP 앱키 (SK Open API).
+ *
+ * 공공데이터포털과는 완전히 다른 사업자라 인증키도 따로 발급받는다.
+ * 이 값이 있으면 경로 안내가 실제 도로 기반(TMAP 보행자 경로)으로 동작하고,
+ * 없으면 격자 A*로 자동으로 떨어진다. 코드 수정은 필요 없다.
+ *
+ * NEXT_PUBLIC_ 접두사를 쓰지 않는다 — 앱키가 브라우저에 노출되면
+ * 다른 사이트에서 남용해 우리 호출 한도를 소진시킬 수 있다.
+ */
+export const TMAP_APP_KEY = process.env.TMAP_APP_KEY ?? '';
+
+/**
  * 서버 캐시 TTL (초).
  *
  * ── 호출 예산 계산 ──────────────────────────────────────────
@@ -53,6 +65,14 @@ export const CACHE_TTL = {
   airkorea: 20 * 60,
   /** 에어코리아 예보통보 — 하루 4회 발표 */
   airkoreaForecast: 3 * 60 * 60,
+  /**
+   * TMAP 보행자 경로 — 하루.
+   *
+   * 도로망은 거의 바뀌지 않으므로 같은 출발/도착 쌍이면 길게 캐시해도 된다.
+   * 위험도는 이 경로 위에서 매 요청 새로 계산하므로 신선도 손해가 없고,
+   * 시연 중 같은 경로를 반복 조회할 때 호출 한도를 아낄 수 있다.
+   */
+  tmapRoute: 24 * 60 * 60,
 } as const;
 
 /** 시연용: 계절 강제 전환 (?season=winter). mock 모드에서만 동작. */

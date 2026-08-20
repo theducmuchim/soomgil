@@ -45,7 +45,7 @@ export default async function RoutePage({
 
   const snapshot = await getRiskSnapshot({ seasonOverride: parseSeason(params.season) });
   const dongRisks = deriveDongRisks(snapshot);
-  const result = planRoutes({ origin, destination, snapshot, dongRisks, mode });
+  const result = await planRoutes({ origin, destination, snapshot, dongRisks, mode });
 
   const season = getSeasonMeta(snapshot.season);
   const wind =
@@ -103,16 +103,55 @@ export default async function RoutePage({
               대전 평균 {Math.round(snapshot.cityAverage.score)}점 · 대기정체{' '}
               {formatDelta(snapshot.cityAverage.stagnationDeltaPct, 1)}
             </span>
+
+            {/* 경로 출처를 숨기지 않는다 — 근사 경로를 실제 도로처럼 보이면 안 된다 */}
+            <span
+              className={
+                result.engine === 'tmap'
+                  ? 'inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-2.5 py-1 text-[11.5px] font-semibold text-white'
+                  : 'inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-surface px-2.5 py-1 text-[11.5px] font-medium text-ink-500'
+              }
+            >
+              <span
+                className={
+                  result.engine === 'tmap'
+                    ? 'h-1.5 w-1.5 rounded-full bg-white'
+                    : 'h-1.5 w-1.5 rounded-full bg-ink-300'
+                }
+                aria-hidden="true"
+              />
+              {result.engine === 'tmap' ? '실제 도로 기반 · TMAP' : '격자 근사 경로'}
+            </span>
           </div>
 
           <RouteView result={result} dongRisks={dongRisks} />
 
-          <p className="rounded-lg bg-surface-sunken px-4 py-3 text-[11.5px] leading-relaxed text-ink-500">
-            경로는 실제 도로망이 아니라 대전 전역에 깐 약 550m 격자 위에서 A* 탐색으로
-            계산합니다. 도로를 정확히 따라가지는 않지만 어느 지역을 지나가는지는 정확하며,
-            이 서비스가 비교하려는 것도 그 부분입니다. 실제 도로 경로가 필요해지면 경로
-            생성 부분만 교체하면 노출량 계산은 그대로 동작합니다.
-          </p>
+          <div className="rounded-lg bg-surface-sunken px-4 py-3 text-[11.5px] leading-relaxed text-ink-500">
+            {result.engine === 'tmap' ? (
+              <>
+                경로는 <strong className="font-semibold">TMAP 보행자 경로 API</strong>로 받은
+                실제 도로 폴리라인입니다. 그 위를 100m 간격으로 샘플링해 어느 행정동을
+                지나는지 판정하고, 구간마다 위험도와 풍향 보정을 적용해 노출량을
+                계산합니다. 대안 경로는 TMAP이 직접 주지 않아, 경유지를 다르게 준 후보를
+                따로 받아 비교합니다.
+                {mode === 'car' && (
+                  <>
+                    {' '}
+                    자동차 모드는 보행자 경로를 기준으로 이동 시간만 환산한 값이라 실제 차량
+                    경로와 다를 수 있습니다.
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                경로는 실제 도로망이 아니라 대전 전역에 깐 약 550m 격자 위에서 A* 탐색으로
+                계산한 <strong className="font-semibold">근사 경로</strong>입니다. 도로를
+                정확히 따라가지는 않지만 어느 지역을 지나가는지는 정확하며, 이 서비스가
+                비교하려는 것도 그 부분입니다. TMAP 앱키를 넣으면 같은 화면이 실제 도로
+                기반으로 전환됩니다.
+              </>
+            )}
+          </div>
         </div>
       </Container>
     </>

@@ -1,5 +1,5 @@
 import type { AreaRisk, WindReading } from '@/types';
-import { distanceM, getGrid, type Grid, type GridNode } from '@/lib/routing/grid';
+import { getGrid, type Grid } from '@/lib/routing/grid';
 import { corridorFactor } from '@/lib/risk/corridors';
 
 /**
@@ -97,45 +97,19 @@ function sampleAt(grid: Grid, values: Float32Array, lat: number, lng: number): n
 }
 
 /**
- * 경로의 노출 점수.
+ * 임의 좌표에서 실효 위험도를 읽는 함수를 만든다.
  *
- * 단순 평균이 아니라 **체류 시간 가중 평균**이다.
- * 나쁜 구간을 30초 스쳐 지나가는 것과 10분 머무는 것은 노출량이 다르다.
+ * 격자 경로는 노드마다 index가 있어 배열을 바로 참조하면 되지만,
+ * TMAP이 주는 실제 도로 좌표는 격자 위에 있지 않다.
+ * 가장 가까운 격자 노드 값을 쓴다 — 격자 간격이 약 550m이고
+ * 위험도는 행정동 단위로 매끄럽게 변하는 값이라 이 해상도로 충분하다.
+ *
+ * 반환되는 값에는 풍향 보정과 하천축 보정이 이미 반영돼 있다.
+ * 그래서 경로가 격자에서 왔든 TMAP에서 왔든 **같은 위험도 모델**을 통과한다.
  */
-export function exposureScore(
-  nodes: GridNode[],
-  effective: Float32Array,
-  speedMs: number,
-): { score: number; distanceM: number; durationSec: number } {
-  if (nodes.length < 2) {
-    return { score: 0, distanceM: 0, durationSec: 0 };
-  }
-
-  let weighted = 0;
-  let totalTime = 0;
-  let totalDist = 0;
-
-  for (let i = 0; i < nodes.length - 1; i++) {
-    const a = nodes[i];
-    const b = nodes[i + 1];
-    const d = distanceM(a, b);
-    const t = d / speedMs;
-
-    // 구간 위험도는 양 끝 노드의 평균
-    const risk = (effective[a.index] + effective[b.index]) / 2;
-
-    weighted += risk * t;
-    totalTime += t;
-    totalDist += d;
-  }
-
-  return {
-    score: totalTime === 0 ? 0 : round1(weighted / totalTime),
-    distanceM: Math.round(totalDist),
-    durationSec: Math.round(totalTime),
-  };
-}
-
-function round1(v: number) {
-  return Math.round(v * 10) / 10;
+export function createRiskSampler(
+  riskMap: NodeRiskMap,
+): (lat: number, lng: number) => number {
+  const grid = getGrid();
+  return (lat, lng) => sampleAt(grid, riskMap.effective, lat, lng);
 }
