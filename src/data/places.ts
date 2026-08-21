@@ -14,7 +14,8 @@ export interface Place {
   aliases?: string[];
   districtId: DistrictId;
   coord: [number, number]; // [위도, 경도]
-  category: '교통' | '학교' | '병원' | '공공' | '상업' | '공원';
+  /** '검색'은 자유 검색으로 들어온 장소 — 미리 정의된 목록에는 없다 */
+  category: '교통' | '학교' | '병원' | '공공' | '상업' | '공원' | '검색';
 }
 
 export const PLACES: Place[] = [
@@ -56,6 +57,16 @@ export const PLACES: Place[] = [
 ];
 
 export const PLACE_BY_ID = Object.fromEntries(PLACES.map((p) => [p.id, p]));
+
+/** 드롭다운 그룹에 쓰는 카테고리 (자유 검색 장소는 제외) */
+export const PRESET_CATEGORIES = [
+  '교통',
+  '학교',
+  '병원',
+  '공공',
+  '상업',
+  '공원',
+] as const;
 
 /** 이름·별칭으로 검색 */
 export function searchPlaces(query: string, limit = 6): Place[] {

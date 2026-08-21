@@ -4,7 +4,7 @@ import { getRiskSnapshot } from '@/lib/api';
 import { parseSeason, getSeasonMeta } from '@/lib/risk/season';
 import { deriveDongRisks } from '@/lib/risk/dong';
 import { planRoutes, TRAVEL_MODES, type TravelMode } from '@/lib/routing';
-import { PLACE_BY_ID } from '@/data/places';
+import { resolvePlace } from '@/lib/places/resolve';
 import { INDICATORS } from '@/config/indicators';
 import { PageHeading } from '@/components/layout/PageHeading';
 import { Container } from '@/components/layout/Container';
@@ -39,8 +39,11 @@ export default async function RoutePage({
 }) {
   const params = await searchParams;
 
-  const origin = PLACE_BY_ID[params.from ?? ''] ?? PLACE_BY_ID[DEFAULT_FROM];
-  const destination = PLACE_BY_ID[params.to ?? ''] ?? PLACE_BY_ID[DEFAULT_TO];
+  const originResolved = resolvePlace(params.from, DEFAULT_FROM);
+  const destinationResolved = resolvePlace(params.to, DEFAULT_TO);
+  const origin = originResolved.place;
+  const destination = destinationResolved.place;
+  const outOfArea = originResolved.outOfArea || destinationResolved.outOfArea;
   const mode: TravelMode =
     params.mode && params.mode in TRAVEL_MODES ? (params.mode as TravelMode) : 'walk';
 
@@ -72,11 +75,25 @@ export default async function RoutePage({
         <div className="flex flex-col gap-5">
           <Suspense fallback={<FormSkeleton />}>
             <RoutePlannerForm
-              originId={origin.id}
-              destinationId={destination.id}
+              origin={{ id: origin.id, name: origin.name }}
+              destination={{ id: destination.id, name: destination.name }}
               mode={mode}
             />
           </Suspense>
+
+          {outOfArea && (
+            <p className="rounded-lg border border-risk-high/30 bg-risk-high/8 px-4 py-3 text-[12.5px] leading-relaxed text-ink-700">
+              선택하신 장소가 대전 경계 밖이라 기본 지점으로 되돌렸습니다. 위험도 데이터가
+              대전 5개 자치구 안에만 있어서, 밖으로 나가면 노출량을 계산할 수 없습니다.
+            </p>
+          )}
+
+          {outOfArea && (
+            <p className="rounded-lg border border-risk-moderate/30 bg-risk-moderate/8 px-4 py-3 text-[12.5px] leading-relaxed text-ink-700">
+              대전 밖 장소가 선택되어 기본 지점으로 되돌렸습니다. 위험도 데이터가 대전
+              5개 자치구 안에만 있어서, 시 경계를 벗어나면 노출량을 계산할 수 없습니다.
+            </p>
+          )}
 
           {/* 결과 요약 — 카드를 보기 전에 결론부터 */}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-brand-200 bg-brand-50/60 px-5 py-4">

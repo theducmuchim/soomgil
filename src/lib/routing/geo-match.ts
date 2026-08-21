@@ -1,4 +1,4 @@
-import type { AreaRisk, RouteSegment } from '@/types';
+import type { AreaRisk, DistrictId, RouteSegment } from '@/types';
 import { DONG_GEOJSON } from '@/data/geo/dong';
 import {
   distanceM,
@@ -38,6 +38,7 @@ export interface AnnotatedPoint extends LatLng {
 interface DongEntry {
   id: string;
   name: string;
+  districtId: DistrictId;
   geometry: (typeof DONG_GEOJSON)['features'][number]['geometry'];
   bbox: Bbox;
 }
@@ -49,6 +50,7 @@ function getDongs(): DongEntry[] {
   dongCache = DONG_GEOJSON.features.map((f) => ({
     id: f.properties.id,
     name: f.properties.name,
+    districtId: f.properties.districtId,
     geometry: f.geometry,
     bbox: geometryBbox(f.geometry),
   }));
@@ -60,6 +62,15 @@ export function findDongAt(lat: number, lng: number): string | null {
   for (const dong of getDongs()) {
     if (!inBbox(dong.bbox, lat, lng)) continue;
     if (pointInGeometry(lng, lat, dong.geometry)) return dong.id;
+  }
+  return null;
+}
+
+/** 좌표가 속한 자치구. 대전 밖이면 null */
+export function findDistrictAt(lat: number, lng: number): DistrictId | null {
+  for (const dong of getDongs()) {
+    if (!inBbox(dong.bbox, lat, lng)) continue;
+    if (pointInGeometry(lng, lat, dong.geometry)) return dong.districtId;
   }
   return null;
 }
