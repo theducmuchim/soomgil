@@ -1,9 +1,20 @@
-import type { AreaRisk, WindReading } from '@/types';
+import type { AreaRisk, IndicatorId, WindReading } from '@/types';
 import { getGrid, type Grid } from '@/lib/routing/grid';
 import { corridorFactor } from '@/lib/risk/corridors';
+import { treeProximityFactor } from '@/lib/risk/tree-proximity';
 
 /**
- * 경로 위험도 계산의 핵심 — 풍향 보정.
+ * 경로 위험도 보정 체인.
+ *
+ *   지역 종합 점수
+ *     → ① 가로수 근접 보정 (소나무·참나무 꽃가루 몫에만, 봄철)
+ *     → ② 하천축 보정 (갑천·유등천·대전천 주변은 확산이 좋아 감소)
+ *     → ③ 풍향 보정 (바람 불어오는 쪽이 더 나쁘면 가산)
+ *
+ * ①은 발생원과의 거리, ②는 확산 조건, ③은 이동해 오는 오염물질을 본다.
+ * 서로 다른 원리라 곱하는 대상도 다르다 — ①은 꽃가루 몫에만, ②③은 전체에 건다.
+ *
+ * ── 아래는 ③ 풍향 보정 ──────────────────────────────────
  *
  * 같은 지역이어도 "바람이 어디에서 불어오는가"에 따라 실제 노출량이 다르다.
  * 고농도 지역의 풍하측(바람이 흘러가는 쪽)은 자기 지역 농도보다 나쁠 수 있고,
@@ -41,16 +52,54 @@ export interface NodeRiskMap {
  * @param areaRisks 행정동 단위 위험도
  * @param wind      대전 전역 대표 바람 (자치구별 차이가 크지 않아 하나로 쓴다)
  */
+/** 소나무·참나무 꽃가루 — 가로수 근접 보정을 받는 지표 */
+const TREE_POLLEN: IndicatorId[] = ['pinePollen', 'oakPollen'];
+
 export function buildNodeRiskMap(areaRisks: AreaRisk[], wind: WindReading): NodeRiskMap {
   const grid = getGrid();
   const riskByArea = new Map(areaRisks.map((a) => [a.areaId, a.score]));
 
+  /*
+   * 지역별 종합 점수 중 소나무·참나무 꽃가루가 차지하는 몫.
+   *
+   * 가로수 보정은 이 몫에만 걸어야 한다. 종합 점수 전체에 곱하면
+   * 미세먼지·오존까지 가로수 옆에서 올라가 버리는데, 대기 중 오염물질 농도는
+   * 가로수 위치와 무관하다. contributions 에 이미 지표별 기여 점수가
+   * 계산돼 있으므로 그대로 떼어내 쓴다.
+   *
+   * 봄이 아니면(꽃가루가 이번 계절 가중치에 없으면) 이 값이 0이라
+   * 보정 자체가 걸리지 않는다. 가을 잡초류에도 걸리지 않는다.
+   */
+  const treePollenPoints = new Map<string, number>();
+  for (const area of areaRisks) {
+    const points = area.breakdown.contributions
+      .filter((c) => TREE_POLLEN.includes(c.id))
+      .reduce((sum, c) => sum + c.points, 0);
+    treePollenPoints.set(area.areaId, points);
+  }
+
   const base = new Float32Array(grid.nodes.length);
   for (const node of grid.nodes) {
     const areaScore = node.dongId ? (riskByArea.get(node.dongId) ?? 0) : 0;
+    if (areaScore === 0) {
+      base[node.index] = 0;
+      continue;
+    }
+
+    /*
+     * 가로수 근접 보정 — 꽃가루 몫에만.
+     * 참나무 가로수길을 따라 걷는 구간은 같은 동이어도 꽃가루 노출이 크고,
+     * 가로수가 전혀 없는 이면도로는 작다.
+     */
+    const pollenPart = node.dongId ? (treePollenPoints.get(node.dongId) ?? 0) : 0;
+    const adjusted =
+      pollenPart > 0
+        ? areaScore - pollenPart + pollenPart * treeProximityFactor(node.lat, node.lng)
+        : areaScore;
+
     // 하천변은 좌우가 트여 확산이 좋고 차도에서 떨어져 있어 같은 동 안에서도 낮다.
     // 행정동 단위 값만으로는 표현되지 않는 차이라 격자 단계에서 입힌다.
-    base[node.index] = areaScore * corridorFactor(node.lat, node.lng);
+    base[node.index] = Math.min(adjusted * corridorFactor(node.lat, node.lng), 100);
   }
 
   // 풍속 계수 0~1
