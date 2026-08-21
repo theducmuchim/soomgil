@@ -121,7 +121,7 @@ function RouteOptionCard({
                 : 'bg-surface-sunken text-ink-400',
             )}
           >
-            최단 대비 {formatDelta(option.exposureDeltaPct, 1)}
+            추천 대비 {formatDelta(option.exposureDeltaPct, 1)}
           </span>
         )}
       </div>

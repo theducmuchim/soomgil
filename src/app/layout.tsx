@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { SITE } from '@/config/site';
+import { Suspense } from 'react';
 import { Header } from '@/components/layout/Header';
+import { SeasonToggle } from '@/components/season/SeasonToggle';
+import { ALLOW_SEASON_OVERRIDE } from '@/lib/env';
+import { resolveSeason } from '@/lib/risk/season';
 import { Footer } from '@/components/layout/Footer';
 import './globals.css';
 
@@ -53,6 +57,16 @@ export default function RootLayout({
           본문 바로가기
         </a>
         <Header />
+        {/*
+          계절 보기 전환.
+          실데이터 모드에서는 오늘 날짜의 계절만 받을 수 있으므로 노출하지 않는다.
+          (useSearchParams를 쓰는 클라이언트 컴포넌트라 Suspense가 필요하다)
+        */}
+        {ALLOW_SEASON_OVERRIDE && (
+          <Suspense fallback={null}>
+            <SeasonToggle currentSeason={resolveSeason(new Date())} />
+          </Suspense>
+        )}
         <main id="main" className="flex-1">
           {children}
         </main>

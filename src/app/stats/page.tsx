@@ -7,6 +7,7 @@ import { Container } from '@/components/layout/Container';
 import { DistrictBarChart } from '@/components/chart/DistrictBarChart';
 import { HourlyTrendChart } from '@/components/chart/HourlyTrendChart';
 import { RiskBadge } from '@/components/risk/RiskBadge';
+import { AdSlot } from '@/components/ads/AdSlot';
 import { INDICATORS, RISK_LEVELS } from '@/config/indicators';
 import { kstParts, formatKstLong } from '@/lib/utils/time';
 import { formatDelta } from '@/lib/utils/format';
@@ -108,6 +109,8 @@ export default async function StatsPage({
             </div>
           </section>
         </div>
+
+        <AdSlot season={snapshot.season} variant="inline" bare className="mt-5" />
 
         {/* 안전한 시간대 추천 */}
         <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50/60 p-5 sm:p-6">

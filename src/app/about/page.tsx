@@ -184,7 +184,7 @@ export default function AboutPage() {
           {SITE.name} · {FOOTER.team.note} · 문의{' '}
           <a
             href={`mailto:${FOOTER.team.contact}`}
-            className="underline underline-offset-2 hover:text-brand-600"
+            className="-my-1 inline-block py-1.5 underline underline-offset-2 hover:text-brand-600"
           >
             {FOOTER.team.contact}
           </a>

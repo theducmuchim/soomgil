@@ -198,8 +198,13 @@ body {
  * 화면 폭 기준으로 잡는다.
  */
 @media (max-width: 767px) {
-  .leaflet-touch .leaflet-bar a,
-  .leaflet-control-zoom a {
+  /*
+   * 선택자를 길게 쓰는 이유:
+   * Leaflet CSS는 지도 컴포넌트 안에서 import되어 이 파일보다 나중에 주입된다.
+   * 같은 특이도로는 Leaflet의 `.leaflet-touch .leaflet-bar a`(30px)에 밀린다.
+   */
+  .leaflet-container .leaflet-control-zoom a.leaflet-control-zoom-in,
+  .leaflet-container .leaflet-control-zoom a.leaflet-control-zoom-out {
     width: 40px;
     height: 40px;
     line-height: 40px;

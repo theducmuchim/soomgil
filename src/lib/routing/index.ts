@@ -18,7 +18,11 @@ import {
   type AnnotatedPoint,
 } from './geo-match';
 import { distanceM, LAT_TO_M, LNG_TO_M, type LatLng } from './geometry';
-import { fetchPedestrianRoute, isTmapConfigured, type TmapRoute } from './tmap';
+import {
+  fetchPedestrianRoute,
+  isTmapConfigured,
+  type TmapSearchOption,
+} from './tmap';
 
 /**
  * 경로 계획.
@@ -115,8 +119,29 @@ const DETOUR_RATIOS = [0.15, 0.3];
 const MIN_DETOUR_M = 350;
 const MAX_DETOUR_M = 2500;
 
-/** TMAP에 보낼 경로 후보 수 (직선 1 + 우회 2) */
-const TMAP_CANDIDATES = 2;
+/** 위험도로 미리 걸러낸 뒤 실제로 호출할 우회 경유지 수 */
+const TMAP_DETOUR_CANDIDATES = 1;
+
+/**
+ * TMAP에 보낼 경로 후보.
+ *
+ * TMAP은 한 번 호출에 경로를 하나만 준다. 그래서 성격이 다른 후보를 따로 받는다.
+ *  - searchOption 을 바꾸면 같은 출발/도착이어도 다른 길이 나온다
+ *  - 경유지(passList)를 주면 그쪽을 지나는 우회로가 나온다
+ *
+ * 앞의 셋은 좌표가 같아 캐시가 잘 듣고, 마지막 하나만 위험도에 따라 달라진다.
+ */
+const TMAP_VARIANTS: {
+  searchOption: TmapSearchOption;
+  useDetour: boolean;
+  isBaseline: boolean;
+}[] = [
+  // 추천 경로 — 사용자가 아무 앱에서나 받게 될 기본 경로이므로 비교 기준선으로 쓴다
+  { searchOption: '0', useDetour: false, isBaseline: true },
+  { searchOption: '10', useDetour: false, isBaseline: false }, // 최단거리
+  { searchOption: '30', useDetour: false, isBaseline: false }, // 최단거리 + 계단 제외
+  { searchOption: '0', useDetour: true, isBaseline: false }, // 위험 지역 우회
+];
 
 async function planWithTmap(ctx: PlanContext, baseTime: string): Promise<RouteResult> {
   const origin: LatLng = { lat: ctx.origin.coord[0], lng: ctx.origin.coord[1] };
@@ -125,38 +150,27 @@ async function planWithTmap(ctx: PlanContext, baseTime: string): Promise<RouteRe
     lng: ctx.destination.coord[1],
   };
 
-  const waypoints = pickDetourWaypoints(origin, destination, ctx.riskAt);
+  const detours = pickDetourWaypoints(origin, destination, ctx.riskAt);
 
-  /*
-   * TMAP 보행자 경로는 대안 경로를 여러 개 주지 않는다.
-   * 그래서 경유지를 조금씩 다르게 준 후보를 따로 받아 비교한다.
-   * 직선(경유지 없음) 경로는 항상 포함한다 — 비교 기준선이기 때문이다.
-   */
-  const requests: { waypoint: LatLng | null; promise: Promise<TmapRoute> }[] = [
-    {
-      waypoint: null,
-      promise: fetchPedestrianRoute({
+  const variants = TMAP_VARIANTS.filter(
+    // 우회 경유지를 못 고른 경우(너무 가까운 구간 등)는 그 후보를 건너뛴다
+    (v) => !v.useDetour || detours.length > 0,
+  );
+
+  const settled = await Promise.allSettled(
+    variants.map((variant) =>
+      fetchPedestrianRoute({
         origin,
         destination,
         originName: ctx.origin.name,
         destinationName: ctx.destination.name,
+        searchOption: variant.searchOption,
+        waypoints: variant.useDetour ? [detours[0]] : undefined,
       }),
-    },
-    ...waypoints.map((waypoint) => ({
-      waypoint,
-      promise: fetchPedestrianRoute({
-        origin,
-        destination,
-        originName: ctx.origin.name,
-        destinationName: ctx.destination.name,
-        waypoints: [waypoint],
-      }),
-    })),
-  ];
+    ),
+  );
 
-  const settled = await Promise.allSettled(requests.map((r) => r.promise));
-
-  // 기준선(직선 경로)이 실패하면 TMAP 자체가 안 되는 상황이라 격자로 넘긴다
+  // 기준 경로가 실패하면 TMAP 자체가 안 되는 상황이라 격자로 넘긴다
   if (settled[0].status === 'rejected') {
     throw settled[0].reason;
   }
@@ -176,7 +190,7 @@ async function planWithTmap(ctx: PlanContext, baseTime: string): Promise<RouteRe
     const stats = exposureOfPath(points, ctx.speedMs);
 
     candidates.push({
-      isBaseline: requests[i].waypoint === null,
+      isBaseline: variants[i].isBaseline,
       points,
       // 도보는 TMAP이 계산한 시간을 쓴다. 횡단보도·계단·경사가 반영돼 있어
       // 거리 ÷ 평균속도보다 정확하다. 다른 수단은 우리 속도 상수로 환산한다.
@@ -237,7 +251,7 @@ function pickDetourWaypoints(
 
   return scored
     .sort((a, b) => a.risk - b.risk)
-    .slice(0, TMAP_CANDIDATES)
+    .slice(0, TMAP_DETOUR_CANDIDATES)
     .map((s) => s.point);
 }
 
@@ -406,12 +420,22 @@ function assemble(
   const safest = alternatives.find(improves);
   if (safest) labelled.push({ candidate: safest, kind: 'safest', label: '가장 안전한 길' });
 
+  /*
+   * 나머지 후보의 라벨은 **실제 측정값**으로 붙인다.
+   *
+   * 어떤 탐색 옵션이 만들었는지로 라벨을 붙이면 화면이 거짓말을 한다.
+   * TMAP의 '최단거리' 옵션 경로가 '추천' 경로보다 실제로 더 빠르게 나오는 일이
+   * 흔한데, 그때 추천 경로에 "최단 시간"이라고 써 붙이면 바로 밑의 소요시간과
+   * 어긋난다. 기준 경로보다 빠른 후보만 "빠른 길"이라고 부른다.
+   */
   for (const alt of alternatives) {
     if (alt === safest) continue;
-    labelled.push({ candidate: alt, kind: 'balanced', label: '균형' });
+    const faster = alt.durationSec < baseline.durationSec;
+    labelled.push({ candidate: alt, kind: 'balanced', label: faster ? '빠른 길' : '균형' });
   }
 
-  labelled.push({ candidate: baseline, kind: 'fastest', label: '최단 시간' });
+  // 기준 경로는 내비게이션 앱이 기본으로 주는 그 경로다. "최단"이 아니라 "추천"이 맞다.
+  labelled.push({ candidate: baseline, kind: 'fastest', label: '추천 경로' });
 
   // 화면에는 안전한 순으로 보여준다
   const order: RouteKind[] = ['safest', 'balanced', 'fastest'];

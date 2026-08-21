@@ -5,6 +5,8 @@ import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection
 import { LiveDashboardSection } from '@/components/home/LiveDashboardSection';
 import { FeatureCards } from '@/components/home/FeatureCards';
 import { NoticePreview } from '@/components/home/NoticePreview';
+import { SeasonProducts } from '@/components/commerce/SeasonProducts';
+import { AdSlot } from '@/components/ads/AdSlot';
 
 /**
  * 홈.
@@ -27,7 +29,14 @@ export default async function Home({
       <HeroSection snapshot={snapshot} />
       <ProblemSolutionSection snapshot={snapshot} />
       <LiveDashboardSection snapshot={snapshot} />
+
+      <AdSlot season={snapshot.season} variant="leaderboard" />
+
+      <SeasonProducts snapshot={snapshot} />
       <FeatureCards />
+
+      <AdSlot season={snapshot.season} variant="inline" />
+
       <NoticePreview />
     </>
   );

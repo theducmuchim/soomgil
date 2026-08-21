@@ -11,6 +11,7 @@ import { Container } from '@/components/layout/Container';
 import { RoutePlannerForm } from '@/components/route/RoutePlannerForm';
 import { RouteView } from '@/components/route/RouteView';
 import { WindArrow } from '@/components/map/WindArrow';
+import { SeasonProducts } from '@/components/commerce/SeasonProducts';
 import { formatDelta } from '@/lib/utils/format';
 
 export const metadata: Metadata = {
@@ -81,7 +82,7 @@ export default async function RoutePage({
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-brand-200 bg-brand-50/60 px-5 py-4">
             {safest && safest.exposureDeltaPct < -0.5 ? (
               <p className="text-[14px] leading-relaxed text-ink-900">
-                <strong className="font-bold">{safest.label}</strong>로 가면 최단 경로보다
+                <strong className="font-bold">{safest.label}</strong>로 가면 추천 경로보다
                 노출량이{' '}
                 <strong className="font-bold text-risk-low">
                   {formatDelta(safest.exposureDeltaPct, 1)}
@@ -90,7 +91,7 @@ export default async function RoutePage({
               </p>
             ) : (
               <p className="text-[14px] leading-relaxed text-ink-900">
-                지금은 경로별 노출량 차이가 크지 않습니다. 최단 경로로 가셔도 됩니다.
+                지금은 경로별 노출량 차이가 크지 않습니다. 추천 경로로 가셔도 됩니다.
               </p>
             )}
 
@@ -125,6 +126,9 @@ export default async function RoutePage({
           </div>
 
           <RouteView result={result} dongRisks={dongRisks} />
+
+          {/* 경로를 확인한 직후가 대비 용품을 챙길 마음이 가장 큰 시점이다 */}
+          <SeasonProducts snapshot={snapshot} bare />
 
           <div className="rounded-lg bg-surface-sunken px-4 py-3 text-[11.5px] leading-relaxed text-ink-500">
             {result.engine === 'tmap' ? (

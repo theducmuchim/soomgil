@@ -61,6 +61,18 @@ export interface TmapRoute {
   totalTimeSec: number;
 }
 
+/**
+ * 탐색 옵션.
+ *  0  = 추천 (기본)
+ *  4  = 큰길 우선
+ *  10 = 최단거리
+ *  30 = 최단거리 + 계단 제외
+ *
+ * TMAP은 한 번 호출에 경로를 하나만 준다. 옵션을 바꿔 여러 번 부르면
+ * 성격이 다른 경로 후보를 얻을 수 있다.
+ */
+export type TmapSearchOption = '0' | '4' | '10' | '30';
+
 export interface TmapRouteRequest {
   origin: LatLng;
   destination: LatLng;
@@ -68,6 +80,7 @@ export interface TmapRouteRequest {
   destinationName: string;
   /** 경유지 (최대 5개). 대안 경로를 만들 때 쓴다 */
   waypoints?: LatLng[];
+  searchOption?: TmapSearchOption;
 }
 
 export class TmapError extends Error {
@@ -94,7 +107,14 @@ export async function fetchPedestrianRoute(
     throw new TmapError('TMAP 앱키가 설정되지 않았습니다 (TMAP_APP_KEY)');
   }
 
-  const { origin, destination, originName, destinationName, waypoints } = request;
+  const {
+    origin,
+    destination,
+    originName,
+    destinationName,
+    waypoints,
+    searchOption = '0',
+  } = request;
 
   const body: Record<string, string | number> = {
     startX: origin.lng,
@@ -106,8 +126,7 @@ export async function fetchPedestrianRoute(
     // TMAP 문서상 지점명은 URL 인코딩된 값을 요구한다
     startName: encodeURIComponent(originName),
     endName: encodeURIComponent(destinationName),
-    // 0 = 추천, 4 = 큰길 우선, 10 = 최단
-    searchOption: '0',
+    searchOption,
   };
 
   if (waypoints && waypoints.length > 0) {

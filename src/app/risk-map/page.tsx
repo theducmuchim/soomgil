@@ -5,6 +5,7 @@ import { deriveDongRisks } from '@/lib/risk/dong';
 import { PageHeading } from '@/components/layout/PageHeading';
 import { Container } from '@/components/layout/Container';
 import { RiskMapView } from '@/components/map/RiskMapView';
+import { AdSlot } from '@/components/ads/AdSlot';
 import { RiskBadge } from '@/components/risk/RiskBadge';
 import { formatDelta } from '@/lib/utils/format';
 
@@ -49,6 +50,7 @@ export default async function RiskMapPage({
 
       <Container size="wide" className="py-7 sm:py-9">
         <RiskMapView snapshot={snapshot} dongRisks={dongRisks} />
+        <AdSlot season={snapshot.season} variant="inline" bare className="mt-6" />
       </Container>
     </>
   );
