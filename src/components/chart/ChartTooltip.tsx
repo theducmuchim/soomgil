@@ -32,21 +32,21 @@ export function ChartTooltip({
 
   return (
     <div className="rounded-lg border border-line bg-surface px-3 py-2 shadow-md">
-      <p className="text-[12.5px] font-bold text-ink-900">
+      <p className="text-[0.78125rem] font-bold text-ink-900">
         {kind === 'district' ? String(d.name) : `${String(d.hour)}시`}
       </p>
 
       <p className="tabular mt-1 flex items-baseline gap-1.5">
-        <span className="text-[17px] font-bold" style={{ color: scoreColor(score) }}>
+        <span className="text-[1.0625rem] font-bold" style={{ color: scoreColor(score) }}>
           {Math.round(score)}
         </span>
-        <span className="text-[11.5px] font-semibold" style={{ color: level.color }}>
+        <span className="text-[0.71875rem] font-semibold" style={{ color: level.color }}>
           {level.label}
         </span>
       </p>
 
       {kind === 'district' && (
-        <p className="mt-1.5 border-t border-line pt-1.5 text-[11px] leading-relaxed text-ink-500">
+        <p className="mt-1.5 border-t border-line pt-1.5 text-[0.6875rem] leading-relaxed text-ink-500">
           주요 요인 {String(d.dominant)}
           <br />
           보정 전 {String(d.baseScore)} · 대기정체{' '}
@@ -55,7 +55,7 @@ export function ChartTooltip({
       )}
 
       {kind === 'hourly' && Boolean(d.isNow) && (
-        <p className="mt-1.5 border-t border-line pt-1.5 text-[11px] text-brand-600">
+        <p className="mt-1.5 border-t border-line pt-1.5 text-[0.6875rem] text-brand-600">
           현재 시각
         </p>
       )}

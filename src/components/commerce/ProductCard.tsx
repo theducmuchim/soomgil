@@ -41,21 +41,21 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="flex items-start justify-between gap-2">
         <span
           className={cn(
-            'rounded px-1.5 py-0.5 text-[11px] font-semibold',
+            'rounded px-1.5 py-0.5 text-[0.6875rem] font-semibold',
             CATEGORY_TONE[product.category],
           )}
         >
           {product.category}
         </span>
-        <span className="text-[11px] font-medium text-ink-400">
+        <span className="text-[0.6875rem] font-medium text-ink-400">
           {indicator.shortLabel}
         </span>
       </div>
 
-      <h3 className="mt-2.5 text-[14.5px] leading-snug font-bold text-ink-900">
+      <h3 className="mt-2.5 text-[0.90625rem] leading-snug font-bold text-ink-900">
         {product.name}
       </h3>
-      <p className="mt-1.5 flex-1 text-[12.5px] leading-relaxed text-ink-500">
+      <p className="mt-1.5 flex-1 text-[0.78125rem] leading-relaxed text-ink-500">
         {product.reason}
       </p>
 
@@ -65,10 +65,10 @@ export function ProductCard({ product }: { product: Product }) {
         카드마다 버튼 높이가 어긋나 목록이 들쭉날쭉해 보인다.
       */}
       <div className="mt-3">
-        <p className="text-[11.5px] text-ink-400">{product.priceHint}</p>
+        <p className="text-[0.71875rem] text-ink-400">{product.priceHint}</p>
 
         {product.requiresPharmacy && (
-          <p className="mt-1 text-[10.5px] leading-snug text-ink-400">
+          <p className="mt-1 text-[0.65625rem] leading-snug text-ink-400">
             일반의약품은 약국에서 약사와 상담 후 구매하세요.
           </p>
         )}
@@ -78,7 +78,7 @@ export function ProductCard({ product }: { product: Product }) {
           target="_blank"
           rel="noreferrer noopener sponsored"
           className={cn(
-            'mt-3 flex h-10 items-center justify-center gap-1.5 rounded-lg text-[13px] font-semibold transition-colors',
+            'mt-3 flex h-10 items-center justify-center gap-1.5 rounded-lg text-[0.8125rem] font-semibold transition-colors',
             product.requiresPharmacy
               ? 'border border-line-strong text-ink-700 hover:bg-surface-sunken'
               : 'bg-brand-600 text-white hover:bg-brand-700',

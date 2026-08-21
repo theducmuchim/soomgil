@@ -32,8 +32,8 @@ export function AreaDetailPanel({
     <div className={cn('rounded-2xl border border-line bg-surface p-5', className)}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-[17px] font-bold text-ink-900">{area.areaName}</h3>
-          <p className="mt-1 text-[11.5px] text-ink-400">
+          <h3 className="text-[1.0625rem] font-bold text-ink-900">{area.areaName}</h3>
+          <p className="mt-1 text-[0.71875rem] text-ink-400">
             주요 요인 {INDICATORS[area.dominantIndicator].shortLabel}
             {estimated && ' · 추정치'}
           </p>
@@ -43,18 +43,18 @@ export function AreaDetailPanel({
 
       <div className="mt-4 flex items-end gap-2">
         <span
-          className="tabular text-[38px] leading-none font-bold tracking-tight"
+          className="tabular text-[2.375rem] leading-none font-bold tracking-tight"
           style={{ color }}
         >
           {Math.round(area.score)}
         </span>
-        <span className="pb-1 text-[12.5px] text-ink-400">/ 100</span>
+        <span className="pb-1 text-[0.78125rem] text-ink-400">/ 100</span>
       </div>
 
       {/* 보정 전 → 보정계수 → 보정 후 */}
       <div className="mt-4 rounded-xl bg-surface-sunken p-3.5">
-        <p className="text-[11.5px] font-semibold text-ink-700">점수 계산</p>
-        <div className="tabular mt-2.5 flex items-center gap-2 text-[12.5px]">
+        <p className="text-[0.71875rem] font-semibold text-ink-700">점수 계산</p>
+        <div className="tabular mt-2.5 flex items-center gap-2 text-[0.78125rem]">
           <span className="rounded-md bg-surface px-2 py-1 font-semibold text-ink-900">
             {b.baseScore}
           </span>
@@ -74,7 +74,7 @@ export function AreaDetailPanel({
             {b.score}
           </span>
         </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-ink-400">
+        <p className="mt-2 text-[0.6875rem] leading-relaxed text-ink-400">
           지표 가중합 {b.baseScore}점에 대기정체 보정
           {stagnation ? ` (지수 ${Math.round(stagnation.value)})` : ''}을 적용해{' '}
           <span className="font-semibold text-risk-high">
@@ -87,14 +87,14 @@ export function AreaDetailPanel({
       {/* 지표별 기여도 */}
       {b.contributions.length > 0 && (
         <div className="mt-4">
-          <p className="text-[11.5px] font-semibold text-ink-700">지표별 기여도</p>
+          <p className="text-[0.71875rem] font-semibold text-ink-700">지표별 기여도</p>
           <ul className="mt-2.5 space-y-2.5">
             {b.contributions.map((c) => {
               const meta = INDICATORS[c.id];
               const reading = area.readings.find((r) => r.id === c.id);
               return (
                 <li key={c.id}>
-                  <div className="flex items-baseline justify-between gap-2 text-[12px]">
+                  <div className="flex items-baseline justify-between gap-2 text-[0.75rem]">
                     <span className="font-medium text-ink-700">
                       {meta.shortLabel}
                       <span className="ml-1.5 text-ink-300">
@@ -136,10 +136,10 @@ export function AreaDetailPanel({
       <div className="mt-4 flex items-center gap-3 border-t border-line pt-4">
         <WindArrow degree={area.wind.degree} className="h-9 w-9 shrink-0" />
         <div>
-          <p className="text-[12.5px] font-semibold text-ink-900">
+          <p className="text-[0.78125rem] font-semibold text-ink-900">
             {area.wind.label}풍 {area.wind.speed}m/s
           </p>
-          <p className="mt-0.5 text-[11px] text-ink-400">
+          <p className="mt-0.5 text-[0.6875rem] text-ink-400">
             {area.wind.speed < 2
               ? '바람이 약해 오염물질이 잘 흩어지지 않습니다.'
               : '이 방향의 풍하측 지역으로 오염물질이 밀려갑니다.'}

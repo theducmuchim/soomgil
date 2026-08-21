@@ -57,10 +57,10 @@ export default function AboutPage() {
       <Container className="py-8 sm:py-10">
         {/* 문제의식 */}
         <section className="max-w-3xl">
-          <h2 className="text-[19px] font-bold tracking-tight text-ink-900">
+          <h2 className="text-[1.1875rem] font-bold tracking-tight text-ink-900">
             왜 이 문제를 골랐나
           </h2>
-          <div className="mt-3 space-y-3.5 text-[14.5px] leading-relaxed text-ink-700">
+          <div className="mt-3 space-y-3.5 text-[0.90625rem] leading-relaxed text-ink-700">
             <p>
               대전은 사방이 산으로 둘러싸인 분지입니다. 바람이 잘 빠져나가지 않아 공기가
               한번 나빠지면 오래 갑니다. 그런데 그 정체된 공기 속에 쌓이는 물질은 계절마다
@@ -84,7 +84,7 @@ export default function AboutPage() {
 
         {/* 기술 구성 */}
         <section className="mt-12">
-          <h2 className="text-[19px] font-bold tracking-tight text-ink-900">
+          <h2 className="text-[1.1875rem] font-bold tracking-tight text-ink-900">
             공공데이터에서 경로 추천까지
           </h2>
           <ol className="mt-5 space-y-3">
@@ -93,15 +93,15 @@ export default function AboutPage() {
                 key={item.step}
                 className="flex gap-4 rounded-xl border border-line bg-surface p-4 sm:p-5"
               >
-                <span className="tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-[12px] font-bold text-white">
+                <span className="tabular flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-[0.75rem] font-bold text-white">
                   {i + 1}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[14.5px] font-bold text-ink-900">{item.step}</p>
-                  <p className="mt-1 text-[13.5px] leading-relaxed text-ink-700">
+                  <p className="text-[0.90625rem] font-bold text-ink-900">{item.step}</p>
+                  <p className="mt-1 text-[0.84375rem] leading-relaxed text-ink-700">
                     {item.detail}
                   </p>
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-400">
+                  <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-400">
                     {item.note}
                   </p>
                 </div>
@@ -112,7 +112,7 @@ export default function AboutPage() {
 
         {/* 팀 */}
         <section className="mt-12">
-          <h2 className="text-[19px] font-bold tracking-tight text-ink-900">팀 구성</h2>
+          <h2 className="text-[1.1875rem] font-bold tracking-tight text-ink-900">팀 구성</h2>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {ROLES.map((member) => (
               <li
@@ -135,23 +135,23 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[14px] font-semibold text-ink-900">{member.role}</p>
-                  <p className="mt-0.5 text-[12.5px] leading-snug text-ink-500">
+                  <p className="text-[0.875rem] font-semibold text-ink-900">{member.role}</p>
+                  <p className="mt-0.5 text-[0.78125rem] leading-snug text-ink-500">
                     {member.desc}
                   </p>
                 </div>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[12px] text-ink-400">
+          <p className="mt-3 text-[0.75rem] text-ink-400">
             팀원 사진과 이름은 준비되는 대로 넣을 예정입니다.
           </p>
         </section>
 
         {/* 앞으로 */}
         <section className="mt-12 rounded-2xl border border-brand-200 bg-brand-50/60 p-5 sm:p-7">
-          <h2 className="text-[17px] font-bold text-brand-700">앞으로의 계획</h2>
-          <ul className="mt-4 space-y-2.5 text-[13.5px] leading-relaxed text-ink-700">
+          <h2 className="text-[1.0625rem] font-bold text-brand-700">앞으로의 계획</h2>
+          <ul className="mt-4 space-y-2.5 text-[0.84375rem] leading-relaxed text-ink-700">
             <li>
               · 공공데이터포털 인증키를 발급받아 실시간 데이터로 전환합니다. 화면은 그대로
               두고 환경변수 두 줄만 바꾸면 되도록 만들어 두었습니다.
@@ -180,7 +180,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <p className="mt-8 text-[12.5px] text-ink-400">
+        <p className="mt-8 text-[0.78125rem] text-ink-400">
           {SITE.name} · {FOOTER.team.note} · 문의{' '}
           <a
             href={`mailto:${FOOTER.team.contact}`}

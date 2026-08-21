@@ -19,6 +19,7 @@ const SECTIONS = [
   { id: 'score', label: '점수 계산 방식' },
   { id: 'season', label: '계절별 지표 전환' },
   { id: 'sources', label: '데이터 출처와 갱신 주기' },
+  { id: 'accessibility', label: '접근성' },
   { id: 'limits', label: '추정값과 한계' },
   { id: 'terms', label: '이용약관' },
   { id: 'privacy', label: '개인정보처리방침' },
@@ -51,13 +52,13 @@ export default function GuidePage() {
         <div className="grid gap-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
           {/* 목차 */}
           <nav aria-label="이 페이지 목차" className="lg:sticky lg:top-24 lg:self-start">
-            <p className="text-[12px] font-semibold text-ink-400">목차</p>
+            <p className="text-[0.75rem] font-semibold text-ink-400">목차</p>
             <ul className="mt-3 space-y-1.5">
               {SECTIONS.map((section) => (
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
-                    className="block rounded-md py-2 text-[13px] text-ink-500 transition-colors hover:text-brand-600"
+                    className="block rounded-md py-2 text-[0.8125rem] text-ink-500 transition-colors hover:text-brand-600"
                   >
                     {section.label}
                   </a>
@@ -74,7 +75,7 @@ export default function GuidePage() {
                 위험도는 0~100점으로 계산되고, 아래 구간에 따라 등급이 매겨집니다.
               </p>
               <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[420px] text-[13px]">
+                <table className="w-full min-w-[420px] text-[0.8125rem]">
                   <thead>
                     <tr className="border-b border-line text-left text-ink-400">
                       <th className="py-2 pr-4 font-medium">등급</th>
@@ -113,7 +114,7 @@ export default function GuidePage() {
                   </tbody>
                 </table>
               </div>
-              <p className="mt-3 text-[12.5px] text-ink-400">
+              <p className="mt-3 text-[0.78125rem] text-ink-400">
                 민감군: 어린이, 노인, 호흡기·심혈관 질환자, 임산부, 알레르기성 비염
                 환자
               </p>
@@ -142,19 +143,19 @@ export default function GuidePage() {
                   ],
                 ].map(([title, body], i) => (
                   <li key={title} className="flex gap-3.5">
-                    <span className="tabular mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-50 text-[12px] font-bold text-brand-700">
+                    <span className="tabular mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-50 text-[0.75rem] font-bold text-brand-700">
                       {i + 1}
                     </span>
                     <div>
-                      <p className="text-[14px] font-semibold text-ink-900">{title}</p>
-                      <p className="mt-1 text-[13.5px] leading-relaxed text-ink-500">
+                      <p className="text-[0.875rem] font-semibold text-ink-900">{title}</p>
+                      <p className="mt-1 text-[0.84375rem] leading-relaxed text-ink-500">
                         {body}
                       </p>
                     </div>
                   </li>
                 ))}
               </ol>
-              <p className="mt-4 rounded-lg bg-surface-sunken px-4 py-3 text-[13px] leading-relaxed text-ink-500">
+              <p className="mt-4 rounded-lg bg-surface-sunken px-4 py-3 text-[0.8125rem] leading-relaxed text-ink-500">
                 경로 안내에서는 여기에 <strong className="font-semibold">풍향 보정</strong>이
                 더해집니다. 바람이 불어오는 쪽에 더 나쁜 지역이 있으면 그 차이의 일부를
                 가산합니다. 노출 점수는 단순 평균이 아니라 구간별 체류 시간으로 가중
@@ -176,9 +177,9 @@ export default function GuidePage() {
                       key={seasonId}
                       className="rounded-xl border border-line bg-surface p-4"
                     >
-                      <p className="text-[13.5px] font-bold text-ink-900">
+                      <p className="text-[0.84375rem] font-bold text-ink-900">
                         {season.label}{' '}
-                        <span className="text-[11.5px] font-medium text-ink-400">
+                        <span className="text-[0.71875rem] font-medium text-ink-400">
                           {season.months.join('·')}월
                         </span>
                       </p>
@@ -187,7 +188,7 @@ export default function GuidePage() {
                           ([id, weight]) => (
                             <li
                               key={id}
-                              className="flex items-baseline justify-between gap-2 text-[12.5px]"
+                              className="flex items-baseline justify-between gap-2 text-[0.78125rem]"
                             >
                               <span className="text-ink-700">
                                 {INDICATORS[id].shortLabel}
@@ -203,7 +204,7 @@ export default function GuidePage() {
                   );
                 })}
               </div>
-              <p className="mt-3 text-[12.5px] leading-relaxed text-ink-400">
+              <p className="mt-3 text-[0.78125rem] leading-relaxed text-ink-400">
                 6월은 여름 지표(폭염·오존)를 쓰지만, 꽃가루농도위험지수 서비스 기간이
                 3월~6월이라 소나무·참나무 꽃가루도 함께 표시합니다. 이때 꽃가루는 참고용
                 표시일 뿐 종합 점수에는 반영되지 않습니다. 계절이 넘어가는 시점에 점수가
@@ -214,7 +215,7 @@ export default function GuidePage() {
             {/* 데이터 출처 */}
             <Section id="sources" title="데이터 출처와 갱신 주기">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[520px] text-[13px]">
+                <table className="w-full min-w-[520px] text-[0.8125rem]">
                   <thead>
                     <tr className="border-b border-line text-left text-ink-400">
                       <th className="py-2 pr-4 font-medium">지표</th>
@@ -245,11 +246,35 @@ export default function GuidePage() {
                 </table>
               </div>
 
-              <p className="mt-4 text-[13.5px] leading-relaxed text-ink-500">
+              <p className="mt-4 text-[0.84375rem] leading-relaxed text-ink-500">
                 갱신 주기는 원본 데이터의 발표 주기에 맞춥니다. 꽃가루·대기정체지수는
                 하루 4회(06·12·18·24시) 발표되므로 3시간, 단기예보는 3시간 간격
                 발표이므로 1시간, 기상특보는 발효·해제가 빨라 10분, 에어코리아 실시간
                 측정은 20분 주기로 다시 받아옵니다.
+              </p>
+            </Section>
+
+            {/* 접근성 */}
+            <Section id="accessibility" title="접근성">
+              <p>
+                화면 오른쪽 위(좁은 화면에서는 전체 메뉴 맨 위)의{' '}
+                <strong className="font-semibold">가 / 가 / 가</strong> 버튼으로 글자
+                크기를 기본·크게·아주 크게 세 단계로 바꿀 수 있습니다. 글자만 커지는
+                것이 아니라 버튼과 누를 수 있는 영역도 함께 커집니다.
+              </p>
+              <p className="mt-4">
+                이 기능에는{' '}
+                <strong className="font-semibold">요금제 제한을 두지 않았습니다.</strong>{' '}
+                대기질 정보가 가장 필요한 분들은 호흡기가 약한 고령층인데, 그 정보를
+                읽을 수 있게 하는 장치를 유료로 두면 정작 가장 필요한 분이 쓰지 못하게
+                됩니다. 공공안전 성격의 서비스에서 글자 크기는 기능이 아니라 접근
+                조건이라고 보았습니다.
+              </p>
+              <p className="mt-4 text-[0.84375rem] leading-relaxed text-ink-500">
+                선택한 크기는 이 브라우저에만 저장되며 서버로 전송되지 않습니다.
+                브라우저 자체의 글자 크기 설정을 이미 키워 두셨다면 그 위에 배율이
+                더해집니다. 키보드만으로도 모든 기능을 쓸 수 있고, 화면 낭독기를 위한
+                대체 텍스트와 건너뛰기 링크를 넣어 두었습니다.
               </p>
             </Section>
 
@@ -263,10 +288,10 @@ export default function GuidePage() {
 
               <ul className="mt-4 space-y-4">
                 <li className="rounded-xl border border-line bg-surface p-4">
-                  <p className="text-[14px] font-semibold text-ink-900">
+                  <p className="text-[0.875rem] font-semibold text-ink-900">
                     체감온도는 자체 산출값입니다
                   </p>
-                  <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-500">
+                  <p className="mt-1.5 text-[0.84375rem] leading-relaxed text-ink-500">
                     기상청 생활기상지수의 체감온도(대상·환경별) 세부 지수는 2026년 5월
                     1일자로 서비스가 종료됐습니다. 그리고 기상청 단기예보에는 체감온도
                     항목이 없고 기온·상대습도·풍속까지만 제공됩니다. 그래서 숨쉬는길은
@@ -280,10 +305,10 @@ export default function GuidePage() {
                 </li>
 
                 <li className="rounded-xl border border-line bg-surface p-4">
-                  <p className="text-[14px] font-semibold text-ink-900">
+                  <p className="text-[0.875rem] font-semibold text-ink-900">
                     행정동 단위 값은 자치구 값에서 추정합니다
                   </p>
-                  <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-500">
+                  <p className="mt-1.5 text-[0.84375rem] leading-relaxed text-ink-500">
                     대기질 관측은 에어코리아 도시대기 측정소 단위(대전 10곳), 기상
                     예보는 약 5km 격자 단위입니다. 행정동 78곳을 각각 관측한 데이터는
                     존재하지 않습니다. 그래서 자치구 관측값을 기준으로, 도심에 가까울수록
@@ -293,10 +318,10 @@ export default function GuidePage() {
                 </li>
 
                 <li className="rounded-xl border border-line bg-surface p-4">
-                  <p className="text-[14px] font-semibold text-ink-900">
+                  <p className="text-[0.875rem] font-semibold text-ink-900">
                     경로 엔진은 두 가지이고, 화면에 어느 쪽인지 표시합니다
                   </p>
-                  <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-500">
+                  <p className="mt-1.5 text-[0.84375rem] leading-relaxed text-ink-500">
                     TMAP 앱키가 연결돼 있으면 <strong className="font-semibold">TMAP
                     보행자 경로 API</strong>로 실제 도로를 따라가는 경로를 받아옵니다. 그
                     경로 위를 100m 간격으로 샘플링해 어느 행정동을 지나는지 판정하고,
@@ -304,21 +329,21 @@ export default function GuidePage() {
                     주지 않아, 경유지를 다르게 준 후보를 따로 받아 그중 노출이 가장 적은
                     것을 안전 경로로 제시합니다.
                   </p>
-                  <p className="mt-2 text-[13.5px] leading-relaxed text-ink-500">
+                  <p className="mt-2 text-[0.84375rem] leading-relaxed text-ink-500">
                     앱키가 없거나 호출이 실패하면 대전 전역에 깐 약 550m 격자 위에서 A*
                     탐색으로 만든 <strong className="font-semibold">근사 경로</strong>로
                     자동 전환됩니다. 도로를 정확히 따라가지는 않지만 어느 지역을
                     지나가는지는 정확합니다. 경로 안내 화면 상단에 지금 어느 엔진으로
                     계산된 경로인지 항상 표시합니다.
                   </p>
-                  <p className="mt-2 text-[13.5px] leading-relaxed text-ink-500">
+                  <p className="mt-2 text-[0.84375rem] leading-relaxed text-ink-500">
                     하천변 보정(갑천·유등천·대전천 주변은 확산이 좋아 농도가 낮음)은 실제
                     물길을 단순화한 근사치를 씁니다.
                   </p>
                 </li>
               </ul>
 
-              <p className="mt-4 rounded-lg bg-surface-sunken px-4 py-3 text-[13px] leading-relaxed text-ink-500">
+              <p className="mt-4 rounded-lg bg-surface-sunken px-4 py-3 text-[0.8125rem] leading-relaxed text-ink-500">
                 {FOOTER.disclaimer}
               </p>
             </Section>
@@ -329,7 +354,7 @@ export default function GuidePage() {
                 숨쉬는길은 고등학생 팀이 만든 공모전 출품용 프로토타입입니다. 영리 목적의
                 서비스가 아니며, 제공되는 정보는 참고용입니다.
               </p>
-              <ul className="mt-3 space-y-2 text-[13.5px] leading-relaxed text-ink-500">
+              <ul className="mt-3 space-y-2 text-[0.84375rem] leading-relaxed text-ink-500">
                 <li>
                   · 본 서비스의 정보를 근거로 한 판단과 그 결과에 대해 운영팀은 법적
                   책임을 지지 않습니다.
@@ -354,7 +379,7 @@ export default function GuidePage() {
                 숨쉬는길은 <strong className="font-semibold">개인정보를 서버에 저장하지
                 않습니다.</strong>
               </p>
-              <ul className="mt-3 space-y-2 text-[13.5px] leading-relaxed text-ink-500">
+              <ul className="mt-3 space-y-2 text-[0.84375rem] leading-relaxed text-ink-500">
                 <li>
                   · 회원가입 없이 모든 기능을 쓸 수 있습니다. 로그인 화면은 시연용이며
                   실제 인증 서버에 연결되어 있지 않습니다.
@@ -395,8 +420,8 @@ function Section({
 }) {
   return (
     <section id={id} className="border-t border-line pt-8 pb-2 first:border-t-0 first:pt-0">
-      <h2 className="text-[19px] font-bold tracking-tight text-ink-900">{title}</h2>
-      <div className="mt-3 text-[14px] leading-relaxed text-ink-700 [&>p]:text-[14px] [&>p]:leading-relaxed">
+      <h2 className="text-[1.1875rem] font-bold tracking-tight text-ink-900">{title}</h2>
+      <div className="mt-3 text-[0.875rem] leading-relaxed text-ink-700 [&>p]:text-[0.875rem] [&>p]:leading-relaxed">
         {children}
       </div>
     </section>

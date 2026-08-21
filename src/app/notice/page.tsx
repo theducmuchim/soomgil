@@ -35,28 +35,28 @@ export default function NoticePage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        'rounded px-1.5 py-0.5 text-[11px] font-semibold',
+                        'rounded px-1.5 py-0.5 text-[0.6875rem] font-semibold',
                         category.tone,
                       )}
                     >
                       {category.label}
                     </span>
                     {notice.pinned && (
-                      <span className="rounded bg-ink-900 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                      <span className="rounded bg-ink-900 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
                         고정
                       </span>
                     )}
                     <time
                       dateTime={notice.publishedAt}
-                      className="tabular text-[11.5px] text-ink-400"
+                      className="tabular text-[0.71875rem] text-ink-400"
                     >
                       {formatDate(notice.publishedAt)}
                     </time>
                   </div>
-                  <p className="mt-2 text-[15.5px] leading-snug font-semibold text-ink-900">
+                  <p className="mt-2 text-[0.96875rem] leading-snug font-semibold text-ink-900">
                     {notice.title}
                   </p>
-                  <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-500">
+                  <p className="mt-1.5 text-[0.84375rem] leading-relaxed text-ink-500">
                     {notice.summary}
                   </p>
                 </Link>
@@ -65,7 +65,7 @@ export default function NoticePage() {
           })}
         </ul>
 
-        <p className="mt-6 text-[12px] text-ink-400">전체 {notices.length}건</p>
+        <p className="mt-6 text-[0.75rem] text-ink-400">전체 {notices.length}건</p>
       </Container>
     </>
   );

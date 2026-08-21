@@ -53,7 +53,7 @@ export function DistrictBarChart({ districts }: { districts: AreaRisk[] }) {
               axisLine={false}
               tickLine={false}
               width={54}
-              tick={{ fill: 'var(--color-ink-500)', fontSize: 12.5, fontWeight: 500 }}
+              tick={{ fill: 'var(--color-ink-500)', fontSize: '0.78125rem', fontWeight: 500 }}
             />
             <Tooltip
               cursor={{ fill: 'var(--color-surface-sunken)' }}
@@ -65,7 +65,7 @@ export function DistrictBarChart({ districts }: { districts: AreaRisk[] }) {
               background={{ fill: 'var(--color-line)', radius: 4 }}
               label={{
                 position: 'right',
-                fontSize: 12.5,
+                fontSize: '0.78125rem',
                 fontWeight: 700,
                 fill: 'var(--color-ink-700)',
                 formatter: (v: unknown) => String(Math.round(Number(v))),
@@ -82,11 +82,11 @@ export function DistrictBarChart({ districts }: { districts: AreaRisk[] }) {
 
       {/* 표 — 그래프를 못 읽는 환경에서도 같은 값에 닿게 한다 */}
       <details className="mt-3 border-t border-line pt-3">
-        <summary className="cursor-pointer text-[12px] font-medium text-ink-500 hover:text-ink-900">
+        <summary className="cursor-pointer text-[0.75rem] font-medium text-ink-500 hover:text-ink-900">
           표로 보기
         </summary>
         <div className="mt-2.5 overflow-x-auto">
-          <table className="w-full min-w-[380px] text-[12.5px]">
+          <table className="w-full min-w-[380px] text-[0.78125rem]">
             <thead>
               <tr className="border-b border-line text-left text-ink-400">
                 <th className="py-1.5 pr-3 font-medium">자치구</th>

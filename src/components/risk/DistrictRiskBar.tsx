@@ -32,12 +32,12 @@ export function DistrictRiskBar({
   const inner = (
     <>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[14px] font-semibold text-ink-900">{area.areaName}</span>
+        <span className="text-[0.875rem] font-semibold text-ink-900">{area.areaName}</span>
         <span className="flex items-baseline gap-1.5">
-          <span className="tabular text-[17px] font-bold" style={{ color }}>
+          <span className="tabular text-[1.0625rem] font-bold" style={{ color }}>
             {Math.round(area.score)}
           </span>
-          <span className="text-[11.5px] font-medium text-ink-400">{levelLabel}</span>
+          <span className="text-[0.71875rem] font-medium text-ink-400">{levelLabel}</span>
         </span>
       </div>
 
@@ -53,7 +53,7 @@ export function DistrictRiskBar({
       </div>
 
       {showBreakdown && (
-        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-ink-400">
+        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.71875rem] text-ink-400">
           <span>주요 요인 {dominant.shortLabel}</span>
           <span aria-hidden="true">·</span>
           <span>

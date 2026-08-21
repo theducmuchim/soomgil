@@ -44,6 +44,14 @@ export function formatKstLong(iso: string): string {
   return `${year}년 ${month}월 ${day}일 (${w}) ${ampm} ${h12}시`;
 }
 
+/** '8월 22일 오전 9시' — 기준 시각 표시용 (연도는 생략) */
+export function formatKstStamp(iso: string): string {
+  const { month, day, hour } = kstParts(new Date(iso));
+  const ampm = hour < 12 ? '오전' : '오후';
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${month}월 ${day}일 ${ampm} ${h12}시`;
+}
+
 /** '15:00' */
 export function formatKstTime(iso: string): string {
   const { hour, minute } = kstParts(new Date(iso));

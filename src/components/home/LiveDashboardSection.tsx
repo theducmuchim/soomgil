@@ -36,13 +36,13 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
       <Container>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
-            <p className="text-[12.5px] font-semibold tracking-wide text-brand-600">
+            <p className="text-[0.78125rem] font-semibold tracking-wide text-brand-600">
               실시간 현황
             </p>
-            <h2 className="mt-2 text-[26px] leading-tight font-bold tracking-tight text-ink-900 sm:text-[32px]">
+            <h2 className="mt-2 text-[1.625rem] leading-tight font-bold tracking-tight text-ink-900 sm:text-[2rem]">
               지금 대전, 어디가 위험한가
             </h2>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-ink-500">
+            <p className="mt-3 text-[0.90625rem] leading-relaxed text-ink-500">
               {season.headline} 자치구별 종합 위험도와 이번 계절 핵심 지표를 함께
               확인하세요.
             </p>
@@ -56,8 +56,8 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
           {/* 자치구 순위 */}
           <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="text-[14px] font-bold text-ink-900">자치구별 위험도</h3>
-              <span className="text-[11.5px] text-ink-400">위험한 순</span>
+              <h3 className="text-[0.875rem] font-bold text-ink-900">자치구별 위험도</h3>
+              <span className="text-[0.71875rem] text-ink-400">위험한 순</span>
             </div>
 
             <ol className="mt-3 divide-y divide-line">
@@ -73,7 +73,7 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
               {(['low', 'moderate', 'high', 'veryHigh'] as const).map((level) => (
                 <span
                   key={level}
-                  className="inline-flex items-center gap-1.5 text-[11px] text-ink-400"
+                  className="inline-flex items-center gap-1.5 text-[0.6875rem] text-ink-400"
                 >
                   <span
                     className="h-2 w-2 rounded-full"
@@ -89,10 +89,10 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
           {/* 핵심 지표 */}
           <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h3 className="text-[14px] font-bold text-ink-900">
+              <h3 className="text-[0.875rem] font-bold text-ink-900">
                 {season.label}철 핵심 지표
               </h3>
-              <span className="text-[11.5px] text-ink-400">
+              <span className="text-[0.71875rem] text-ink-400">
                 가장 위험한 {worst.areaName} 기준
               </span>
             </div>
@@ -111,14 +111,14 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
             {stagnationReading && (
               <div className="mt-4 rounded-xl border border-brand-200 bg-brand-50/60 p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <p className="text-[12.5px] font-semibold text-brand-700">
+                  <p className="text-[0.78125rem] font-semibold text-brand-700">
                     대기정체지수 {Math.round(stagnationReading.value)}
                   </p>
-                  <p className="text-[12px] font-medium text-brand-700">
+                  <p className="text-[0.75rem] font-medium text-brand-700">
                     종합 위험도 ×{worst.breakdown.stagnationFactor}
                   </p>
                 </div>
-                <p className="mt-2 text-[12px] leading-relaxed text-brand-700/80">
+                <p className="mt-2 text-[0.75rem] leading-relaxed text-brand-700/80">
                   분지 지형 때문에 공기가 빠져나가지 못하는 정도입니다. 다른 지표들의
                   가중합({worst.breakdown.baseScore}점)에 곱해져 최종{' '}
                   {worst.breakdown.score}점이 됩니다.
@@ -126,7 +126,7 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
               </div>
             )}
 
-            <p className="mt-4 border-t border-line pt-3 text-[11.5px] text-ink-400">
+            <p className="mt-4 border-t border-line pt-3 text-[0.71875rem] text-ink-400">
               기준 {formatKstLong(snapshot.baseTime)} ·{' '}
               {snapshot.source !== 'mock'
                 ? '기상청·에어코리아 실시간'

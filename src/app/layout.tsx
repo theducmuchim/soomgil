@@ -6,6 +6,7 @@ import { SeasonToggle } from '@/components/season/SeasonToggle';
 import { ALLOW_SEASON_OVERRIDE } from '@/lib/env';
 import { resolveSeason } from '@/lib/risk/season';
 import { Footer } from '@/components/layout/Footer';
+import { UI_SCALE_INIT_SCRIPT } from '@/lib/a11y/uiScale';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -47,6 +48,12 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
+        {/*
+          저장해 둔 글자 크기를 첫 페인트 전에 적용한다.
+          React 하이드레이션을 기다리면 매 페이지 이동마다 작은 글씨가 한 번
+          보였다가 커지는 깜빡임이 생긴다 (lib/a11y/uiScale.ts 참고).
+        */}
+        <script dangerouslySetInnerHTML={{ __html: UI_SCALE_INIT_SCRIPT }} />
       </head>
       <body className="flex min-h-dvh flex-col bg-surface antialiased">
         {/* 키보드·스크린리더 사용자를 위한 본문 바로가기 */}

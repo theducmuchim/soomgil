@@ -61,11 +61,11 @@ export function Logo({
     <Link href={href} className={cn('flex items-center gap-2.5', className)}>
       <LogoMark />
       <span className="flex flex-col leading-none">
-        <span className="text-[17px] font-bold tracking-tight text-ink-900">
+        <span className="text-[1.0625rem] font-bold tracking-tight text-ink-900">
           {SITE.name}
         </span>
         {showTagline && (
-          <span className="mt-1 text-[11px] font-medium text-ink-400">
+          <span className="mt-1 text-[0.6875rem] font-medium text-ink-400">
             {SITE.tagline}
           </span>
         )}

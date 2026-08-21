@@ -41,8 +41,14 @@ interface TmapFeature {
     totalTime?: number;
     distance?: number;
     time?: number;
+    /** Point: '우회전' 같은 안내 문구 / LineString: 구간 설명 */
     description?: string;
+    /** Point: 지점명 / LineString: 도로명 */
     name?: string;
+    /** 회전 종류 — 12=좌회전, 13=우회전, 211=횡단보도 … */
+    turnType?: number;
+    /** 'SP'(출발) | 'EP'(도착) | 'PP'(경유) | 그 외 안내 지점 */
+    pointType?: string;
   };
 }
 
@@ -52,6 +58,32 @@ interface TmapResponse {
   error?: { id?: string; category?: string; code?: string; message?: string };
 }
 
+/**
+ * 턴바이턴 안내 한 단계.
+ *
+ * TMAP 응답에는 이미 사람이 읽을 수 있는 안내 문구가 들어 있다. 지금까지는
+ * 지도 위 선만 그리느라 버리고 있었는데, 실제로 길을 걸을 때 필요한 건
+ * "여기서 우회전"이라는 문장이다.
+ */
+export interface TmapGuide {
+  /** '좌회전 후 둔산중로를 따라 113m 이동' — TMAP이 만든 안내 문구 */
+  description: string;
+  /** 회전 종류 코드. 12=좌회전, 13=우회전, 211=횡단보도, 200=출발, 201=도착 … */
+  turnType: number | null;
+  /** 이 안내를 따라 걷는 도로명 ('둔산중로', '보행자도로') */
+  roadName: string | null;
+  /** 지점 이름 — '인곡타워' 같은 주변 건물. 없을 때가 더 많다 */
+  landmark: string | null;
+  /** 이 안내를 따라 이동하는 거리 (m) */
+  distanceM: number;
+  /** 이 안내를 따라 이동하는 시간 (초) */
+  durationSec: number;
+  /** 회전 없이 도로만 이어지는 구간인지 (TMAP 안내 지점이 아니라 우리가 만든 단계) */
+  continuation: boolean;
+  /** 안내 지점 좌표 */
+  coord: LatLng;
+}
+
 export interface TmapRoute {
   /** 전체 경로 좌표 [위도, 경도] 순서 */
   path: LatLng[];
@@ -59,6 +91,8 @@ export interface TmapRoute {
   totalDistanceM: number;
   /** TMAP이 계산한 총 소요시간 (초) — 보행 기준 */
   totalTimeSec: number;
+  /** 턴바이턴 안내 단계 */
+  guides: TmapGuide[];
 }
 
 /**
@@ -212,5 +246,96 @@ function parseRoute(json: TmapResponse): TmapRoute {
     path,
     totalDistanceM: summary?.totalDistance ?? 0,
     totalTimeSec: summary?.totalTime ?? 0,
+    guides: parseGuides(features),
   };
+}
+
+/**
+ * 안내 단계를 뽑는다.
+ *
+ * ── 응답 구조 ───────────────────────────────────────────
+ * features 는 대체로 [Point, LineString, Point, LineString, …] 순으로 온다.
+ *   Point      : 안내 지점. description 에 '좌회전 후 둔산중로를 따라 113m 이동'.
+ *   LineString : 그 안내를 따라 걷는 구간. distance·time·도로명이 있다.
+ *
+ * ⚠ 항상 번갈아 오지는 않는다.
+ * 회전 없이 도로 이름만 바뀌는 곳에서는 Point 없이 LineString 이 연달아 온다.
+ * (예: 둔산로 6m → 둔산중로 219m 사이에 안내 지점이 없다)
+ *
+ * 이때 뒤의 LineString 을 앞 안내에 그냥 합치면, 화면의 거리(225m)가
+ * 안내 문구가 말하는 거리(6m)와 어긋난다. 그래서 **별도의 "계속 직진" 단계**로
+ * 만든다. 이렇게 해야
+ *   - 각 단계에 표시되는 거리가 그 단계의 문구와 항상 일치하고
+ *   - 단계 거리의 합이 총 거리와 맞아떨어진다
+ *
+ * ⚠ 마지막 Point(도착)는 뒤따르는 LineString 이 없어 거리 0으로 남는다.
+ */
+function parseGuides(features: TmapFeature[]): TmapGuide[] {
+  const guides: TmapGuide[] = [];
+
+  for (const feature of features) {
+    if (feature.geometry.type === 'Point') {
+      const description = feature.properties.description?.trim();
+      if (!description) continue;
+
+      const [lng, lat] = feature.geometry.coordinates;
+      guides.push({
+        description,
+        turnType: feature.properties.turnType ?? null,
+        roadName: null,
+        landmark: decodeName(feature.properties.name),
+        distanceM: 0,
+        durationSec: 0,
+        continuation: false,
+        coord: { lat, lng },
+      });
+      continue;
+    }
+
+    const props = feature.properties;
+    const last = guides[guides.length - 1];
+
+    // 아직 구간이 붙지 않은 안내가 앞에 있으면 그 안내의 이동 구간이다
+    if (last && last.roadName === null && last.distanceM === 0) {
+      last.roadName = props.name?.trim() || null;
+      last.distanceM = props.distance ?? 0;
+      last.durationSec = props.time ?? 0;
+      continue;
+    }
+
+    // 안내 지점 없이 이어지는 도로 — 별도 단계로 세운다
+    const [lng, lat] = feature.geometry.coordinates[0] ?? [0, 0];
+    guides.push({
+      description: '계속 직진',
+      turnType: STRAIGHT,
+      roadName: props.name?.trim() || null,
+      landmark: null,
+      distanceM: props.distance ?? 0,
+      durationSec: props.time ?? 0,
+      continuation: true,
+      coord: { lat, lng },
+    });
+  }
+
+  return guides;
+}
+
+/** turnType 11 = 직진 */
+const STRAIGHT = 11;
+
+/**
+ * 지점 이름을 읽는다.
+ *
+ * 출발·도착 지점의 name 은 우리가 요청에 URL 인코딩해서 넣은 값이 그대로 되돌아온다
+ * ('%EA%B3%84%EC%A1%B1%EC%82%B0'). 화면에 그대로 내보내면 안 된다.
+ */
+function decodeName(value: string | undefined): string | null {
+  const raw = value?.trim();
+  if (!raw) return null;
+  if (!raw.includes('%')) return raw;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
 }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { PRIMARY_NAV, SECONDARY_NAV } from '@/config/site';
 import { Logo } from '@/components/ui/Logo';
 import { Button } from '@/components/ui/Button';
+import { UiScaleToggle } from '@/components/a11y/UiScaleToggle';
 import { cn } from '@/lib/utils/cn';
 
 interface Props {
@@ -85,6 +86,18 @@ export function MobileNav({ open, onClose, pathname }: Props) {
         </div>
 
         <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-3">
+          {/*
+            글자 크기 조절 — 좁은 화면에서는 헤더에 자리가 없어 여기 맨 위에 둔다.
+            메뉴 항목들 아래에 묻어두면 글씨가 작아 못 읽는 사람이 스크롤해서
+            찾아야 한다. 그건 순서가 거꾸로다.
+          */}
+          <div className="mb-3 flex items-center justify-between rounded-lg bg-surface-sunken px-3 py-2.5 sm:hidden">
+            <span className="text-[0.8125rem] font-semibold text-ink-700">
+              화면 글자 크기
+            </span>
+            <UiScaleToggle />
+          </div>
+
           <ul className="flex flex-col gap-0.5">
             {PRIMARY_NAV.map((item) => {
               const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -101,14 +114,14 @@ export function MobileNav({ open, onClose, pathname }: Props) {
                   >
                     <span
                       className={cn(
-                        'text-[15px] font-semibold',
+                        'text-[0.9375rem] font-semibold',
                         active ? 'text-brand-700' : 'text-ink-900',
                       )}
                     >
                       {item.label}
                     </span>
                     {item.desc && (
-                      <span className="text-[12.5px] leading-snug text-ink-400">
+                      <span className="text-[0.78125rem] leading-snug text-ink-400">
                         {item.desc}
                       </span>
                     )}
@@ -130,7 +143,7 @@ export function MobileNav({ open, onClose, pathname }: Props) {
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex min-h-12 items-center rounded-lg px-3 text-[14px] font-medium',
+                      'flex min-h-12 items-center rounded-lg px-3 text-[0.875rem] font-medium',
                       active ? 'bg-brand-50 text-brand-700' : 'text-ink-700 hover:bg-surface-sunken',
                     )}
                   >

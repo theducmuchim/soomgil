@@ -21,8 +21,8 @@ export function RiskBadge({
     <span
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full font-semibold whitespace-nowrap',
-        size === 'sm' && 'px-2 py-0.5 text-[11.5px]',
-        size === 'md' && 'px-2.5 py-1 text-[12.5px]',
+        size === 'sm' && 'px-2 py-0.5 text-[0.71875rem]',
+        size === 'md' && 'px-2.5 py-1 text-[0.78125rem]',
         size === 'lg' && 'px-3 py-1.5 text-sm',
         meta.bg,
         meta.text,
@@ -59,12 +59,12 @@ export function RiskScore({
   return (
     <div className={cn('flex items-end gap-2', className)}>
       <span
-        className="tabular text-[40px] leading-none font-bold tracking-tight"
+        className="tabular text-[2.5rem] leading-none font-bold tracking-tight"
         style={{ color: meta.color }}
       >
         {Math.round(score)}
       </span>
-      <span className="pb-1 text-[13px] font-medium text-ink-400">/ 100</span>
+      <span className="pb-1 text-[0.8125rem] font-medium text-ink-400">/ 100</span>
       <RiskBadge level={level} className="mb-1 ml-1" />
     </div>
   );

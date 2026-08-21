@@ -47,7 +47,7 @@ export default async function NoticeDetailPage({
         <div className="flex flex-wrap items-center gap-2 border-b border-line pb-5">
           <span
             className={cn(
-              'rounded px-1.5 py-0.5 text-[11px] font-semibold',
+              'rounded px-1.5 py-0.5 text-[0.6875rem] font-semibold',
               category.tone,
             )}
           >
@@ -55,7 +55,7 @@ export default async function NoticeDetailPage({
           </span>
           <time
             dateTime={notice.publishedAt}
-            className="tabular text-[12px] text-ink-400"
+            className="tabular text-[0.75rem] text-ink-400"
           >
             {formatDate(notice.publishedAt)}
           </time>
@@ -65,7 +65,7 @@ export default async function NoticeDetailPage({
           {notice.body.map((paragraph, i) => (
             <p
               key={i}
-              className="mt-4 text-[15px] leading-[1.85] text-ink-700 first:mt-0"
+              className="mt-4 text-[0.9375rem] leading-[1.85] text-ink-700 first:mt-0"
             >
               {paragraph}
             </p>
@@ -78,10 +78,10 @@ export default async function NoticeDetailPage({
               href={`/notice/${prev.slug}`}
               className="group flex items-baseline gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-sunken"
             >
-              <span className="shrink-0 text-[12px] font-semibold text-ink-400">
+              <span className="shrink-0 text-[0.75rem] font-semibold text-ink-400">
                 이전 글
               </span>
-              <span className="truncate text-[13.5px] text-ink-700 group-hover:text-brand-600">
+              <span className="truncate text-[0.84375rem] text-ink-700 group-hover:text-brand-600">
                 {prev.title}
               </span>
             </Link>
@@ -91,10 +91,10 @@ export default async function NoticeDetailPage({
               href={`/notice/${next.slug}`}
               className="group flex items-baseline gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-sunken"
             >
-              <span className="shrink-0 text-[12px] font-semibold text-ink-400">
+              <span className="shrink-0 text-[0.75rem] font-semibold text-ink-400">
                 다음 글
               </span>
-              <span className="truncate text-[13.5px] text-ink-700 group-hover:text-brand-600">
+              <span className="truncate text-[0.84375rem] text-ink-700 group-hover:text-brand-600">
                 {next.title}
               </span>
             </Link>

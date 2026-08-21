@@ -182,6 +182,28 @@ export interface RouteSegment {
   effectiveScore: number;
 }
 
+/**
+ * 턴바이턴 안내 한 단계.
+ *
+ * TMAP 응답에 이미 들어 있는 회전정보·구간설명·도로명을 그대로 옮긴 것이다.
+ * 격자 근사 경로에는 실제 도로가 없으므로 이 배열이 비어 있다.
+ */
+export interface RouteGuide {
+  /** '좌회전 후 둔산중로를 따라 113m 이동' */
+  description: string;
+  /** TMAP turnType — 12=좌회전, 13=우회전, 211=횡단보도 … */
+  turnType: number | null;
+  /** 이 단계에서 걷는 도로명 */
+  roadName: string | null;
+  /** 주변 건물 등 지점 이름 */
+  landmark: string | null;
+  distanceM: number;
+  durationSec: number;
+  /** 회전 없이 도로만 이어지는 단계인지 */
+  continuation: boolean;
+  coord: [number, number];
+}
+
 export type RouteKind = 'safest' | 'balanced' | 'fastest';
 
 export interface RouteOption {
@@ -196,6 +218,8 @@ export interface RouteOption {
   level: RiskLevel;
   /** 최단경로 대비 노출 증감률 (-32 = 32% 감소) */
   exposureDeltaPct: number;
+  /** 턴바이턴 안내 — TMAP 경로에만 있다 (격자 경로에서는 빈 배열) */
+  guides: RouteGuide[];
 }
 
 export interface RouteResult {

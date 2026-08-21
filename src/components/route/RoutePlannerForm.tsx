@@ -104,7 +104,7 @@ export function RoutePlannerForm({
               onClick={() => push({ mode: key })}
               aria-pressed={mode === key}
               className={cn(
-                'rounded-md px-3.5 py-1.5 text-[13px] font-semibold transition-colors',
+                'rounded-md px-3.5 py-1.5 text-[0.8125rem] font-semibold transition-colors',
                 mode === key
                   ? 'bg-brand-600 text-white'
                   : 'text-ink-500 hover:bg-surface-sunken hover:text-ink-900',
@@ -123,7 +123,7 @@ export function RoutePlannerForm({
         </button>
       </div>
 
-      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-400">
+      <p className="mt-3 text-[0.71875rem] leading-relaxed text-ink-400">
         이동 수단에 따라 같은 구간이라도 머무는 시간이 달라져 노출량이 바뀝니다. 현재{' '}
         {TRAVEL_MODES[mode].label} 기준 {TRAVEL_MODES[mode].note}로 계산합니다.
       </p>

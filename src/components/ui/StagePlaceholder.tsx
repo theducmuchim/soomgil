@@ -17,15 +17,15 @@ export function StagePlaceholder({
   return (
     <Container>
       <div className="my-10 rounded-xl border border-dashed border-line-strong bg-surface-raised p-6 sm:my-14 sm:p-8">
-        <p className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2 py-1 text-[12px] font-semibold text-brand-700">
+        <p className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2 py-1 text-[0.75rem] font-semibold text-brand-700">
           {stage}에서 제작
         </p>
-        <p className="mt-4 text-[14px] font-semibold text-ink-900">
+        <p className="mt-4 text-[0.875rem] font-semibold text-ink-900">
           이 화면에는 다음이 들어갑니다
         </p>
         <ul className="mt-3 space-y-2">
           {items.map((item) => (
-            <li key={item} className="flex gap-2.5 text-[13.5px] leading-relaxed text-ink-500">
+            <li key={item} className="flex gap-2.5 text-[0.84375rem] leading-relaxed text-ink-500">
               <span
                 className="mt-2 h-1 w-1 shrink-0 rounded-full bg-ink-300"
                 aria-hidden="true"

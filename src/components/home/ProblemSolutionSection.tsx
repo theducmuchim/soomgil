@@ -73,10 +73,10 @@ export function ProblemSolutionSection({ snapshot }: { snapshot: RiskSnapshot })
     <section className="border-b border-line py-14 sm:py-20">
       <Container>
         <div className="max-w-2xl">
-          <p className="text-[12.5px] font-semibold tracking-wide text-brand-600">
+          <p className="text-[0.78125rem] font-semibold tracking-wide text-brand-600">
             숨쉬는길이 푸는 문제
           </p>
-          <h2 className="mt-2 text-[26px] leading-tight font-bold tracking-tight text-ink-900 sm:text-[32px]">
+          <h2 className="mt-2 text-[1.625rem] leading-tight font-bold tracking-tight text-ink-900 sm:text-[2rem]">
             위험도는 알려주는데,
             <br className="sm:hidden" /> 어디로 가라는 말은 없습니다
           </h2>
@@ -123,7 +123,7 @@ function Column({
     >
       <h3
         className={cn(
-          'text-[15px] font-bold',
+          'text-[0.9375rem] font-bold',
           isSolution ? 'text-brand-700' : 'text-ink-700',
         )}
       >
@@ -142,24 +142,24 @@ function Column({
             <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
               <span
                 className={cn(
-                  'tabular text-[22px] leading-none font-bold tracking-tight sm:text-[26px]',
+                  'tabular text-[1.375rem] leading-none font-bold tracking-tight sm:text-[1.625rem]',
                   isSolution ? 'text-brand-600' : 'text-ink-900',
                 )}
               >
                 {item.stat}
               </span>
-              <span className="text-[13px] font-medium text-ink-500">
+              <span className="text-[0.8125rem] font-medium text-ink-500">
                 {item.statLabel}
               </span>
             </div>
-            <p className="mt-2.5 text-[14px] leading-relaxed text-ink-700">{item.body}</p>
+            <p className="mt-2.5 text-[0.875rem] leading-relaxed text-ink-700">{item.body}</p>
           </li>
         ))}
       </ul>
 
       <p
         className={cn(
-          'mt-6 border-t pt-4 text-[11.5px] leading-relaxed',
+          'mt-6 border-t pt-4 text-[0.71875rem] leading-relaxed',
           isSolution ? 'border-brand-200/70 text-brand-700/70' : 'border-line text-ink-400',
         )}
       >

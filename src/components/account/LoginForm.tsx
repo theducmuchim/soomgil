@@ -30,24 +30,24 @@ export function LoginForm() {
   return (
     <form onSubmit={submit} className="mt-5 rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <label className="block">
-        <span className="text-[12.5px] font-semibold text-ink-700">이메일</span>
+        <span className="text-[0.78125rem] font-semibold text-ink-700">이메일</span>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="soomgil@example.com"
           autoComplete="email"
-          className="mt-1.5 h-11 w-full rounded-lg border border-line-strong bg-surface px-3.5 text-[14px] text-ink-900 placeholder:text-ink-300 hover:border-brand-300"
+          className="mt-1.5 h-11 w-full rounded-lg border border-line-strong bg-surface px-3.5 text-[0.875rem] text-ink-900 placeholder:text-ink-300 hover:border-brand-300"
         />
       </label>
 
       <label className="mt-4 block">
-        <span className="text-[12.5px] font-semibold text-ink-700">비밀번호</span>
+        <span className="text-[0.78125rem] font-semibold text-ink-700">비밀번호</span>
         <input
           type="password"
           placeholder="••••••••"
           autoComplete="current-password"
-          className="mt-1.5 h-11 w-full rounded-lg border border-line-strong bg-surface px-3.5 text-[14px] text-ink-900 placeholder:text-ink-300 hover:border-brand-300"
+          className="mt-1.5 h-11 w-full rounded-lg border border-line-strong bg-surface px-3.5 text-[0.875rem] text-ink-900 placeholder:text-ink-300 hover:border-brand-300"
         />
       </label>
 
@@ -59,7 +59,7 @@ export function LoginForm() {
         {submitting ? '이동 중…' : '로그인'}
       </button>
 
-      <p className="mt-3 text-center text-[11.5px] text-ink-400">
+      <p className="mt-3 text-center text-[0.71875rem] text-ink-400">
         입력값은 서버로 전송되지 않습니다.
       </p>
     </form>

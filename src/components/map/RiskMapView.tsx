@@ -75,7 +75,7 @@ export function RiskMapView({
                 onClick={() => changeResolution(value)}
                 aria-pressed={resolution === value}
                 className={cn(
-                  'rounded-md px-3.5 py-1.5 text-[13px] font-semibold transition-colors',
+                  'rounded-md px-3.5 py-1.5 text-[0.8125rem] font-semibold transition-colors',
                   resolution === value
                     ? 'bg-brand-600 text-white'
                     : 'text-ink-500 hover:bg-surface-sunken hover:text-ink-900',
@@ -84,7 +84,7 @@ export function RiskMapView({
                 {label}
                 <span
                   className={cn(
-                    'tabular ml-1.5 text-[11px]',
+                    'tabular ml-1.5 text-[0.6875rem]',
                     resolution === value ? 'text-white/70' : 'text-ink-300',
                   )}
                 >
@@ -94,7 +94,7 @@ export function RiskMapView({
             ))}
           </div>
 
-          <p className="text-[11.5px] text-ink-400">
+          <p className="text-[0.71875rem] text-ink-400">
             기준 {formatKstLong(snapshot.baseTime)}
           </p>
         </div>
@@ -110,7 +110,7 @@ export function RiskMapView({
         </div>
 
         {isDong && (
-          <p className="rounded-lg bg-surface-sunken px-4 py-3 text-[11.5px] leading-relaxed text-ink-500">
+          <p className="rounded-lg bg-surface-sunken px-4 py-3 text-[0.71875rem] leading-relaxed text-ink-500">
             행정동 값은 관측값이 아니라 <strong className="font-semibold">추정치</strong>입니다.
             대기질 관측은 에어코리아 측정소 단위(대전 10곳), 기상 예보는 약 5km 격자
             단위라 행정동 78개를 직접 관측한 데이터는 존재하지 않습니다. 자치구
@@ -125,10 +125,10 @@ export function RiskMapView({
           <AreaDetailPanel area={selected} estimated={isDong} />
         ) : (
           <div className="rounded-2xl border border-line bg-surface p-5">
-            <p className="text-[13.5px] font-semibold text-ink-900">
+            <p className="text-[0.84375rem] font-semibold text-ink-900">
               지역을 선택하세요
             </p>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-500">
+            <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-500">
               지도에서 지역을 누르거나 아래 목록에서 고르면 지표별 상세값과 점수 계산
               과정을 볼 수 있습니다.
             </p>
@@ -139,7 +139,7 @@ export function RiskMapView({
 
         {/* 목록 — 지도를 못 쓰는 환경(키보드·스크린리더)에서도 같은 정보에 닿게 한다 */}
         <div className="rounded-2xl border border-line bg-surface p-4">
-          <p className="text-[12.5px] font-semibold text-ink-900">
+          <p className="text-[0.78125rem] font-semibold text-ink-900">
             위험한 순 {isDong ? '행정동' : '자치구'}
           </p>
           <ul className="mt-2.5 max-h-[320px] space-y-0.5 overflow-y-auto">
@@ -157,7 +157,7 @@ export function RiskMapView({
                       : 'hover:bg-surface-sunken',
                   )}
                 >
-                  <span className="tabular w-5 shrink-0 text-[11px] text-ink-300">
+                  <span className="tabular w-5 shrink-0 text-[0.6875rem] text-ink-300">
                     {index + 1}
                   </span>
                   <span
@@ -165,10 +165,10 @@ export function RiskMapView({
                     style={{ backgroundColor: scoreColor(area.score) }}
                     aria-hidden="true"
                   />
-                  <span className="flex-1 truncate text-[13px] font-medium text-ink-900">
+                  <span className="flex-1 truncate text-[0.8125rem] font-medium text-ink-900">
                     {area.areaName}
                   </span>
-                  <span className="tabular shrink-0 text-[13px] font-bold text-ink-700">
+                  <span className="tabular shrink-0 text-[0.8125rem] font-bold text-ink-700">
                     {Math.round(area.score)}
                   </span>
                 </button>

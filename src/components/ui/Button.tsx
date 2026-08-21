@@ -14,9 +14,9 @@ const VARIANTS: Record<Variant, string> = {
 };
 
 const SIZES: Record<Size, string> = {
-  sm: 'h-8 px-3 text-[13px] gap-1.5 rounded-md',
+  sm: 'h-8 px-3 text-[0.8125rem] gap-1.5 rounded-md',
   md: 'h-10 px-4 text-sm gap-2 rounded-lg',
-  lg: 'h-12 px-5 text-[15px] gap-2 rounded-lg',
+  lg: 'h-12 px-5 text-[0.9375rem] gap-2 rounded-lg',
 };
 
 const BASE =
@@ -45,10 +45,16 @@ export function Button(props: ButtonAsLink | ButtonAsButton) {
   const { variant = 'primary', size = 'md', className, children, block, ...rest } = props;
   const classes = cn(BASE, VARIANTS[variant], SIZES[size], block && 'w-full', className);
 
+  /*
+   * data-button 은 스타일 훅이다.
+   * 링크로 렌더된 버튼(<a>)은 globals.css 의 "크게 보기 최소 터치 영역" 규칙이
+   * 잡아내지 못한다. 일반 본문 링크까지 키우면 문단이 망가지므로, 버튼처럼
+   * 생긴 링크만 표시해 둔다.
+   */
   if (rest.href !== undefined) {
     const { href, ...linkRest } = rest as ButtonAsLink;
     return (
-      <Link href={href} className={classes} {...linkRest}>
+      <Link href={href} className={classes} data-button="" {...linkRest}>
         {children}
       </Link>
     );
@@ -57,7 +63,7 @@ export function Button(props: ButtonAsLink | ButtonAsButton) {
   const { href: _omit, ...buttonRest } = rest as ButtonAsButton;
   void _omit;
   return (
-    <button className={classes} {...buttonRest}>
+    <button className={classes} data-button="" {...buttonRest}>
       {children}
     </button>
   );

@@ -1,6 +1,7 @@
 import type {
   AreaRisk,
   RiskSnapshot,
+  RouteGuide,
   RouteKind,
   RouteOption,
   RouteResult,
@@ -21,6 +22,7 @@ import { distanceM, LAT_TO_M, LNG_TO_M, type LatLng } from './geometry';
 import {
   fetchPedestrianRoute,
   isTmapConfigured,
+  type TmapGuide,
   type TmapSearchOption,
 } from './tmap';
 
@@ -200,6 +202,7 @@ async function planWithTmap(ctx: PlanContext, baseTime: string): Promise<RouteRe
           ? route.totalTimeSec
           : Math.round((route.totalDistanceM || stats.distanceM) / ctx.speedMs),
       exposureScore: stats.score,
+      guides: toRouteGuides(route.guides),
     });
   });
 
@@ -337,6 +340,9 @@ function planWithGrid(ctx: PlanContext, baseTime: string): RouteResult {
       distanceM: stats.distanceM,
       durationSec: stats.durationSec,
       exposureScore: stats.score,
+      // 격자 경로는 실제 도로가 아니라 회전 안내를 만들 수 없다.
+      // 없는 안내를 지어내면 그 길을 실제로 걸을 수 없다.
+      guides: [],
     });
   }
 
@@ -371,6 +377,8 @@ interface Candidate {
   distanceM: number;
   durationSec: number;
   exposureScore: number;
+  /** 턴바이턴 안내 — TMAP 경로에만 있다 */
+  guides: RouteGuide[];
 }
 
 /**
@@ -467,6 +475,7 @@ function assemble(
       exposureScore: candidate.exposureScore,
       level: levelFromScore(candidate.exposureScore),
       exposureDeltaPct: deltaPct,
+      guides: candidate.guides,
     };
   });
 
@@ -477,6 +486,24 @@ function assemble(
     baseTime,
     engine,
   };
+}
+
+/**
+ * TMAP 안내를 화면용 타입으로.
+ *
+ * 좌표 표기만 바꾼다 — TMAP 계층은 {lat,lng}, 화면 계층은 [위도, 경도]를 쓴다.
+ */
+function toRouteGuides(guides: TmapGuide[]): RouteGuide[] {
+  return guides.map((g) => ({
+    description: g.description,
+    turnType: g.turnType,
+    roadName: g.roadName,
+    landmark: g.landmark,
+    distanceM: g.distanceM,
+    durationSec: g.durationSec,
+    continuation: g.continuation,
+    coord: [g.coord.lat, g.coord.lng] as [number, number],
+  }));
 }
 
 /** 두 경로가 사실상 같은 길인지 판정하기 위한 지문 */

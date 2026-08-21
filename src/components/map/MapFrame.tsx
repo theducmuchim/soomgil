@@ -27,7 +27,7 @@ export function MapSkeleton() {
           className="h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-brand-500"
           aria-hidden="true"
         />
-        <p className="text-[12.5px] text-ink-400">지도를 불러오는 중…</p>
+        <p className="text-[0.78125rem] text-ink-400">지도를 불러오는 중…</p>
       </div>
     </div>
   );

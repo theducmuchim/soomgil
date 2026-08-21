@@ -57,14 +57,59 @@
   --spacing-header: 3.5rem;
 }
 
+/* ──────────────────────────────────────────────────────────
+   UI 크기 조절 (어르신 접근성)
+
+   화면의 글자와 터치 영역을 통째로 키운다. 세 단계이고, 헤더의 토글이
+   <html data-ui-scale="..."> 를 바꾼다.
+
+   ── 어떻게 동작하나 ─────────────────────────────────────
+   이 서비스의 글자 크기는 전부 rem 이고, Tailwind 의 간격·높이 유틸리티
+   (h-11, px-4, gap-2 …)도 rem 이다. 그래서 루트 글자 크기 하나만 키우면
+   텍스트와 터치 영역이 **함께** 커진다. 둘 중 하나만 커지면 글씨는 큰데
+   버튼은 그대로라 오히려 누르기 어려워진다.
+
+   font-size 에 100% 를 곱하는 이유: 사용자가 브라우저에서 이미 글자 크기를
+   키워 뒀다면 그 설정을 덮어쓰지 않고 그 위에 배율을 얹는다.
+
+   ⚠ 미디어 쿼리의 rem 은 루트 글자 크기가 아니라 초기값(16px)을 기준으로
+   해석된다(CSS 사양). 그래서 배율을 키워도 반응형 분기점은 그대로다.
+   ────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
+  --ui-scale: 1;
+}
+
+html[data-ui-scale='large'] {
+  --ui-scale: 1.15;
+}
+
+html[data-ui-scale='xlarge'] {
+  --ui-scale: 1.35;
 }
 
 html {
+  font-size: calc(100% * var(--ui-scale));
   scroll-behavior: smooth;
   /* 앵커 이동 시 sticky 헤더에 가리지 않게 */
   scroll-padding-top: calc(var(--spacing-header) + 1rem);
+}
+
+/*
+ * 아이콘 버튼 최소 터치 영역.
+ *
+ * 배율을 키우면 대부분의 버튼은 rem 이라 같이 커지지만, 아이콘만 든 작은
+ * 버튼은 원래도 작아서 키워도 여전히 누르기 어렵다. 크게 보기에서는
+ * 손가락 기준 최소 크기를 따로 보장한다 (WCAG 2.2 Target Size 44px).
+ */
+html[data-ui-scale='large']
+  :where(button, [role='button'], [data-button]):not(.leaflet-container *) {
+  min-height: 40px;
+}
+
+html[data-ui-scale='xlarge']
+  :where(button, [role='button'], [data-button]):not(.leaflet-container *) {
+  min-height: 44px;
 }
 
 body {
@@ -125,7 +170,7 @@ body {
   transform: translate(-50%, -50%);
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: 0.71875rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
@@ -139,7 +184,7 @@ body {
   border-radius: 7px;
   background: var(--color-surface);
   color: var(--color-ink-900);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   box-shadow: 0 2px 8px rgb(20 24 29 / 0.12);
 }
@@ -160,7 +205,7 @@ body {
   border-color: var(--color-line);
 }
 .leaflet-control-attribution {
-  font-size: 10px;
+  font-size: 0.625rem;
   background: rgb(255 255 255 / 0.82);
   color: var(--color-ink-400);
 }
@@ -181,13 +226,13 @@ body {
   padding: 3px 9px;
   border-radius: 999px;
   color: #fff;
-  font-size: 11.5px;
+  font-size: 0.71875rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   box-shadow: 0 2px 6px rgb(20 24 29 / 0.28);
 }
 .soomgil-endpoint b {
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 700;
   opacity: 0.75;
 }

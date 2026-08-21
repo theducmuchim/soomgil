@@ -7,7 +7,7 @@ import { PlanComparison } from '@/components/pricing/PlanComparison';
 export const metadata: Metadata = {
   title: '요금제',
   description:
-    '무료와 프리미엄 요금제를 비교합니다. 광고 제거, 경로 3안 비교, 관심 지역 알림.',
+    '무료·라이트·프리미엄·패밀리 네 가지 요금제를 비교합니다. 광고 제거, 경로 3안 비교, 관심 지역 알림, 가족 계정.',
 };
 
 export default function PricingPage() {
@@ -16,17 +16,17 @@ export default function PricingPage() {
       <PageHeading
         eyebrow="요금제"
         title="필요한 만큼만 쓰세요"
-        description="가입 없이 오늘의 위험도와 추천 경로를 확인할 수 있습니다. 매일 다니는 길이 있다면 프리미엄이 도움이 됩니다."
+        description="가입 없이 오늘의 위험도와 추천 경로를 확인할 수 있습니다. 광고만 빼고 싶다면 라이트, 매일 다니는 길이 있다면 프리미엄, 부모님 것까지 묶으려면 패밀리를 보세요."
       />
 
       <Container className="py-8 sm:py-10">
         <PlanComparison />
 
         <section className="mt-10 rounded-2xl border border-line bg-surface-sunken p-5 sm:p-6">
-          <h2 className="text-[15px] font-bold text-ink-900">
+          <h2 className="text-[0.9375rem] font-bold text-ink-900">
             구독료는 어디에 쓰이나요
           </h2>
-          <ul className="mt-3.5 space-y-2.5 text-[13.5px] leading-relaxed text-ink-700">
+          <ul className="mt-3.5 space-y-2.5 text-[0.84375rem] leading-relaxed text-ink-700">
             <li className="flex gap-2.5">
               <span
                 className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400"
@@ -60,7 +60,7 @@ export default function PricingPage() {
               </span>
             </li>
           </ul>
-          <p className="mt-4 text-[12px] text-ink-400">
+          <p className="mt-4 text-[0.75rem] text-ink-400">
             자세한 계산 방식과 데이터의 한계는{' '}
             <Link
               href="/guide#limits"

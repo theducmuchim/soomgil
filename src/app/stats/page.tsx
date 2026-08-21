@@ -44,8 +44,8 @@ export default async function StatsPage({
         actions={
           <div className="flex items-center gap-2.5 rounded-xl border border-line bg-surface px-4 py-2.5">
             <div>
-              <p className="text-[11px] text-ink-400">대전 평균</p>
-              <p className="tabular text-[19px] leading-tight font-bold text-ink-900">
+              <p className="text-[0.6875rem] text-ink-400">대전 평균</p>
+              <p className="tabular text-[1.1875rem] leading-tight font-bold text-ink-900">
                 {Math.round(snapshot.cityAverage.score)}
               </p>
             </div>
@@ -81,12 +81,12 @@ export default async function StatsPage({
           {/* 자치구 비교 */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[15px] font-bold text-ink-900">자치구별 위험도</h2>
-              <p className="text-[11.5px] text-ink-400">
+              <h2 className="text-[0.9375rem] font-bold text-ink-900">자치구별 위험도</h2>
+              <p className="text-[0.71875rem] text-ink-400">
                 대기정체 보정 후 · 100점 만점
               </p>
             </div>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-500">
+            <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-500">
               모든 자치구에 같은 대기정체 보정({formatDelta(snapshot.cityAverage.stagnationDeltaPct, 1)}{' '}
               내외)이 적용됩니다. 구별 차이는 지표값 자체에서 나옵니다.
             </p>
@@ -98,10 +98,10 @@ export default async function StatsPage({
           {/* 시간대별 추이 */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[15px] font-bold text-ink-900">오늘 시간대별 추이</h2>
-              <p className="text-[11.5px] text-ink-400">대전 평균</p>
+              <h2 className="text-[0.9375rem] font-bold text-ink-900">오늘 시간대별 추이</h2>
+              <p className="text-[0.71875rem] text-ink-400">대전 평균</p>
             </div>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-500">
+            <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-500">
               {seasonMeta.label}철은 {trendNote(snapshot.season)}
             </p>
             <div className="mt-4">
@@ -114,7 +114,7 @@ export default async function StatsPage({
 
         {/* 안전한 시간대 추천 */}
         <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50/60 p-5 sm:p-6">
-          <h2 className="text-[15px] font-bold text-brand-700">
+          <h2 className="text-[0.9375rem] font-bold text-brand-700">
             지금 이후 나가기 좋은 시간대
           </h2>
           <ul className="mt-4 grid gap-2.5 sm:grid-cols-3">
@@ -123,14 +123,14 @@ export default async function StatsPage({
                 key={point.hour}
                 className="flex items-center gap-3 rounded-xl border border-brand-200 bg-surface px-4 py-3"
               >
-                <span className="tabular text-[13px] font-bold text-brand-300">
+                <span className="tabular text-[0.8125rem] font-bold text-brand-300">
                   {i + 1}
                 </span>
                 <div className="flex-1">
-                  <p className="tabular text-[16px] font-bold text-ink-900">
+                  <p className="tabular text-[1rem] font-bold text-ink-900">
                     {point.hour}시
                   </p>
-                  <p className="text-[11.5px] text-ink-400">
+                  <p className="text-[0.71875rem] text-ink-400">
                     위험도 {Math.round(point.score)} ·{' '}
                     {RISK_LEVELS[point.level].label}
                   </p>
@@ -143,7 +143,7 @@ export default async function StatsPage({
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-[11.5px] leading-relaxed text-brand-700/75">
+          <p className="mt-4 text-[0.71875rem] leading-relaxed text-brand-700/75">
             기준 {formatKstLong(snapshot.baseTime)} · 시간대별 값은 기상청 지수 예보와
             에어코리아 예보통보를 합쳐 계산합니다.
             {snapshot.source === 'mock' &&
@@ -170,16 +170,16 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-xl border border-line bg-surface px-4 py-3.5">
-      <p className="text-[11.5px] font-medium text-ink-400">{label}</p>
+      <p className="text-[0.71875rem] font-medium text-ink-400">{label}</p>
       <p className="mt-1.5 flex items-center gap-2">
         <span
           className="h-3.5 w-1 rounded-full"
           style={{ backgroundColor: color }}
           aria-hidden="true"
         />
-        <span className="text-[19px] leading-none font-bold text-ink-900">{value}</span>
+        <span className="text-[1.1875rem] leading-none font-bold text-ink-900">{value}</span>
       </p>
-      <p className="tabular mt-1.5 text-[12px] text-ink-500">{detail}</p>
+      <p className="tabular mt-1.5 text-[0.75rem] text-ink-500">{detail}</p>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { RouteOption } from '@/types';
-import { usePremium } from '@/lib/subscription/usePremium';
+import { usePlanCapabilities } from '@/lib/subscription/usePlan';
 import { formatDelta } from '@/lib/utils/format';
 
 /**
@@ -21,19 +21,19 @@ export function RouteSummaryMessage({
   /** 가장 안전한 경로 (없으면 개선 여지가 없다는 뜻) */
   safest: Pick<RouteOption, 'label' | 'exposureDeltaPct'> | null;
 }) {
-  const [isPremium] = usePremium();
+  const { routeCompare } = usePlanCapabilities();
 
   if (!safest || safest.exposureDeltaPct >= -0.5) {
     return (
-      <p className="text-[14px] leading-relaxed text-ink-900">
+      <p className="text-[0.875rem] leading-relaxed text-ink-900">
         지금은 경로별 노출량 차이가 크지 않습니다. 추천 경로로 가셔도 됩니다.
       </p>
     );
   }
 
-  if (isPremium) {
+  if (routeCompare) {
     return (
-      <p className="text-[14px] leading-relaxed text-ink-900">
+      <p className="text-[0.875rem] leading-relaxed text-ink-900">
         <strong className="font-bold">{safest.label}</strong>로 가면 추천 경로보다
         노출량이{' '}
         <strong className="font-bold text-risk-low">
@@ -45,7 +45,7 @@ export function RouteSummaryMessage({
   }
 
   return (
-    <p className="text-[14px] leading-relaxed text-ink-900">
+    <p className="text-[0.875rem] leading-relaxed text-ink-900">
       노출량이{' '}
       <strong className="font-bold text-risk-low">
         {formatDelta(safest.exposureDeltaPct, 1)}

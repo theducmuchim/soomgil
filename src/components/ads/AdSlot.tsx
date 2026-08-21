@@ -2,7 +2,7 @@
 
 import type { Season } from '@/types';
 import { Container } from '@/components/layout/Container';
-import { usePremium } from '@/lib/subscription/usePremium';
+import { usePlanCapabilities } from '@/lib/subscription/usePlan';
 import { cn } from '@/lib/utils/cn';
 
 /**
@@ -100,10 +100,10 @@ export function AdSlot({
   bare?: boolean;
   className?: string;
 }) {
-  const [isPremium] = usePremium();
+  const { ads } = usePlanCapabilities();
 
-  // 프리미엄 구독자에게는 광고 지면을 아예 만들지 않는다
-  if (isPremium) return null;
+  // 광고를 뺀 요금제에서는 지면 자체를 만들지 않는다 (라이트 이상)
+  if (!ads) return null;
 
   const copy = SAMPLE_COPY[season][variant];
 
@@ -118,7 +118,7 @@ export function AdSlot({
       aria-label="광고 영역"
     >
       {/* 광고 표시 — 실제 광고로 바꿔도 반드시 유지 */}
-      <span className="absolute top-2 right-2 rounded bg-ink-900/8 px-1.5 py-0.5 text-[10px] font-semibold text-ink-400">
+      <span className="absolute top-2 right-2 rounded bg-ink-900/8 px-1.5 py-0.5 text-[0.625rem] font-semibold text-ink-400">
         광고
       </span>
 
@@ -152,17 +152,17 @@ export function AdSlot({
           <p
             className={cn(
               'leading-snug font-semibold text-ink-700',
-              variant === 'leaderboard' ? 'text-[14px]' : 'text-[13px]',
+              variant === 'leaderboard' ? 'text-[0.875rem]' : 'text-[0.8125rem]',
             )}
           >
             {copy.headline}
           </p>
-          <p className="mt-1 text-[11.5px] text-ink-400">
+          <p className="mt-1 text-[0.71875rem] text-ink-400">
             여기에 계절 맞춤 {copy.sponsor} 광고가 표시됩니다
           </p>
         </div>
 
-        <span className="hidden shrink-0 rounded-lg border border-line-strong px-3.5 py-2 text-[12.5px] font-semibold text-ink-400 sm:block">
+        <span className="hidden shrink-0 rounded-lg border border-line-strong px-3.5 py-2 text-[0.78125rem] font-semibold text-ink-400 sm:block">
           자세히 보기
         </span>
       </div>

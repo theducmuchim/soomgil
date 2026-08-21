@@ -8,6 +8,7 @@ import { Logo } from '@/components/ui/Logo';
 import { Button } from '@/components/ui/Button';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Container } from '@/components/layout/Container';
+import { UiScaleToggle } from '@/components/a11y/UiScaleToggle';
 import { cn } from '@/lib/utils/cn';
 
 export function Header() {
@@ -44,7 +45,7 @@ export function Header() {
                         href={item.href}
                         aria-current={isActive(item.href) ? 'page' : undefined}
                         className={cn(
-                          'relative flex h-16 items-center px-3 text-[14.5px] font-semibold transition-colors',
+                          'relative flex h-16 items-center px-3 text-[0.90625rem] font-semibold transition-colors',
                           isActive(item.href)
                             ? 'text-brand-700'
                             : 'text-ink-700 hover:text-brand-600',
@@ -62,6 +63,14 @@ export function Header() {
             </div>
 
             <div className="flex items-center gap-1.5">
+              {/*
+                글자 크기 조절.
+                설정 안쪽이 아니라 헤더에 두는 이유는, 이걸 필요로 하는 사람이
+                메뉴를 뒤져 찾아내기를 기대할 수 없기 때문이다.
+                좁은 화면에서는 자리가 없어 전체 메뉴 맨 위로 옮긴다.
+              */}
+              <UiScaleToggle className="mr-1 hidden sm:flex" />
+
               {/* 보조 메뉴 — 넓은 화면에서만 */}
               <nav aria-label="보조 메뉴" className="hidden xl:block">
                 <ul className="flex items-center gap-0.5">
@@ -71,7 +80,7 @@ export function Header() {
                         href={item.href}
                         aria-current={isActive(item.href) ? 'page' : undefined}
                         className={cn(
-                          'rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors',
+                          'rounded-md px-2.5 py-1.5 text-[0.8125rem] font-medium transition-colors',
                           isActive(item.href)
                             ? 'text-brand-700'
                             : 'text-ink-400 hover:bg-surface-sunken hover:text-ink-700',
@@ -86,7 +95,7 @@ export function Header() {
 
               <Link
                 href="/login"
-                className="hidden rounded-md px-2.5 py-1.5 text-[13.5px] font-semibold text-ink-700 transition-colors hover:bg-surface-sunken lg:block"
+                className="hidden rounded-md px-2.5 py-1.5 text-[0.84375rem] font-semibold text-ink-700 transition-colors hover:bg-surface-sunken lg:block"
               >
                 로그인
               </Link>

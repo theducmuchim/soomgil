@@ -22,7 +22,7 @@ export function MapLegend({
 
   return (
     <div className={cn('rounded-xl border border-line bg-surface p-4', className)}>
-      <p className="text-[12.5px] font-semibold text-ink-900">위험도 범례</p>
+      <p className="text-[0.78125rem] font-semibold text-ink-900">위험도 범례</p>
 
       <div
         className="mt-3 h-2.5 w-full rounded-full"
@@ -31,7 +31,7 @@ export function MapLegend({
         aria-label="위험도 0점에서 100점까지의 색상 범례"
       />
 
-      <div className="tabular mt-1.5 flex justify-between text-[10.5px] text-ink-400">
+      <div className="tabular mt-1.5 flex justify-between text-[0.65625rem] text-ink-400">
         <span>0</span>
         <span>25</span>
         <span>50</span>
@@ -43,7 +43,7 @@ export function MapLegend({
         {(['low', 'moderate', 'high', 'veryHigh'] as const).map((level) => (
           <span
             key={level}
-            className="inline-flex items-center gap-1.5 text-[11px] text-ink-500"
+            className="inline-flex items-center gap-1.5 text-[0.6875rem] text-ink-500"
           >
             <span
               className="h-2 w-2 rounded-full"
@@ -56,7 +56,7 @@ export function MapLegend({
       </div>
 
       {note && (
-        <p className="mt-3 border-t border-line pt-3 text-[11px] leading-relaxed text-ink-400">
+        <p className="mt-3 border-t border-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
           {note}
         </p>
       )}
