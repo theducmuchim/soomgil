@@ -10,6 +10,9 @@ import { RiskBadge } from '@/components/risk/RiskBadge';
 import { scoreColor } from '@/lib/risk/color';
 import { cn } from '@/lib/utils/cn';
 import { useStored } from '@/lib/utils/local-store';
+import { usePremium } from '@/lib/subscription/usePremium';
+import { PremiumToggle } from '@/components/subscription/PremiumToggle';
+import { FREE_FAVORITE_LIMIT } from '@/config/plans';
 
 /**
  * 마이페이지 설정.
@@ -37,6 +40,7 @@ interface SavedRoute {
 }
 
 export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
+  const [isPremium] = usePremium();
   const [favorites, setFavorites] = useStored<string[]>(KEY.districts, NO_DISTRICTS);
   const [routes, setRoutes] = useStored<SavedRoute[]>(KEY.routes, NO_ROUTES);
   const [storedLevel, setStoredLevel] = useStored<RiskLevel>(KEY.alertLevel, 'high');
@@ -44,12 +48,22 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
   // 저장된 값이 손상됐을 수 있으므로 한 번 검증하고 쓴다
   const alertLevel = RISK_LEVEL_ORDER.includes(storedLevel) ? storedLevel : 'high';
 
+  /*
+   * 무료 플랜은 관심 지역 1곳까지.
+   *
+   * 제한에 걸렸을 때 그냥 눌리지 않게 하면 왜 안 되는지 알 수 없다.
+   * 새로 고른 곳으로 바꿔주고, 여러 곳을 함께 보려면 프리미엄이라고 알린다.
+   */
+  const atLimit = !isPremium && favorites.length >= FREE_FAVORITE_LIMIT;
+
   const toggleDistrict = (id: string) => {
-    setFavorites(
-      favorites.includes(id)
-        ? favorites.filter((x) => x !== id)
-        : [...favorites, id],
-    );
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter((x) => x !== id));
+      return;
+    }
+    // 무료 플랜에서 한도를 넘기면 가장 오래된 것을 밀어낸다
+    const next = [...favorites, id];
+    setFavorites(isPremium ? next : next.slice(-FREE_FAVORITE_LIMIT));
   };
 
   const addRoute = (from: string, to: string) => {
@@ -72,6 +86,8 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <PremiumToggle />
+
       {/* 관심 지역 현황 */}
       {watched.length > 0 && (
         <section
@@ -115,9 +131,16 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
 
       {/* 관심 지역 선택 */}
       <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-        <h2 className="text-[15px] font-bold text-ink-900">관심 지역</h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-[15px] font-bold text-ink-900">관심 지역</h2>
+          <span className="text-[11.5px] text-ink-400">
+            {isPremium ? '자치구 전체' : `무료 ${FREE_FAVORITE_LIMIT}곳`}
+          </span>
+        </div>
         <p className="mt-1.5 text-[13px] leading-relaxed text-ink-500">
           자주 머무는 자치구를 고르면 위 카드에서 바로 확인할 수 있습니다.
+          {!isPremium &&
+            ' 무료 플랜에서는 1곳만 저장되며, 다른 곳을 고르면 바뀝니다.'}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {DISTRICTS.map((district) => {
@@ -139,14 +162,45 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
             );
           })}
         </div>
+
+        {!isPremium && atLimit && (
+          <p className="mt-3 rounded-lg bg-brand-50 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-brand-700">
+            여러 자치구를 함께 보려면 프리미엄이 필요합니다.{' '}
+            <Link href="/pricing" className="font-semibold underline underline-offset-2">
+              요금제 보기
+            </Link>
+          </p>
+        )}
       </section>
 
       {/* 알림 기준 */}
-      <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-        <h2 className="text-[15px] font-bold text-ink-900">알림 기준 등급</h2>
+      <section
+        className={cn(
+          'rounded-2xl border p-5 sm:p-6',
+          isPremium ? 'border-line bg-surface' : 'border-dashed border-line bg-surface-raised',
+        )}
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-[15px] font-bold text-ink-900">알림 기준 등급</h2>
+          {!isPremium && (
+            <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[10.5px] font-semibold text-white">
+              프리미엄
+            </span>
+          )}
+        </div>
         <p className="mt-1.5 text-[13px] leading-relaxed text-ink-500">
           관심 지역이 이 등급 이상이 되면 위에 경고로 표시합니다.
         </p>
+
+        {!isPremium && (
+          <p className="mt-3 rounded-lg bg-brand-50 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-brand-700">
+            기준 등급 설정과 자동 알림은 프리미엄 기능입니다.{' '}
+            <Link href="/pricing" className="font-semibold underline underline-offset-2">
+              요금제 보기
+            </Link>
+          </p>
+        )}
+
         <div
           className="mt-4 inline-flex flex-wrap gap-1.5 rounded-lg border border-line p-1"
           role="group"
@@ -156,9 +210,11 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
             <button
               key={level}
               onClick={() => changeAlert(level)}
+              disabled={!isPremium}
               aria-pressed={alertLevel === level}
               className={cn(
                 'rounded-md px-3.5 py-1.5 text-[13px] font-semibold transition-colors',
+                !isPremium && 'cursor-not-allowed opacity-45',
                 alertLevel === level
                   ? 'text-white'
                   : 'text-ink-500 hover:bg-surface-sunken hover:text-ink-900',

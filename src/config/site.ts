@@ -24,6 +24,7 @@ export const PRIMARY_NAV: NavItem[] = [
 
 /** 헤더 보조 메뉴 */
 export const SECONDARY_NAV: NavItem[] = [
+  { href: '/pricing', label: '요금제' },
   { href: '/guide', label: '이용안내' },
   { href: '/notice', label: '공지사항' },
   { href: '/about', label: '팀 소개' },
@@ -37,6 +38,7 @@ export const FOOTER = {
     contact: 'soomgil.team@example.com',
   },
   links: [
+    { href: '/pricing', label: '요금제' },
     { href: '/guide', label: '이용안내' },
     { href: '/notice', label: '공지사항' },
     { href: '/about', label: '팀 소개' },

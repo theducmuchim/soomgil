@@ -1,5 +1,8 @@
+'use client';
+
 import type { Season } from '@/types';
 import { Container } from '@/components/layout/Container';
+import { usePremium } from '@/lib/subscription/usePremium';
 import { cn } from '@/lib/utils/cn';
 
 /**
@@ -26,6 +29,11 @@ import { cn } from '@/lib/utils/cn';
  * ⚠ 광고를 붙일 때는 "광고" 표시를 반드시 유지할 것.
  *   표시광고법상 광고임을 알 수 있게 해야 하고, 공공서비스 톤에서도
  *   콘텐츠와 광고가 구분되지 않으면 신뢰를 잃는다.
+ *
+ * ── 프리미엄이면 자리째 사라진다 ────────────────────────
+ * 구독의 첫 번째 값어치가 "광고 없음"이라, 빈 회색 상자를 남겨두면 의미가 없다.
+ * 자리 자체를 렌더하지 않는다. 구독 여부는 브라우저에만 있으므로
+ * 이 컴포넌트는 클라이언트에서 판단한다.
  */
 
 export type AdVariant = 'leaderboard' | 'inline';
@@ -92,6 +100,11 @@ export function AdSlot({
   bare?: boolean;
   className?: string;
 }) {
+  const [isPremium] = usePremium();
+
+  // 프리미엄 구독자에게는 광고 지면을 아예 만들지 않는다
+  if (isPremium) return null;
+
   const copy = SAMPLE_COPY[season][variant];
 
   const banner = (

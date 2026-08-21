@@ -3,9 +3,12 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import type { AreaRisk, RouteOption, RouteResult } from '@/types';
+import Link from 'next/link';
 import { MapSkeleton } from '@/components/map';
 import { RiskBadge } from '@/components/risk/RiskBadge';
 import { scoreColor } from '@/lib/risk/color';
+import { usePremium } from '@/lib/subscription/usePremium';
+import { INDICATORS } from '@/config/indicators';
 import { formatDelta, formatDistance, formatDuration } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 
@@ -21,12 +24,29 @@ export function RouteView({
   result: RouteResult;
   dongRisks: AreaRisk[];
 }) {
+  const [isPremium] = usePremium();
+
+  /*
+   * 무료 플랜은 추천 경로 하나만 본다.
+   *
+   * 계산은 어차피 전부 끝난 상태다(경로 3안 모두 계산됨). 여기서 나누는 건
+   * "얼마나 보여줄 것인가"뿐이다. 그래서 프리미엄으로 바꾸는 순간 다시 계산하지
+   * 않고 즉시 나머지가 드러난다.
+   */
+  const visibleOptions = isPremium
+    ? result.options
+    : result.options.filter((o) => o.kind === 'fastest').slice(0, 1);
+
+  const hiddenCount = result.options.length - visibleOptions.length;
+
   // 기본 선택은 '가장 안전한 길' — 이 서비스가 존재하는 이유이므로 먼저 보여준다
   const [selectedId, setSelectedId] = useState(
     result.options.find((o) => o.kind === 'safest')?.id ?? result.options[0]?.id ?? '',
   );
 
-  const selected = result.options.find((o) => o.id === selectedId) ?? result.options[0];
+  // 무료로 돌아왔을 때 숨겨진 경로가 선택된 채로 남지 않게 한다
+  const selected =
+    visibleOptions.find((o) => o.id === selectedId) ?? visibleOptions[0];
 
   if (!selected) {
     return (
@@ -44,23 +64,31 @@ export function RouteView({
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-6">
       <div className="order-2 h-[46vh] min-h-[320px] overflow-hidden rounded-2xl border border-line lg:order-1 lg:h-[560px]">
-        <RouteMap result={result} dongRisks={dongRisks} selectedRouteId={selectedId} />
+        <RouteMap
+          result={isPremium ? result : { ...result, options: visibleOptions }}
+          dongRisks={dongRisks}
+          selectedRouteId={selected.id}
+        />
       </div>
 
       <div className="order-1 flex flex-col gap-3 lg:order-2">
         <ul className="flex flex-col gap-2.5">
-          {result.options.map((option) => (
+          {visibleOptions.map((option) => (
             <li key={option.id}>
               <RouteOptionCard
                 option={option}
-                selected={option.id === selectedId}
+                selected={option.id === selected.id}
                 onSelect={() => setSelectedId(option.id)}
               />
             </li>
           ))}
         </ul>
 
+        {!isPremium && hiddenCount > 0 && <RouteUpsell hiddenCount={hiddenCount} />}
+
         <SegmentList option={selected} />
+
+        {isPremium && <ExposureBreakdown option={selected} dongRisks={dongRisks} />}
       </div>
     </div>
   );
@@ -191,6 +219,109 @@ function SegmentList({ option }: { option: RouteOption }) {
       <p className="mt-3 border-t border-line pt-3 text-[11px] leading-relaxed text-ink-400">
         <span className="text-risk-high">▲</span> 표시는 바람이 불어오는 쪽에 더 나쁜
         지역이 있어 실제 노출이 그 지역 값보다 높게 잡힌 구간입니다.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * 무료 플랜에서 가려진 경로안 안내.
+ *
+ * "잠김"만 걸어두지 않고 몇 개가 더 있는지 알려준다. 무엇이 가려졌는지 모르면
+ * 구독할 이유도 알 수 없다. 다만 수치는 노출하지 않는다 — 그게 유료 부분이다.
+ */
+function RouteUpsell({ hiddenCount }: { hiddenCount: number }) {
+  return (
+    <div className="rounded-xl border border-dashed border-brand-300 bg-brand-50/50 p-4">
+      <p className="text-[13px] font-bold text-brand-700">
+        경로 {hiddenCount}개를 더 계산했습니다
+      </p>
+      <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-600">
+        노출량이 더 적은 경로와 더 빠른 경로를 이미 찾아 두었습니다. 프리미엄에서
+        세 경로를 나란히 비교하고, 구간별 위험 요인까지 볼 수 있습니다.
+      </p>
+      <Link
+        href="/pricing"
+        className="mt-3 inline-flex h-9 items-center rounded-lg bg-brand-600 px-4 text-[12.5px] font-semibold text-white transition-colors hover:bg-brand-700"
+      >
+        요금제 보기
+      </Link>
+    </div>
+  );
+}
+
+/**
+ * 구간 위험 요인 (프리미엄).
+ *
+ * 경로에서 가장 노출이 큰 구간이 어느 지표 때문에 나쁜지 펼친다.
+ * 값은 이미 계산돼 있는 것(AreaRisk.breakdown.contributions)을 그대로 쓴다.
+ * "왜 이 길이 나쁜가"에 답하는 부분이라 유료로 둔다.
+ */
+function ExposureBreakdown({
+  option,
+  dongRisks,
+}: {
+  option: RouteOption;
+  dongRisks: AreaRisk[];
+}) {
+  const worst = [...option.segments].sort(
+    (a, b) => b.effectiveScore - a.effectiveScore,
+  )[0];
+  if (!worst) return null;
+
+  const area = dongRisks.find((d) => d.areaId === worst.areaId);
+  if (!area || area.breakdown.contributions.length === 0) return null;
+
+  const maxPoints = Math.max(...area.breakdown.contributions.map((c) => c.points), 1);
+
+  return (
+    <div className="rounded-2xl border border-brand-200 bg-brand-50/40 p-4">
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="text-[12.5px] font-semibold text-brand-700">구간 위험 요인</p>
+        <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+          프리미엄
+        </span>
+      </div>
+
+      <p className="mt-1.5 text-[11.5px] leading-relaxed text-ink-500">
+        이 경로에서 노출이 가장 큰 <strong className="font-semibold">{worst.areaName}</strong>{' '}
+        구간을 무엇이 끌어올렸는지 봅니다.
+      </p>
+
+      <ul className="mt-3 space-y-2.5">
+        {area.breakdown.contributions.map((c) => {
+          const meta = INDICATORS[c.id];
+          return (
+            <li key={c.id}>
+              <div className="flex items-baseline justify-between gap-2 text-[12px]">
+                <span className="font-medium text-ink-700">
+                  {meta.shortLabel}
+                  <span className="ml-1.5 text-ink-400">
+                    비중 {Math.round(c.weight * 100)}%
+                  </span>
+                </span>
+                <span className="tabular shrink-0 font-semibold text-ink-700">
+                  {c.points}점
+                </span>
+              </div>
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${(c.points / maxPoints) * 100}%`,
+                    backgroundColor: scoreColor(c.normalized),
+                  }}
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="mt-3 border-t border-brand-200/70 pt-2.5 text-[11px] leading-relaxed text-ink-500">
+        보정 전 {area.breakdown.baseScore}점에 대기정체 보정{' '}
+        {formatDelta(area.breakdown.stagnationDeltaPct, 1)}를 적용해 최종{' '}
+        {area.breakdown.score}점입니다.
       </p>
     </div>
   );
