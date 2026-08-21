@@ -1,4 +1,4 @@
-import { DATA_MODE, SERVICE_KEY } from '@/lib/env';
+import { DATA_MODE, KMA_APIHUB_KEY, SERVICE_KEY } from '@/lib/env';
 
 /**
  * 공공데이터 API 호출 계층.
@@ -15,11 +15,21 @@ import { DATA_MODE, SERVICE_KEY } from '@/lib/env';
  * ────────────────────────────────────────────────────
  */
 
+/**
+ * 인증 방식.
+ *
+ * dataGoKr : 공공데이터포털 — serviceKey 파라미터
+ * apiHub   : 기상청 API허브 — authKey 파라미터, 호스트도 다르다
+ */
+export type AuthKind = 'dataGoKr' | 'apiHub';
+
 export interface CallOptions<T> {
   /** 오류 메시지에 찍을 이름 */
   name: string;
   endpoint: string;
   params: Record<string, string | number>;
+  /** 기본값 dataGoKr */
+  auth?: AuthKind;
   /** 서버 캐시 유지 시간(초) — lib/env.ts 의 CACHE_TTL 사용 */
   revalidate: number;
   /** mock 모드에서 쓸 가짜 응답 */
@@ -49,12 +59,24 @@ export async function callPublicApi<T>(options: CallOptions<T>): Promise<T> {
   }
 }
 
-async function fetchLive<T>({ name, endpoint, params, revalidate }: CallOptions<T>): Promise<T> {
+async function fetchLive<T>({
+  name,
+  endpoint,
+  params,
+  revalidate,
+  auth = 'dataGoKr',
+}: CallOptions<T>): Promise<T> {
   const url = new URL(endpoint);
 
-  // serviceKey는 URLSearchParams가 다시 인코딩하면 깨진다.
-  // 포털에서 받은 Decoding 키를 넣고 여기서 한 번만 인코딩한다.
-  url.searchParams.set('serviceKey', SERVICE_KEY);
+  // 인증 파라미터 이름이 제공처마다 다르다.
+  // 키는 Decoding 값을 넣고 URLSearchParams가 한 번만 인코딩하게 둔다.
+  if (auth === 'apiHub') {
+    if (!KMA_APIHUB_KEY) throw new Error(`${name}: KMA_APIHUB_KEY 미설정`);
+    url.searchParams.set('authKey', KMA_APIHUB_KEY);
+  } else {
+    if (!SERVICE_KEY) throw new Error(`${name}: DATA_GO_KR_SERVICE_KEY 미설정`);
+    url.searchParams.set('serviceKey', SERVICE_KEY);
+  }
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, String(value));
   }

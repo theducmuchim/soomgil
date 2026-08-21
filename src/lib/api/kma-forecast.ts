@@ -39,6 +39,10 @@ export function latestBaseDateTime(now: Date = new Date()): {
 /**
  * 기상청 단기예보 — 기온(TMP) · 습도(REH) · 풍속(WSD) · 풍향(VEC)
  *
+ * ⚠ 이 서비스는 공공데이터포털이 아니라 **기상청 API허브**에서 받는다.
+ * data.go.kr 쪽으로 같은 오퍼레이션을 부르면 SERVICE_KEY_IS_NOT_REGISTERED 가 나온다.
+ * 응답 형식은 동일해서 파싱 코드는 그대로 쓴다.
+ *
  * 체감온도는 이 응답에 없다. 여기서 받은 TMP·REH·WSD로
  * lib/risk/apparent-temp.ts 가 직접 산출한다.
  */
@@ -62,6 +66,7 @@ export function fetchVilageFcst(
       pageNo: 1,
       numOfRows: 1000,
     },
+    auth: 'apiHub',
     revalidate: CACHE_TTL.forecast,
     mock: () => buildVilageFcstResponse(scenario, districtId),
   });

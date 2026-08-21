@@ -9,12 +9,28 @@ import type { DataMode } from '@/types';
  * 키가 없으면 무조건 mock 으로 떨어진다(시연 중 사고 방지).
  */
 export const DATA_MODE: DataMode =
-  process.env.NEXT_PUBLIC_DATA_MODE === 'live' && process.env.DATA_GO_KR_SERVICE_KEY
+  process.env.NEXT_PUBLIC_DATA_MODE === 'live' &&
+  (process.env.DATA_GO_KR_SERVICE_KEY || process.env.KMA_APIHUB_KEY)
     ? 'live'
     : 'mock';
 
-/** 공공데이터포털 일반 인증키 (Decoding). 서버에서만 읽는다. */
+/**
+ * 공공데이터포털(data.go.kr) 일반 인증키 (Decoding). 서버에서만 읽는다.
+ *
+ * 계정 하나로 신청한 서비스 전부에 같은 키를 쓴다.
+ * 여기서는 에어코리아 대기오염정보 · 꽃가루농도위험지수 · 생활기상지수에 해당한다.
+ */
 export const SERVICE_KEY = process.env.DATA_GO_KR_SERVICE_KEY ?? '';
+
+/**
+ * 기상청 API허브(apihub.kma.go.kr) 인증키.
+ *
+ * ⚠ data.go.kr 키와 다른 키다.
+ * 단기예보·초단기실황은 data.go.kr이 아니라 API허브에서 받는다. 파라미터 이름도
+ * serviceKey 가 아니라 authKey 이고 호스트도 다르다. 확인해 본 결과 같은 오퍼레이션을
+ * data.go.kr 쪽으로 부르면 SERVICE_KEY_IS_NOT_REGISTERED 가 돌아온다.
+ */
+export const KMA_APIHUB_KEY = process.env.KMA_APIHUB_KEY ?? '';
 
 /**
  * TMAP 앱키 (SK Open API).
