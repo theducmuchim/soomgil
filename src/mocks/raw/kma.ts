@@ -11,7 +11,6 @@ import {
   INDEX_HOURS,
   hhmm,
   hourlySeries,
-  hourlySeriesDiscrete,
   jitter,
   round1,
   ymd,
@@ -66,7 +65,11 @@ export function buildPollenResponse(
               code: POLLEN_CODE[kind],
               areaNo,
               date: ymdH(scenario.baseTime),
-              ...hourlySeriesDiscrete(scenario, raw, INDEX_HOURS),
+              // 실제 API 는 h0/h3 가 아니라 하루 단위 필드를 준다
+              today: String(Math.round(raw)),
+              tomorrow: String(Math.round(raw)),
+              dayaftertomorrow: String(Math.round(raw)),
+              twodaysaftertomorrow: '',
             },
           ],
         },
@@ -78,13 +81,20 @@ export function buildPollenResponse(
   };
 }
 
-/** 기상청 대기정체지수 응답 (연중 제공) */
+/**
+ * 기상청 대기확산지수 응답 (연중 제공).
+ *
+ * ⚠ 실제 API는 "정체"가 아니라 "확산" 지수를 준다 (클수록 안전).
+ * 시나리오에는 정체 값으로 적혀 있으므로 여기서 뒤집어 내보낸다.
+ * 그래야 mock 도 live 와 똑같이 normalize 의 diffusionToStagnation 을 지나간다.
+ */
 export function buildStagnationResponse(
   scenario: Scenario,
   areaNo: string,
 ): KmaIndexResponse {
-  // 정체지수는 시 전역 공통값에 구별로 아주 약간의 차이만 준다
-  const value = round1(scenario.stagnation * jitter(`stagnation:${areaNo}`, 0.04));
+  const stagnation = round1(scenario.stagnation * jitter(`stagnation:${areaNo}`, 0.04));
+  // 정체 → 확산으로 뒤집어서 실제 API 와 같은 방향의 값을 만든다
+  const value = round1(Math.min(Math.max(100 - stagnation, 0), 100));
 
   return {
     response: {
@@ -169,12 +179,19 @@ export function buildVilageFcstResponse(
 
 /** 기상청 기상특보 목록 응답 */
 export function buildWarningResponse(scenario: Scenario): WthrWrnResponse {
-  const item = scenario.warnings.map((w, i) => ({
-    stnId: '133', // 대전지방기상청
-    tmFc: w.tmFc,
-    tmSeq: i + 1,
-    title: w.title,
-  }));
+  /*
+   * 실제 API 는 '[특보] 제08-26호 : 2026.08.19.10:00 / 폭염주의보 발표 (*)' 형식으로
+   * 발표/해제 이벤트를 준다. mock 도 같은 형식으로 만들어야 파서가 같은 길을 지난다.
+   */
+  const item = scenario.warnings.map((w, i) => {
+    const kind = w.title.replace(/^[^ ]+ /, '').trim();
+    return {
+      stnId: '133', // 대전지방기상청
+      tmFc: Number(w.tmFc),
+      tmSeq: i + 1,
+      title: `[특보] 제08-${String(i + 1).padStart(2, '0')}호 : / ${kind} 발표 (*)`,
+    };
+  });
 
   return {
     response: {

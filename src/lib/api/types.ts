@@ -70,10 +70,12 @@ export interface VilageFcstResponse {
 /* ── 기상청 기상특보 ───────────────────────────────────── */
 
 export interface WthrWrnItem {
-  stnId: string; // 발표 관서 (대전청 '133')
-  tmFc: string; // 발표시각 YYYYMMDDHHmm
+  stnId: string | number; // 발표 관서 (대전청 '133')
+  /** 발표시각 YYYYMMDDHHmm — JSON 응답에서는 숫자로 온다 */
+  tmFc: string | number;
   tmSeq: number;
-  title: string; // '대전, 세종 폭염경보'
+  /** '[특보] 제08-29호 : 2026.08.21.10:00 / 폭염주의보 해제 (*)' */
+  title: string;
 }
 
 export interface WthrWrnResponse {

@@ -104,11 +104,21 @@ async function fetchLive<T>({
   return json;
 }
 
-/** 공공데이터 API는 HTTP 200이어도 본문 resultCode로 실패를 알린다 */
+/**
+ * 공공데이터 API는 HTTP 200이어도 본문 resultCode로 실패를 알린다.
+ *
+ * 다만 코드 99는 오류가 아니다. 기상청 지수류는 서비스 기간이 아닐 때
+ * "해당지수자료 제공기간이 아닙니다"를 99로 돌려준다. 예를 들어 8월에
+ * 소나무 꽃가루를 부르면 99가 온다. 이건 정상적인 응답이므로 예외로 만들지 않고
+ * 값 없음으로 흘려보낸다 — 그래야 예시 데이터로 잘못 대체되지 않는다.
+ */
+const OUT_OF_SEASON = '99';
+
 function assertResultCode(name: string, json: unknown) {
   const header = (json as { response?: { header?: { resultCode?: string; resultMsg?: string } } })
     ?.response?.header;
-  if (header?.resultCode && header.resultCode !== '00') {
-    throw new Error(`${name}: [${header.resultCode}] ${header.resultMsg ?? '알 수 없는 오류'}`);
-  }
+  if (!header?.resultCode || header.resultCode === '00') return;
+  if (header.resultCode === OUT_OF_SEASON) return;
+
+  throw new Error(`${name}: [${header.resultCode}] ${header.resultMsg ?? '알 수 없는 오류'}`);
 }

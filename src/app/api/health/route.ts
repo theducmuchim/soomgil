@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 import { DATA_MODE, KMA_APIHUB_KEY, SERVICE_KEY, TMAP_APP_KEY } from '@/lib/env';
 import { ENDPOINTS } from '@/lib/api/endpoints';
 import { latestBaseDateTime } from '@/lib/api/kma-forecast';
-import { kstYmdH } from '@/lib/utils/time';
+import { kstYmd, kstYmdH } from '@/lib/utils/time';
 
 /**
  * 배포 상태 점검.
@@ -119,6 +119,8 @@ export async function GET(request: NextRequest) {
   const time = kstYmdH();
   const { base_date, base_time } = latestBaseDateTime();
   const areaNo = '3017000000'; // 대전 서구
+  const today = kstYmd();
+  const threeDaysAgo = kstYmd(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000));
 
   const sources = await Promise.all([
     probeSource(
@@ -140,6 +142,11 @@ export async function GET(request: NextRequest) {
     probeSource(
       '대기정체지수',
       `${ENDPOINTS.stagnation}?serviceKey=${encodeURIComponent(SERVICE_KEY)}&dataType=JSON&areaNo=${areaNo}&time=${time}&pageNo=1&numOfRows=1`,
+    ),
+    probeSource(
+      '기상특보',
+      // 조회 가능 범위가 오늘 기준 6일 전까지라 3일만 요청한다
+      `${ENDPOINTS.warning}?serviceKey=${encodeURIComponent(SERVICE_KEY)}&dataType=JSON&pageNo=1&numOfRows=1&stnId=133&fromTmFc=${threeDaysAgo}&toTmFc=${today}`,
     ),
   ]);
 

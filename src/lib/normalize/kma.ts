@@ -20,6 +20,48 @@ export function parseIndexValue(res: KmaIndexResponse): number | null {
   return null;
 }
 
+/**
+ * 꽃가루농도위험지수 응답에서 오늘 값을 꺼낸다.
+ *
+ * ⚠ 다른 지수류와 응답 형식이 다르다.
+ * 대기확산지수 같은 지수는 h0·h3·h6… 로 3시간 간격 예보를 주지만,
+ * 꽃가루는 today · tomorrow · dayaftertomorrow · twodaysaftertomorrow 로
+ * **하루 단위** 값을 준다. 같은 파서를 쓰면 아무 값도 못 찾는다.
+ *
+ * 값은 0~3 (낮음/보통/높음/매우높음).
+ */
+export function parsePollenValue(res: KmaIndexResponse): number | null {
+  const item = res.response?.body?.items?.item?.[0];
+  if (!item) return null;
+
+  for (const key of ['today', 'tomorrow', 'dayaftertomorrow'] as const) {
+    const raw = item[key];
+    if (raw === undefined || raw === '' || raw === null) continue;
+    const n = Number(raw);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+/**
+ * 대기확산지수 → 대기정체지수로 뒤집는다.
+ *
+ * ⚠ 기상청이 주는 건 대기"확산"지수(getAirDiffusionIdx)다.
+ * 값이 클수록 대기가 잘 확산돼 오염물질이 덜 쌓인다 = 안전하다.
+ *
+ * 이 서비스의 stagnation 지표는 반대 방향이다 — 클수록 정체가 심해 위험하다.
+ * 그대로 쓰면 보정이 거꾸로 걸려서, 공기가 잘 빠지는 날 위험도가 올라간다.
+ * 그래서 여기서 한 번만 뒤집고, 이후 코드는 전부 "정체" 방향으로만 다룬다.
+ */
+export function diffusionToStagnation(diffusion: number | null): number | null {
+  if (diffusion === null) return null;
+  return clamp(100 - diffusion, 0, 100);
+}
+
+function clamp(v: number, min: number, max: number): number {
+  return Math.min(Math.max(v, min), max);
+}
+
 /** 지수류의 시간대별 값 전체 (통계 화면용) */
 export function parseIndexSeries(res: KmaIndexResponse): { hour: number; value: number }[] {
   const item = res.response?.body?.items?.item?.[0];
@@ -78,10 +120,19 @@ export function parseVilageFcst(res: VilageFcstResponse): ForecastValues | null 
 }
 
 /**
- * 기상특보 목록 → 대전에 해당하는 특보만.
+ * 기상특보 목록 → **지금 발효 중인** 특보만.
  *
- * title은 '대전, 세종, 충남 폭염경보' 처럼 지역과 종류가 한 문자열에 붙어 온다.
- * 별도 코드 필드가 없어서 제목 문자열로 판정한다.
+ * ⚠ 응답은 "현재 상태"가 아니라 "발표/해제 이벤트 목록"이다.
+ *
+ *   [특보] 제08-26호 : 2026.08.19.10:00 / 폭염주의보 발표
+ *   [특보] 제08-29호 : 2026.08.21.10:00 / 폭염주의보 해제
+ *
+ * 제목에 "폭염"이 들어 있다고 발효 중이라고 보면, 해제된 특보까지 발효 중으로
+ * 잡아 체감온도에 없는 보정을 걸게 된다. 그래서 시간 순으로 이벤트를 재생해
+ * 마지막 상태만 남긴다.
+ *
+ * stnId=133 은 대전지방기상청이라 대전·세종·충남 관할 특보만 돌아온다.
+ * 제목에 지역명이 없는 것도 그 때문이다.
  */
 export function parseWarnings(res: WthrWrnResponse): WeatherWarning[] {
   const items = res.response?.body?.items?.item ?? [];
@@ -94,20 +145,42 @@ export function parseWarnings(res: WthrWrnResponse): WeatherWarning[] {
     { keyword: '오존', type: 'ozone' },
   ];
 
-  const out: WeatherWarning[] = [];
-  for (const item of items) {
-    const title = item.title ?? '';
-    if (!title.includes('대전')) continue;
+  /** 특보 종류+등급별 마지막 상태 */
+  const state = new Map<string, { warning: WeatherWarning; active: boolean }>();
 
-    const kind = KIND.find((k) => title.includes(k.keyword));
-    if (!kind) continue;
+  // 오래된 것부터 재생해야 마지막 이벤트가 최종 상태가 된다
+  const ordered = [...items].sort(
+    (a, b) => Number(a.tmFc ?? 0) - Number(b.tmFc ?? 0),
+  );
 
-    // '경보'가 '주의보'보다 강하므로 먼저 본다
-    const grade: WeatherWarning['grade'] = title.includes('경보') ? '경보' : '주의보';
+  for (const item of ordered) {
+    const title = String(item.title ?? '');
+    // '… / 폭염주의보 해제 (*)' 처럼 마지막 슬래시 뒤에 내용이 온다
+    const body = title.includes('/') ? title.slice(title.lastIndexOf('/') + 1) : title;
 
-    out.push({ type: kind.type, grade, title, issuedAt: tmFcToIso(item.tmFc) });
+    // 한 건에 여러 특보가 묶여 오기도 한다
+    for (const part of body.split(/[,、]/)) {
+      const kind = KIND.find((k) => part.includes(k.keyword));
+      if (!kind) continue;
+
+      // '경보'가 '주의보'보다 강하므로 먼저 본다
+      const grade: WeatherWarning['grade'] = part.includes('경보') ? '경보' : '주의보';
+      const released = part.includes('해제');
+
+      const key = `${kind.type}:${grade}`;
+      state.set(key, {
+        active: !released,
+        warning: {
+          type: kind.type,
+          grade,
+          title: `대전 ${part.replace(/\(\*\)/g, '').trim()}`,
+          issuedAt: tmFcToIso(String(item.tmFc ?? '')),
+        },
+      });
+    }
   }
-  return out;
+
+  return [...state.values()].filter((s) => s.active).map((s) => s.warning);
 }
 
 /** 'YYYYMMDDHHmm' → ISO 8601 (KST) */

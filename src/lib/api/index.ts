@@ -21,7 +21,9 @@ import { averageBreakdown, dominantIndicator, levelFromScore, scoreArea } from '
 import { applyWarningFloor, apparentTemp } from '@/lib/risk/apparent-temp';
 import { makeReading } from '@/lib/normalize/reading';
 import {
+  diffusionToStagnation,
   parseIndexValue,
+  parsePollenValue,
   parseVilageFcst,
   parseWarnings,
   type ForecastValues,
@@ -97,11 +99,13 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
         ),
       ]);
 
-      const stagnationValue = parseIndexValue(stagnationRes) ?? 0;
+      // 기상청이 주는 건 대기'확산'지수라 정체 방향으로 뒤집어야 한다
+      const stagnationValue = diffusionToStagnation(parseIndexValue(stagnationRes)) ?? 0;
       const stagnationReading = makeReading('stagnation', stagnationValue, baseTime, month);
 
       const pollenValues = new Map<IndicatorId, number | null>();
-      pollenIds.forEach((id, i) => pollenValues.set(id, parseIndexValue(pollenResList[i])));
+      // 꽃가루는 today/tomorrow 형식이라 지수류 파서와 다른 것을 쓴다
+      pollenIds.forEach((id, i) => pollenValues.set(id, parsePollenValue(pollenResList[i])));
 
       const air = airByDistrict[district.id];
       const forecast = forecastByDistrict[district.id];
