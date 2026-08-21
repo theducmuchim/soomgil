@@ -98,5 +98,15 @@ export const CACHE_TTL = {
   tmapPoi: 60 * 60,
 } as const;
 
-/** 시연용: 계절 강제 전환 (?season=winter). mock 모드에서만 동작. */
-export const ALLOW_SEASON_OVERRIDE = DATA_MODE === 'mock';
+/**
+ * 계절 보기 전환 (?season=winter) 허용 여부.
+ *
+ * 항상 허용한다. 다만 오늘이 아닌 계절에는 실데이터가 존재하지 않는다 —
+ * 8월에 3월 꽃가루 실측값을 받아올 방법은 없다. 그래서 다른 계절을 고르면
+ * 그 계절의 예시 시나리오로 화면을 채우고, **예시 데이터임을 화면에 표시한다**.
+ * (lib/api/index.ts 의 preview 처리, components/season/SeasonToggle.tsx 의 배지)
+ *
+ * 실데이터와 예시 데이터가 섞이는 것 자체는 문제가 아니다.
+ * 구분되지 않는 것이 문제다.
+ */
+export const ALLOW_SEASON_OVERRIDE = true;

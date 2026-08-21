@@ -59,7 +59,8 @@ export default function RootLayout({
         <Header />
         {/*
           계절 보기 전환.
-          실데이터 모드에서는 오늘 날짜의 계절만 받을 수 있으므로 노출하지 않는다.
+          오늘이 아닌 계절은 실제 관측값이 없어 예시 데이터로 채워지고,
+          그 사실을 토글 자리에서 "예시 데이터" 배지로 밝힌다.
           (useSearchParams를 쓰는 클라이언트 컴포넌트라 Suspense가 필요하다)
         */}
         {ALLOW_SEASON_OVERRIDE && (

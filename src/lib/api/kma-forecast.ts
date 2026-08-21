@@ -50,6 +50,7 @@ export function fetchVilageFcst(
   scenario: Scenario,
   districtId: DistrictId,
   now: Date = new Date(),
+  preview = false,
 ): Promise<VilageFcstResponse> {
   const { grid } = DISTRICT_BY_ID[districtId];
   const { base_date, base_time } = latestBaseDateTime(now);
@@ -67,6 +68,7 @@ export function fetchVilageFcst(
       numOfRows: 1000,
     },
     auth: 'apiHub',
+    forceMock: preview,
     revalidate: CACHE_TTL.forecast,
     mock: () => buildVilageFcstResponse(scenario, districtId),
   });

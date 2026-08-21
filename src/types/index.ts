@@ -143,6 +143,13 @@ export interface RiskSnapshot {
   warnings: WeatherWarning[];
   /** 'mock' | 'live' — 화면 하단 출처 배지에 표시 */
   source: DataMode;
+  /**
+   * 오늘이 아닌 계절을 보는 중이라 예시 데이터로 채워졌는가.
+   *
+   * source가 'mock'인 이유는 두 가지다 — 인증키가 없거나, 계절 보기로 다른 계절을
+   * 골랐거나. 화면에 안내할 문구가 서로 달라서 구분해 둔다.
+   */
+  preview: boolean;
 }
 
 export interface WeatherWarning {

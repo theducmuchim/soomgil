@@ -11,11 +11,13 @@ export function fetchStagnation(
   scenario: Scenario,
   areaNo: string,
   time: string = kstYmdH(),
+  preview = false,
 ): Promise<KmaIndexResponse> {
   return callPublicApi<KmaIndexResponse>({
     name: '대기정체지수',
     endpoint: ENDPOINTS.stagnation,
     params: { areaNo, time, dataType: 'JSON', pageNo: 1, numOfRows: 10 },
+    forceMock: preview,
     revalidate: CACHE_TTL.stagnation,
     mock: () => buildStagnationResponse(scenario, areaNo),
   });

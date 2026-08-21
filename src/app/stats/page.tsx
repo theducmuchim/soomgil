@@ -146,7 +146,10 @@ export default async function StatsPage({
           <p className="mt-4 text-[11.5px] leading-relaxed text-brand-700/75">
             기준 {formatKstLong(snapshot.baseTime)} · 시간대별 값은 기상청 지수 예보와
             에어코리아 예보통보를 합쳐 계산합니다.
-            {snapshot.source === 'mock' && ' 현재는 예시 데이터입니다.'}
+            {snapshot.source === 'mock' &&
+              (snapshot.preview
+                ? ` ${seasonMeta.label}은 오늘이 아니라 관측값이 없어 예시 데이터로 표시합니다.`
+                : ' 현재는 예시 데이터입니다.')}
           </p>
         </section>
       </Container>

@@ -13,6 +13,7 @@ import { buildRealtimeResponse } from '@/mocks/raw/airkorea';
  */
 export function fetchAirRealtime(
   scenario: Scenario,
+  preview = false,
 ): Promise<AirkoreaResponse<AirkoreaRealtimeItem>> {
   return callPublicApi<AirkoreaResponse<AirkoreaRealtimeItem>>({
     name: '에어코리아 실시간',
@@ -24,6 +25,7 @@ export function fetchAirRealtime(
       pageNo: 1,
       numOfRows: 100,
     },
+    forceMock: preview,
     revalidate: CACHE_TTL.airkorea,
     mock: () => buildRealtimeResponse(scenario),
   });

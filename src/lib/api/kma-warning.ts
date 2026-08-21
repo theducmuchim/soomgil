@@ -13,6 +13,7 @@ const DAEJEON_STN_ID = '133';
 export function fetchWarnings(
   scenario: Scenario,
   now: Date = new Date(),
+  preview = false,
 ): Promise<WthrWrnResponse> {
   // 특보는 며칠 전에 발표돼 아직 발효 중일 수 있어서 3일치를 받아온다
   const from = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
@@ -28,6 +29,7 @@ export function fetchWarnings(
       pageNo: 1,
       numOfRows: 50,
     },
+    forceMock: preview,
     revalidate: CACHE_TTL.warning,
     mock: () => buildWarningResponse(scenario),
   });

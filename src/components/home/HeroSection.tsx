@@ -6,6 +6,7 @@ import { INDICATORS } from '@/config/indicators';
 import { getSeasonMeta } from '@/lib/risk/season';
 import { formatKstLong } from '@/lib/utils/time';
 import { formatDelta } from '@/lib/utils/format';
+import { cn } from '@/lib/utils/cn';
 
 /**
  * 히어로.
@@ -67,8 +68,12 @@ export function HeroSection({ snapshot }: { snapshot: RiskSnapshot }) {
                 지금 대전 종합 위험도
               </h2>
               <span className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-ink-400">
+                {/* 예시 데이터에 초록 점을 붙이면 "실시간 정상"으로 읽힌다 */}
                 <span
-                  className="h-1.5 w-1.5 rounded-full bg-risk-low"
+                  className={cn(
+                    'h-1.5 w-1.5 rounded-full',
+                    snapshot.source === 'mock' ? 'bg-ink-300' : 'bg-risk-low',
+                  )}
                   aria-hidden="true"
                 />
                 {snapshot.source === 'mock' ? '예시 데이터' : '실시간'}

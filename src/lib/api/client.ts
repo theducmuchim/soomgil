@@ -30,6 +30,13 @@ export interface CallOptions<T> {
   params: Record<string, string | number>;
   /** 기본값 dataGoKr */
   auth?: AuthKind;
+  /**
+   * 이 호출만 예시 데이터를 쓰도록 강제한다.
+   *
+   * 오늘이 아닌 계절을 보는 중일 때 쓴다. 실데이터로는 다른 계절 값을
+   * 받아올 수 없으므로 전역 모드와 무관하게 시나리오를 쓴다.
+   */
+  forceMock?: boolean;
   /** 서버 캐시 유지 시간(초) — lib/env.ts 의 CACHE_TTL 사용 */
   revalidate: number;
   /** mock 모드에서 쓸 가짜 응답 */
@@ -45,7 +52,7 @@ export interface CallOptions<T> {
 const FALLBACK_TO_MOCK_ON_ERROR = true;
 
 export async function callPublicApi<T>(options: CallOptions<T>): Promise<T> {
-  if (DATA_MODE === 'mock') return options.mock();
+  if (options.forceMock || DATA_MODE === 'mock') return options.mock();
 
   try {
     return await fetchLive<T>(options);

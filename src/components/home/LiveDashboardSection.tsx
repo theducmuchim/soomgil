@@ -128,9 +128,11 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
 
             <p className="mt-4 border-t border-line pt-3 text-[11.5px] text-ink-400">
               기준 {formatKstLong(snapshot.baseTime)} ·{' '}
-              {snapshot.source === 'mock'
-                ? '예시 데이터 (실 인증키 연동 시 자동 전환)'
-                : '기상청·에어코리아 실시간'}
+              {snapshot.source !== 'mock'
+                ? '기상청·에어코리아 실시간'
+                : snapshot.preview
+                  ? '예시 데이터 (오늘이 아닌 계절이라 관측값이 없습니다)'
+                  : '예시 데이터 (실 인증키 연동 시 자동 전환)'}
             </p>
           </div>
         </div>

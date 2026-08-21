@@ -29,7 +29,7 @@ import {
   type ForecastValues,
 } from '@/lib/normalize/kma';
 import { parseRealtimeByDistrict, type AirValues } from '@/lib/normalize/airkorea';
-import { kstParts } from '@/lib/utils/time';
+import { kstParts, kstYmdH } from '@/lib/utils/time';
 import { windLabel } from '@/lib/utils/wind';
 import { fetchPollen, type PollenKind } from './kma-pollen';
 import { fetchStagnation } from './kma-stagnation';
@@ -48,7 +48,7 @@ const POLLEN_KIND: Partial<Record<IndicatorId, PollenKind>> = {
 
 export interface SnapshotOptions {
   now?: Date;
-  /** 시연용 계절 강제 (mock 모드에서만 반영) */
+  /** 계절 보기 전환 — 오늘이 아닌 계절이면 예시 데이터로 채운다 */
   seasonOverride?: Season | null;
 }
 
@@ -61,14 +61,30 @@ export interface SnapshotOptions {
  */
 export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<RiskSnapshot> {
   const now = options.now ?? new Date();
-  const season = resolveSeason(now, ALLOW_SEASON_OVERRIDE ? options.seasonOverride : null);
-  const scenario = getScenario(season);
 
-  // 기준 시각 — mock이면 시나리오에 적힌 그 계절의 대표 일시를 쓴다.
-  // 그래야 "겨울을 시연 중인데 8월 기준으로 꽃가루 서비스 기간을 판정"하는 어긋남이 없다.
-  const baseTime = DATA_MODE === 'mock' ? scenario.baseTime : now.toISOString();
+  /*
+   * 실데이터를 받을 수 있는 계절은 "오늘" 하나뿐이다.
+   * 8월에 겨울을 눌러도 기상청이 지난겨울 값을 돌려주지는 않는다.
+   *
+   * 그래서 다른 계절을 고르면 그 계절만 예시 시나리오로 채우고(preview),
+   * source를 'mock'으로 내려 화면이 "예시 데이터"라고 밝히게 한다.
+   * 실데이터와 예시가 섞이는 것 자체는 문제가 아니다 — 구분되지 않는 것이 문제다.
+   */
+  const currentSeason = resolveSeason(now);
+  const requested = ALLOW_SEASON_OVERRIDE ? options.seasonOverride : null;
+  const season = resolveSeason(now, requested);
+  const preview = season !== currentSeason;
+
+  const scenario = getScenario(season);
+  const useMock = preview || DATA_MODE === 'mock';
+
+  // 기준 시각 — 예시 데이터면 시나리오에 적힌 그 계절의 대표 일시를 쓴다.
+  // 그래야 "겨울을 보는 중인데 8월 기준으로 꽃가루 서비스 기간을 판정"하는 어긋남이 없다.
+  const baseTime = useMock ? scenario.baseTime : now.toISOString();
   const referenceDate = new Date(baseTime);
   const { month } = kstParts(referenceDate);
+  // 생활기상지수·꽃가루의 time 파라미터 — 예시 데이터면 그 계절의 시각으로 맞춘다
+  const indexTime = kstYmdH(referenceDate);
 
   // 화면 표시 우선순위 — 이번 계절의 핵심 지표
   const activeIds = getActiveIndicators(season, month);
@@ -78,14 +94,14 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
 
   // ── 시 단위 호출 (자치구 수와 무관하게 1회씩) ──
   const [airRes, warnRes] = await Promise.all([
-    fetchAirRealtime(scenario),
-    fetchWarnings(scenario, referenceDate),
+    fetchAirRealtime(scenario, preview),
+    fetchWarnings(scenario, referenceDate, preview),
   ]);
   const airByDistrict = parseRealtimeByDistrict(airRes);
   const warnings = parseWarnings(warnRes);
 
   // ── 단기예보: 격자가 겹치는 구는 한 번만 부른다 ──
-  const forecastByDistrict = await fetchForecastsDeduped(scenario, referenceDate);
+  const forecastByDistrict = await fetchForecastsDeduped(scenario, referenceDate, preview);
 
   // ── 자치구별 호출 (꽃가루 · 대기정체) ──
   const pollenIds = readingIds.filter((id) => id in POLLEN_KIND);
@@ -93,9 +109,9 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
   const districts: AreaRisk[] = await Promise.all(
     DISTRICTS.map(async (district) => {
       const [stagnationRes, ...pollenResList] = await Promise.all([
-        fetchStagnation(scenario, district.areaNo),
+        fetchStagnation(scenario, district.areaNo, indexTime, preview),
         ...pollenIds.map((id) =>
-          fetchPollen(scenario, district.areaNo, POLLEN_KIND[id] as PollenKind),
+          fetchPollen(scenario, district.areaNo, POLLEN_KIND[id] as PollenKind, indexTime, preview),
         ),
       ]);
 
@@ -147,7 +163,8 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
     districts,
     stagnation: makeReading('stagnation', stagnationCity, baseTime, month),
     warnings,
-    source: DATA_MODE,
+    source: useMock ? 'mock' : 'live',
+    preview,
   };
 }
 
@@ -210,6 +227,7 @@ function buildReading(args: BuildReadingArgs): IndicatorReading {
 async function fetchForecastsDeduped(
   scenario: Scenario,
   referenceDate: Date,
+  preview: boolean,
 ): Promise<Partial<Record<DistrictId, ForecastValues>>> {
   const groups = new Map<string, DistrictId[]>();
   for (const d of DISTRICTS) {
@@ -221,7 +239,7 @@ async function fetchForecastsDeduped(
 
   await Promise.all(
     [...groups.values()].map(async (memberIds) => {
-      const res = await fetchVilageFcst(scenario, memberIds[0], referenceDate);
+      const res = await fetchVilageFcst(scenario, memberIds[0], referenceDate, preview);
       const parsed = parseVilageFcst(res);
       if (!parsed) return;
       for (const id of memberIds) out[id] = parsed;

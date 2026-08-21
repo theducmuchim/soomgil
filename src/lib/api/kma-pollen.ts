@@ -14,11 +14,13 @@ export function fetchPollen(
   areaNo: string,
   kind: PollenKind,
   time: string = kstYmdH(),
+  preview = false,
 ): Promise<KmaIndexResponse> {
   return callPublicApi<KmaIndexResponse>({
     name: `꽃가루(${kind})`,
     endpoint: ENDPOINTS.pollen[kind],
     params: { areaNo, time, dataType: 'JSON', pageNo: 1, numOfRows: 10 },
+    forceMock: preview,
     revalidate: CACHE_TTL.pollen,
     mock: () => buildPollenResponse(scenario, areaNo, kind),
   });
