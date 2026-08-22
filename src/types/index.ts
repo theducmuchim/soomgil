@@ -170,6 +170,35 @@ export interface RoutePoint {
 }
 
 /** 경로를 이루는 한 구간 (하나의 행정동을 통과) */
+/**
+ * 도로 유형 — TMAP roadType 을 노출 관점으로 묶은 것.
+ *
+ * 숫자 코드를 그대로 화면과 계산에 흘리면 21과 23의 차이를 매번 기억해야 한다.
+ * 노출 관점에서 실제로 갈리는 것은 "차량 배출원과 얼마나 떨어져 있는가"뿐이라
+ * 그 기준으로만 묶는다.
+ */
+export type RoadKind =
+  /** 23 — 차량 진입 불가. 공원길·보행자 전용가로 */
+  | 'carFree'
+  /** 21 — 차도와 분리된 인도 */
+  | 'separated'
+  /** 22 — 차도와 인도가 나뉘지 않은 도로 */
+  | 'mixed'
+  /** 24 — 차도 */
+  | 'carOnly'
+  /** 코드가 없거나 우리가 모르는 값 · 격자 근사 경로 */
+  | 'unknown';
+
+/** 경로 좌표 + 그 점에서 다음 점까지의 도로 특성 */
+export interface RoadPoint {
+  lat: number;
+  lng: number;
+  /** TMAP roadType (21/22/23/24). 없으면 null */
+  roadType: number | null;
+  /** TMAP facilityType (14=지하보도 등). 없으면 null */
+  facilityType: number | null;
+}
+
 export interface RouteSegment {
   areaId: string;
   areaName: string;
@@ -180,6 +209,22 @@ export interface RouteSegment {
   areaScore: number;
   /** 풍향 보정 후 이 구간의 실효 위험 점수 */
   effectiveScore: number;
+  /**
+   * 이 구간에 걸린 도로유형 보정 계수 (거리 가중 평균).
+   * 1이면 보정 없음, 1보다 크면 차량 배출원에 가까워 노출이 올라간 구간.
+   */
+  roadFactor: number;
+  /** 이 구간에서 거리를 가장 많이 차지한 도로 유형 */
+  dominantRoad: RoadKind;
+  /**
+   * roadFactor 를 1에서 밀어낸 주된 도로 유형.
+   *
+   * dominantRoad 와 다를 수 있고, 화면에 이름을 붙일 때는 이쪽을 써야 한다.
+   * 구간 대부분이 기준 유형(분리된 인도, 계수 1.00)이고 일부만 공원길이면
+   * 가장 긴 유형은 '분리된 인도'인데 계수는 1보다 작아진다. 그때 '분리된 인도'
+   * 라고 써 붙이면 계수와 이름이 서로 어긋난 배지가 된다.
+   */
+  roadDriver: RoadKind;
 }
 
 /**

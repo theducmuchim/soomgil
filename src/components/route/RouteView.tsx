@@ -2,11 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import type { AreaRisk, RouteOption, RouteResult } from '@/types';
+import type { AreaRisk, RouteOption, RouteResult, RouteSegment } from '@/types';
 import Link from 'next/link';
 import { MapSkeleton } from '@/components/map';
 import { RiskBadge } from '@/components/risk/RiskBadge';
 import { scoreColor } from '@/lib/risk/color';
+import { ROAD_KINDS } from '@/lib/risk/road-exposure';
 import { usePlanCapabilities } from '@/lib/subscription/usePlan';
 import { TurnByTurnList } from '@/components/route/TurnByTurnList';
 import { INDICATORS } from '@/config/indicators';
@@ -259,6 +260,13 @@ function SegmentList({ option }: { option: RouteOption }) {
               <span className="flex-1 truncate text-[0.78125rem] font-medium text-ink-900">
                 {segment.areaName}
               </span>
+
+              {/*
+                도로유형 보정이 실제로 걸린 구간만 표시한다.
+                기준 유형(분리된 인도)까지 라벨을 달면 목록 전체가 같은 배지로
+                덮여 정작 다른 구간이 눈에 띄지 않는다.
+              */}
+              <RoadChip segment={segment} />
               <span className="tabular shrink-0 text-[0.71875rem] text-ink-400">
                 {formatDuration(segment.durationSec)}
               </span>
@@ -280,9 +288,40 @@ function SegmentList({ option }: { option: RouteOption }) {
 
       <p className="mt-3 border-t border-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
         <span className="text-risk-high">▲</span> 표시는 바람이 불어오는 쪽에 더 나쁜
-        지역이 있어 실제 노출이 그 지역 값보다 높게 잡힌 구간입니다.
+        지역이 있어 실제 노출이 그 지역 값보다 높게 잡힌 구간입니다. 색 배지는 도로
+        유형에 따른 교통 배출 노출 보정입니다 —{' '}
+        <Link href="/guide#road" className="underline underline-offset-2">
+          계산 방식
+        </Link>
       </p>
     </div>
+  );
+}
+
+/**
+ * 도로 유형 배지.
+ *
+ * 같은 동을 지나는데도 구간마다 값이 다른 이유를 화면에서 바로 알 수 있게 한다.
+ * 보정이 걸리지 않은 구간(기준 유형이거나 정보 없음)에는 아무것도 붙이지 않는다.
+ */
+function RoadChip({ segment }: { segment: RouteSegment }) {
+  const meaningful = Math.abs(segment.roadFactor - 1) >= 0.02;
+  if (!meaningful || segment.roadDriver === 'unknown') return null;
+
+  const raised = segment.roadFactor > 1;
+
+  return (
+    <span
+      title={`${ROAD_KINDS[segment.roadDriver].note} 교통 배출 노출 ×${segment.roadFactor}`}
+      className={cn(
+        'shrink-0 rounded px-1.5 py-px text-[0.625rem] font-semibold',
+        raised
+          ? 'bg-risk-high/12 text-risk-high'
+          : 'bg-risk-low/12 text-risk-low',
+      )}
+    >
+      {ROAD_KINDS[segment.roadDriver].label}
+    </span>
   );
 }
 
@@ -384,6 +423,15 @@ function ExposureBreakdown({
         보정 전 {area.breakdown.baseScore}점에 대기정체 보정{' '}
         {formatDelta(area.breakdown.stagnationDeltaPct, 1)}를 적용해 최종{' '}
         {area.breakdown.score}점입니다.
+        {Math.abs(worst.roadFactor - 1) >= 0.02 && worst.roadDriver !== 'unknown' && (
+          <>
+            {' '}
+            이 구간에는 <strong className="font-semibold">
+              {ROAD_KINDS[worst.roadDriver].label}
+            </strong> 구간이 섞여 있어, 교통 기인 오염물질(미세먼지·오존) 몫에 ×
+            {worst.roadFactor}가 걸렸습니다.
+          </>
+        )}
       </p>
     </div>
   );

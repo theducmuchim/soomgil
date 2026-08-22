@@ -1,3 +1,4 @@
+import type { RoadPoint } from '@/types';
 import type { LatLng } from './geometry';
 import { TMAP_APP_KEY, CACHE_TTL } from '@/lib/env';
 
@@ -49,6 +50,22 @@ interface TmapFeature {
     turnType?: number;
     /** 'SP'(출발) | 'EP'(도착) | 'PP'(경유) | 그 외 안내 지점 */
     pointType?: string;
+    /**
+     * LineString 전용 — 도로 유형.
+     * 21=보도(차도와 분리) · 22=차도·보도 혼재 · 23=차량진입불가 · 24=차도
+     * 이 값이 도로유형 노출 보정의 입력이다 (lib/risk/road-exposure.ts).
+     */
+    roadType?: number;
+    /**
+     * LineString 전용 — 시설 유형.
+     * 1=교량 · 11=일반도로 · 12=육교 · 14=지하보도 · 15=횡단보도
+     *
+     * ⚠ 이 대응은 TMAP 문서가 아니라 실제 응답에서 확인한 것이다.
+     * 대전 10개 경로를 받아 안내 문구와 대조했다 —
+     * '지하보도 진입 후 32m 이동'(turnType 126) 뒤에 오는 구간이 항상 14,
+     * '육교 진입'(125) 뒤가 12, 횡단보도 안내(211~213) 뒤가 15였다.
+     */
+    facilityType?: number;
   };
 }
 
@@ -85,8 +102,14 @@ export interface TmapGuide {
 }
 
 export interface TmapRoute {
-  /** 전체 경로 좌표 [위도, 경도] 순서 */
-  path: LatLng[];
+  /**
+   * 전체 경로 좌표 [위도, 경도] 순서.
+   *
+   * 각 점은 **그 점에서 다음 점까지 걷는 구간**의 도로 유형을 함께 들고 있다.
+   * 좌표만 쓰고 도로 특성을 버리면, 같은 동을 지나는 큰길과 이면도로가
+   * 화면에서 똑같은 값이 된다.
+   */
+  path: RoadPoint[];
   /** TMAP이 계산한 총 보행거리 (m) */
   totalDistanceM: number;
   /** TMAP이 계산한 총 소요시간 (초) — 보행 기준 */
@@ -229,14 +252,32 @@ function parseRoute(json: TmapResponse): TmapRoute {
     (f) => f.properties.totalDistance !== undefined,
   )?.properties;
 
-  const path: LatLng[] = [];
+  /*
+   * LineString 들을 이어붙이면서 각 좌표에 그 구간의 도로 유형을 붙인다.
+   *
+   * 규칙: "점 i 의 도로 유형 = 점 i → i+1 구간의 도로 유형".
+   *
+   * ⚠ 경계 좌표 처리
+   * 구간이 바뀌는 지점의 좌표는 앞 LineString 의 마지막이자 뒤 LineString 의
+   * 첫 좌표라 두 번 온다. 중복은 건너뛰되, **이미 넣어 둔 그 점의 도로 유형은
+   * 새 구간 것으로 덮어쓴다.** 그러지 않으면 그 점에서 시작하는 구간이
+   * 이전 도로의 유형으로 계산된다 — 큰길로 나서는 첫 구간이 이면도로로 잡힌다.
+   */
+  const path: RoadPoint[] = [];
   for (const feature of features) {
     if (feature.geometry.type !== 'LineString') continue;
+
+    const roadType = feature.properties.roadType ?? null;
+    const facilityType = feature.properties.facilityType ?? null;
+
     for (const [lng, lat] of feature.geometry.coordinates) {
       const last = path[path.length - 1];
-      // 구간 경계에서 같은 좌표가 두 번 오는 경우가 흔하다
-      if (last && last.lat === lat && last.lng === lng) continue;
-      path.push({ lat, lng });
+      if (last && last.lat === lat && last.lng === lng) {
+        last.roadType = roadType;
+        last.facilityType = facilityType;
+        continue;
+      }
+      path.push({ lat, lng, roadType, facilityType });
     }
   }
 

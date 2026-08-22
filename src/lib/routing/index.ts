@@ -9,6 +9,7 @@ import type {
 import type { Place } from '@/data/places';
 import { levelFromScore } from '@/lib/risk/score';
 import { buildNodeRiskMap, createRiskSampler } from '@/lib/risk/route-score';
+import { createRoadAdjuster } from '@/lib/risk/road-exposure';
 import { findPath } from './astar';
 import { getGrid, nearestNode, type GridNode } from './grid';
 import {
@@ -82,6 +83,7 @@ export async function planRoutes(args: PlanRoutesArgs): Promise<RouteResult> {
     mode,
     speedMs: TRAVEL_MODES[mode].speedMs,
     riskAt,
+    adjustRoad: createRoadAdjuster(dongRisks),
     riskById: new Map(dongRisks.map((r) => [r.areaId, r])),
     names: dongNameMap(),
   };
@@ -107,8 +109,29 @@ interface PlanContext {
   mode: TravelMode;
   speedMs: number;
   riskAt: (lat: number, lng: number) => number;
+  /** 도로유형 보정 — 경로 위 점마다 교통 오염물질 몫에만 계수를 건다 */
+  adjustRoad: ReturnType<typeof createRoadAdjuster>;
   riskById: Map<string, AreaRisk>;
   names: Map<string, string>;
+}
+
+/**
+ * 도로유형 보정을 경로 전체에 적용한다.
+ *
+ * 이 보정만 지점이 아니라 **경로**에 걸린다. 위험도 지도는 좌표만 알지
+ * 그 자리를 어떤 길로 지나가는지는 모르기 때문이다. 같은 좌표라도 큰길로
+ * 지나가느냐 공원길로 지나가느냐에 따라 값이 달라지는 유일한 단계다.
+ *
+ * 그래서 격자 샘플러(riskAt)가 아니라 경로 주석 단계에서 따로 건다.
+ */
+function applyRoadExposure(
+  points: AnnotatedPoint[],
+  adjustRoad: PlanContext['adjustRoad'],
+): AnnotatedPoint[] {
+  return points.map((point) => {
+    const { risk, factor } = adjustRoad(point);
+    return { ...point, risk, roadFactor: factor };
+  });
 }
 
 /* ── TMAP 엔진 ─────────────────────────────────────────── */
@@ -188,7 +211,10 @@ async function planWithTmap(ctx: PlanContext, baseTime: string): Promise<RouteRe
     if (seen.has(signature)) return; // 경유지를 줬는데 같은 길이 나온 경우
     seen.add(signature);
 
-    const points = annotatePath(route.path, ctx.riskAt);
+    const points = applyRoadExposure(
+      annotatePath(route.path, ctx.riskAt),
+      ctx.adjustRoad,
+    );
     const stats = exposureOfPath(points, ctx.speedMs);
 
     candidates.push({

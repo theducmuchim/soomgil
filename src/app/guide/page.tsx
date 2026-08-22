@@ -4,8 +4,9 @@ import { Container } from '@/components/layout/Container';
 import { INDICATORS, RISK_LEVELS, RISK_LEVEL_ORDER } from '@/config/indicators';
 import { SEASONS, SEASON_ORDER } from '@/config/seasons';
 import { MAX_STAGNATION_BOOST } from '@/lib/risk/score';
+import { ROAD_KINDS } from '@/lib/risk/road-exposure';
 import { FOOTER } from '@/config/site';
-import type { IndicatorId } from '@/types';
+import type { IndicatorId, RoadKind } from '@/types';
 
 export const metadata: Metadata = {
   title: '이용안내',
@@ -18,12 +19,16 @@ const SECTIONS = [
   { id: 'levels', label: '위험 4단계 기준' },
   { id: 'score', label: '점수 계산 방식' },
   { id: 'season', label: '계절별 지표 전환' },
+  { id: 'road', label: '도로 유형과 노출' },
   { id: 'sources', label: '데이터 출처와 갱신 주기' },
   { id: 'accessibility', label: '접근성' },
   { id: 'limits', label: '추정값과 한계' },
   { id: 'terms', label: '이용약관' },
   { id: 'privacy', label: '개인정보처리방침' },
 ];
+
+/** 도로 유형 표에 넣을 순서 — 노출이 낮은 쪽부터 */
+const ROAD_ROWS: RoadKind[] = ['carFree', 'separated', 'mixed', 'carOnly'];
 
 const SHOWN_INDICATORS: IndicatorId[] = [
   'pm10',
@@ -209,6 +214,93 @@ export default function GuidePage() {
                 3월~6월이라 소나무·참나무 꽃가루도 함께 표시합니다. 이때 꽃가루는 참고용
                 표시일 뿐 종합 점수에는 반영되지 않습니다. 계절이 넘어가는 시점에 점수가
                 갑자기 튀는 것을 막기 위해서입니다.
+              </p>
+            </Section>
+
+            {/* 도로 유형 */}
+            <Section id="road" title="도로 유형과 노출">
+              <p>
+                미세먼지·오존 관측값은 측정소 단위이고, 이 서비스의 위험도는 행정동
+                단위입니다. 그대로 두면 같은 동을 지나는 경로는 큰길로 가든 공원길로
+                가든 값이 똑같이 나옵니다. 실제로 걷는 사람이 마시는 양은 그렇지
+                않습니다.
+              </p>
+              <p className="mt-4">
+                정부 데이터의 공간 해상도를 저희가 올릴 방법은 없습니다. 대신 경로
+                안내에 쓰는 TMAP 응답에 <strong className="font-semibold">
+                도로 유형</strong>이 함께 들어 있어, 경로의 각 구간이 차량 배출원에서
+                얼마나 떨어져 있는지는 알 수 있습니다. 이 값으로 교통 기인
+                오염물질(미세먼지·오존)의 노출 몫만 보정합니다.
+              </p>
+
+              <table className="mt-5 w-full min-w-[420px] text-[0.8125rem]">
+                <caption className="sr-only">도로 유형별 노출 보정 계수</caption>
+                <thead>
+                  <tr className="border-b border-line-strong text-left">
+                    <th scope="col" className="py-2.5 pr-4 font-semibold text-ink-900">
+                      도로 유형
+                    </th>
+                    <th scope="col" className="w-[18%] py-2.5 pr-4 font-semibold text-ink-900">
+                      계수
+                    </th>
+                    <th scope="col" className="w-[42%] py-2.5 font-semibold text-ink-900">
+                      설명
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ROAD_ROWS.map((kind) => (
+                    <tr key={kind} className="border-b border-line/70">
+                      <th scope="row" className="py-2.5 pr-4 text-left font-medium text-ink-900">
+                        {ROAD_KINDS[kind].label}
+                      </th>
+                      <td className="tabular py-2.5 pr-4 text-ink-700">
+                        ×{ROAD_KINDS[kind].factor.toFixed(2)}
+                      </td>
+                      <td className="py-2.5 text-[0.75rem] leading-relaxed text-ink-500">
+                        {ROAD_KINDS[kind].note}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="border-b border-line/70">
+                    <th scope="row" className="py-2.5 pr-4 text-left font-medium text-ink-900">
+                      지하보도 통과
+                    </th>
+                    <td className="tabular py-2.5 pr-4 text-ink-700">×1.20</td>
+                    <td className="py-2.5 text-[0.75rem] leading-relaxed text-ink-500">
+                      위가 막혀 있어 오염물질이 흩어지지 못하고 고입니다. 도로 유형
+                      계수와 함께 곱해집니다.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3 className="mt-6 text-[0.9375rem] font-bold text-ink-900">무엇에 근거했나</h3>
+              <p className="mt-2">
+                도로변 대기질 연구에서 반복 확인되는 두 가지에 기댔습니다. 하나는
+                <strong className="font-semibold"> 배출원과의 거리에 따른 급격한 감쇠</strong>로,
+                교통 기인 입자상 물질(초미세먼지·블랙카본)의 농도는 차선에서 멀어질수록
+                빠르게 떨어지며 특히 처음 10~20m 구간의 기울기가 가파릅니다. 다른 하나는
+                <strong className="font-semibold"> street canyon 효과</strong>로, 양옆이
+                건물로 막힌 좁은 도로는 배출된 오염물질이 위로 빠져나가지 못해 같은
+                배출량에도 보행 높이의 노출이 더 높게 나타납니다.
+              </p>
+              <p className="mt-4">
+                기준점은 <strong className="font-semibold">차도와 분리된 인도(×1.00)</strong>
+                입니다. 대전 보행 경로를 실제로 받아 보면 이 유형이 76%를 차지하고,
+                도시대기측정소도 대개 이런 위치에 있어 관측값이 대표하는 상황과 가장
+                가깝기 때문입니다. 그래서 이 보정은 경로 전체 점수를 밀어 올리거나
+                내리지 않고, <strong className="font-semibold">경로 사이의 차이</strong>만
+                만듭니다.
+              </p>
+              <p className="mt-4 rounded-lg bg-surface-sunken px-4 py-3 text-[0.8125rem] leading-relaxed text-ink-500">
+                <strong className="font-semibold text-ink-700">한계.</strong> 이 값은
+                관측이 아니라 추정입니다. 도로 유형별 상대적 차이를 반영할 뿐, 도로
+                단위로 농도를 잰 것이 아닙니다. 차로 수·교통량·건물 높이는 반영하지
+                않았고, 그래서 계수 폭도 연구가 보고하는 값보다 보수적으로 잡았습니다.
+                street canyon 의 폭과 종횡비까지 반영하려면 건물 높이 데이터가 필요해
+                다음 과제로 남겨 두었습니다. 오존은 도로변에서 일산화질소와 반응해
+                오히려 낮아지는 경향이 있어, 미세먼지의 절반 크기로만 반응하게 했습니다.
               </p>
             </Section>
 
