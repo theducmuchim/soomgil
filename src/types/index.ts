@@ -197,6 +197,14 @@ export interface RoadPoint {
   roadType: number | null;
   /** TMAP facilityType (14=지하보도 등). 없으면 null */
   facilityType: number | null;
+  /**
+   * 도로명 ('둔산대로', '한밭대로', '보행자도로').
+   *
+   * street canyon 종횡비를 구하려면 도로 폭이 필요한데 어느 데이터에도 없다.
+   * 대신 도로명주소법 시행령이 접미사로 폭을 규정한다 —
+   * 대로 40m 이상 · 로 12~40m · 길 그 외. 이걸 폭 추정에 쓴다.
+   */
+  roadName: string | null;
 }
 
 export interface RouteSegment {
@@ -214,6 +222,13 @@ export interface RouteSegment {
    * 1이면 보정 없음, 1보다 크면 차량 배출원에 가까워 노출이 올라간 구간.
    */
   roadFactor: number;
+  /**
+   * street canyon 보정 계수 (거리 가중 평균).
+   *
+   * 건물 높이 ÷ 도로 폭이 클수록 배기가스가 빠져나가지 못한다.
+   * 건물 데이터가 없는 구간은 1 — "캐니언이 아니다"가 아니라 "모른다"는 뜻이다.
+   */
+  canyonFactor: number;
   /** 이 구간에서 거리를 가장 많이 차지한 도로 유형 */
   dominantRoad: RoadKind;
   /**

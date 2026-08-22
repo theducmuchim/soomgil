@@ -267,6 +267,7 @@ function SegmentList({ option }: { option: RouteOption }) {
                 덮여 정작 다른 구간이 눈에 띄지 않는다.
               */}
               <RoadChip segment={segment} />
+              <CanyonChip segment={segment} />
               <span className="tabular shrink-0 text-[0.71875rem] text-ink-400">
                 {formatDuration(segment.durationSec)}
               </span>
@@ -295,6 +296,25 @@ function SegmentList({ option }: { option: RouteOption }) {
         </Link>
       </p>
     </div>
+  );
+}
+
+/**
+ * street canyon 배지.
+ *
+ * 도로 유형과 따로 표시한다. "차도라서 높다"와 "고층 건물에 갇혀서 높다"는
+ * 원인이 다르고, 피하는 방법도 다르다. 하나로 합치면 둘 다 설명하지 못한다.
+ */
+function CanyonChip({ segment }: { segment: RouteSegment }) {
+  if (segment.canyonFactor < 1.02) return null;
+
+  return (
+    <span
+      title={`양옆 건물이 높아 배기가스가 빠져나가기 어려운 구간입니다. 교통 배출 노출 ×${segment.canyonFactor}`}
+      className="shrink-0 rounded bg-ink-900/8 px-1.5 py-px text-[0.625rem] font-semibold text-ink-700"
+    >
+      고층 밀집
+    </span>
   );
 }
 
@@ -430,6 +450,13 @@ function ExposureBreakdown({
               {ROAD_KINDS[worst.roadDriver].label}
             </strong> 구간이 섞여 있어, 교통 기인 오염물질(미세먼지·오존) 몫에 ×
             {worst.roadFactor}가 걸렸습니다.
+          </>
+        )}
+        {worst.canyonFactor >= 1.02 && (
+          <>
+            {' '}
+            양옆 건물이 높아 배기가스가 빠져나가기 어려운 구간이 있어 ×
+            {worst.canyonFactor}가 더 걸렸습니다.
           </>
         )}
       </p>

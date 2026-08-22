@@ -5,6 +5,7 @@ import { INDICATORS, RISK_LEVELS, RISK_LEVEL_ORDER } from '@/config/indicators';
 import { SEASONS, SEASON_ORDER } from '@/config/seasons';
 import { MAX_STAGNATION_BOOST } from '@/lib/risk/score';
 import { ROAD_KINDS } from '@/lib/risk/road-exposure';
+import { canyonCoverage } from '@/data/buildings';
 import { FOOTER } from '@/config/site';
 import type { IndicatorId, RoadKind } from '@/types';
 
@@ -19,7 +20,7 @@ const SECTIONS = [
   { id: 'levels', label: '위험 4단계 기준' },
   { id: 'score', label: '점수 계산 방식' },
   { id: 'season', label: '계절별 지표 전환' },
-  { id: 'road', label: '도로 유형과 노출' },
+  { id: 'road', label: '도로 유형과 건물' },
   { id: 'sources', label: '데이터 출처와 갱신 주기' },
   { id: 'accessibility', label: '접근성' },
   { id: 'limits', label: '추정값과 한계' },
@@ -44,6 +45,7 @@ const SHOWN_INDICATORS: IndicatorId[] = [
 
 export default function GuidePage() {
   const maxBoostPct = Math.round(MAX_STAGNATION_BOOST * 100);
+  const coverage = canyonCoverage();
 
   return (
     <>
@@ -218,7 +220,7 @@ export default function GuidePage() {
             </Section>
 
             {/* 도로 유형 */}
-            <Section id="road" title="도로 유형과 노출">
+            <Section id="road" title="도로 유형과 건물">
               <p>
                 미세먼지·오존 관측값은 측정소 단위이고, 이 서비스의 위험도는 행정동
                 단위입니다. 그대로 두면 같은 동을 지나는 경로는 큰길로 가든 공원길로
@@ -275,7 +277,44 @@ export default function GuidePage() {
                 </tbody>
               </table>
 
-              <h3 className="mt-6 text-[0.9375rem] font-bold text-ink-900">무엇에 근거했나</h3>
+              <h3 className="mt-7 text-[0.9375rem] font-bold text-ink-900">
+                건물 높이 (street canyon)
+              </h3>
+              <p className="mt-2">
+                도로 유형이 <strong className="font-semibold">배출원과 얼마나 떨어져
+                걷는가</strong>를 본다면, 건물 높이는 <strong className="font-semibold">
+                배출된 것이 얼마나 빠져나가는가</strong>를 봅니다. 양옆이 높은 건물로
+                막힌 도로는 배기가스가 위로 흩어지지 못하고 보행 높이에 머뭅니다.
+                서로 다른 현상이라 두 계수를 곱합니다 — 좁은 골목이어도 건물이 낮으면
+                잘 빠지고, 인도가 넓어도 고층 건물이 양옆을 막으면 갇힙니다.
+              </p>
+              <p className="mt-4">
+                갇히는 정도는 <strong className="font-semibold">건물 높이 ÷ 도로 폭</strong>
+                (종횡비)으로 가늠합니다. 이 값이 대략 0.5를 넘으면 도로 위 공기가 위쪽
+                흐름과 분리되기 시작하고, 2에 가까워지면 소용돌이가 갇힌 채 도는 형태가
+                됩니다. 저희는 0.5에서 시작해 2에서 최대 ×1.25가 되도록 잡았습니다.
+              </p>
+              <p className="mt-4">
+                도로 폭은 어느 데이터에도 없어서 <strong className="font-semibold">
+                도로명</strong>으로 추정합니다. 도로명주소법 시행령이 접미사로 폭을
+                규정하고 있기 때문입니다 — <strong className="font-semibold">대로</strong>는
+                40m 이상, <strong className="font-semibold">로</strong>는 12~40m,
+                <strong className="font-semibold"> 길</strong>은 그 밖의 도로입니다.
+                이름을 알 수 없는 구간은 20m로 봅니다.
+              </p>
+              <p className="mt-4 rounded-lg border border-risk-moderate/35 bg-risk-moderate/8 px-4 py-3 text-[0.8125rem] leading-relaxed text-ink-700">
+                <strong className="font-semibold">지금 건물 데이터는 일부만 있습니다.</strong>{' '}
+                대전 격자의 {coverage.pct}%({coverage.cells.toLocaleString('ko-KR')}칸)에만
+                건물 높이가 들어와 있습니다. 국토교통부 건물통합정보로 교체하기 전까지의
+                잠정 데이터라 그렇습니다.{' '}
+                <strong className="font-semibold">
+                  건물 정보가 없는 구간에는 이 보정을 아예 걸지 않습니다.
+                </strong>{' '}
+                값이 없는 곳에 평균을 넣어 보정하면, 실제로 확인한 것과 짐작한 것이
+                화면에서 구분되지 않기 때문입니다.
+              </p>
+
+              <h3 className="mt-7 text-[0.9375rem] font-bold text-ink-900">무엇에 근거했나</h3>
               <p className="mt-2">
                 도로변 대기질 연구에서 반복 확인되는 두 가지에 기댔습니다. 하나는
                 <strong className="font-semibold"> 배출원과의 거리에 따른 급격한 감쇠</strong>로,
@@ -298,9 +337,10 @@ export default function GuidePage() {
                 관측이 아니라 추정입니다. 도로 유형별 상대적 차이를 반영할 뿐, 도로
                 단위로 농도를 잰 것이 아닙니다. 차로 수·교통량·건물 높이는 반영하지
                 않았고, 그래서 계수 폭도 연구가 보고하는 값보다 보수적으로 잡았습니다.
-                street canyon 의 폭과 종횡비까지 반영하려면 건물 높이 데이터가 필요해
-                다음 과제로 남겨 두었습니다. 오존은 도로변에서 일산화질소와 반응해
-                오히려 낮아지는 경향이 있어, 미세먼지의 절반 크기로만 반응하게 했습니다.
+                도로 폭은 실측이 아니라 도로명에서 추정한 값이고, 건물 높이도 격자
+                평균이라 개별 도로의 실제 종횡비와는 다를 수 있습니다. 오존은 도로변에서
+                일산화질소와 반응해 오히려 낮아지는 경향이 있어, 미세먼지의 절반 크기로만
+                반응하게 했습니다.
               </p>
             </Section>
 

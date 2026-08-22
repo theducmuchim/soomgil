@@ -39,8 +39,11 @@ export interface AnnotatedPoint extends LatLng {
   risk: number;
   roadType?: number | null;
   facilityType?: number | null;
-  /** 이 점에 실제로 걸린 도로유형 보정 계수 */
+  roadName?: string | null;
+  /** 이 점에 걸린 도로유형 보정 계수 */
   roadFactor?: number;
+  /** 이 점에 걸린 street canyon 보정 계수 */
+  canyonFactor?: number;
 }
 
 /* ── 행정동 조회 (bbox 프리필터 + 캐시) ─────────────────── */
@@ -179,6 +182,7 @@ export function buildSegments(
     roadMeters: Map<RoadKind, number>;
     /** 계수 × 거리 누적 (거리 가중 평균용) */
     factorMeters: number;
+    canyonMeters: number;
     weightedMeters: number;
   }
 
@@ -187,6 +191,7 @@ export function buildSegments(
     const kind = roadKindOf(from.roadType);
     draft.roadMeters.set(kind, (draft.roadMeters.get(kind) ?? 0) + meters);
     draft.factorMeters += (from.roadFactor ?? 1) * meters;
+    draft.canyonMeters += (from.canyonFactor ?? 1) * meters;
     draft.weightedMeters += meters;
   };
 
@@ -209,11 +214,13 @@ export function buildSegments(
         areaScore: riskById.get(areaId)?.score ?? 0,
         effectiveScore: 0,
         roadFactor: 1,
+        canyonFactor: 1,
         dominantRoad: 'unknown',
         roadDriver: 'unknown',
         riskSamples: [point.risk],
         roadMeters: new Map(),
         factorMeters: 0,
+        canyonMeters: 0,
         weightedMeters: 0,
       };
 
@@ -249,6 +256,7 @@ export function buildSegments(
       prev.durationSec += draft.durationSec;
       prev.riskSamples = [...prev.riskSamples, ...draft.riskSamples];
       prev.factorMeters += draft.factorMeters;
+      prev.canyonMeters += draft.canyonMeters;
       prev.weightedMeters += draft.weightedMeters;
       for (const [kind, m] of draft.roadMeters) {
         prev.roadMeters.set(kind, (prev.roadMeters.get(kind) ?? 0) + m);
@@ -259,13 +267,22 @@ export function buildSegments(
   }
 
   return merged.map(
-    ({ riskSamples, roadMeters, factorMeters, weightedMeters, ...segment }) => ({
+    ({
+      riskSamples,
+      roadMeters,
+      factorMeters,
+      canyonMeters,
+      weightedMeters,
+      ...segment
+    }) => ({
       ...segment,
       distanceM: Math.round(segment.distanceM),
       durationSec: Math.round(segment.durationSec),
       effectiveScore: round1(average(riskSamples)),
       roadFactor:
         weightedMeters > 0 ? Math.round((factorMeters / weightedMeters) * 100) / 100 : 1,
+      canyonFactor:
+        weightedMeters > 0 ? Math.round((canyonMeters / weightedMeters) * 100) / 100 : 1,
       dominantRoad: dominantKind(roadMeters),
       roadDriver: drivingKind(roadMeters),
     }),

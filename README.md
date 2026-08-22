@@ -302,7 +302,49 @@ src/
 npx tsx scripts/verify-road.ts
 ```
 
-건물 높이로 street canyon 의 폭·종횡비까지 반영하는 건 다음 과제입니다 (브이월드 필요).
+#### street canyon (건물 높이 ÷ 도로 폭)
+
+도로 유형이 **배출원과의 거리**를 본다면 캐니언은 **환기 조건**을 봅니다. 다른 현상이라
+곱합니다. 종횡비 0.5에서 시작해 2에서 최대 ×1.25.
+
+도로 폭은 어느 데이터에도 없어 **도로명**으로 추정합니다 — 도로명주소법 시행령이
+접미사로 폭을 규정합니다 (대로 40m↑ / 로 12~40m / 길 그 외 / 이름 없으면 20m).
+
+| 파일 | 역할 |
+|---|---|
+| `src/data/geo/canyon-grid.json` | 150m 격자별 바닥면적 가중 평균 건물 높이 |
+| `src/data/buildings.ts` | 격자 조회 (`canyonAt`) — **교체 시 손댈 필요 없음** |
+| `scripts/build-canyon-grid.ts` | 국토부 SHP → 위 JSON |
+
+> **지금은 잠정 데이터입니다.** OSM에서 높이·층수 태그가 달린 대전 건물 1,993동으로
+> 만들어 격자의 **1.4%**만 채워져 있습니다. 값이 없는 칸에는 **보정을 걸지 않습니다** —
+> 없는 데이터를 평균으로 메우면 확인한 것과 짐작한 것이 구분되지 않습니다.
+
+### 건물 데이터 교체 (국토교통부 GIS건물통합정보)
+
+1. [공공데이터포털 15083092](https://www.data.go.kr/data/15083092/fileData.do) 접속
+2. **다운로드**를 누르면 브이월드([vworld.kr](https://www.vworld.kr))로 이동합니다.
+   data.go.kr에서 직접 받아지지 않습니다 — 가로수 표준데이터와 다른 점입니다.
+3. 브이월드 **로그인** 후 국가중점데이터 목록에서 `GIS건물통합정보` 선택
+   (별도 활용신청·승인 대기는 없습니다. 승인이 필요한 건 오픈API 쪽입니다)
+4. **시도 = 대전광역시**만 받으세요. 전국은 약 6.6GB / 1,439만 동입니다.
+   파일명은 `AL_30_D010_YYYYMMDD` 형식입니다 (`30` = 대전 시도코드).
+5. 압축을 풀고 변환
+
+```bash
+npx tsx scripts/build-canyon-grid.ts ~/Downloads/AL_30_D010_20260801.shp
+```
+
+6. `src/data/buildings.ts` 의 `CANYON_SOURCE` 를 `'molit-building'` 으로 변경
+
+| 항목 | 값 |
+|---|---|
+| 포맷 | SHP (shp·shx·dbf·prj) |
+| 좌표계 | **EPSG:5174** (Bessel/TM) — WGS84 아님, 스크립트가 변환합니다 |
+| 쓰는 컬럼 | `HEIGHT`(높이) · `GRND_FLR`(지상층수) |
+| 그 밖의 컬럼 | `UNGRND_FLR` `BLD_NM` `ARCHAREA` `TOTALAREA` `USEAPR_DAY` `BC_RAT` `VL_RAT` |
+
+`HEIGHT`는 건축물대장에 값이 없으면 0으로 옵니다. 그때는 `GRND_FLR × 3.3m`로 환산합니다.
 
 ### 턴바이턴 안내
 

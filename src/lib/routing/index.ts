@@ -129,8 +129,8 @@ function applyRoadExposure(
   adjustRoad: PlanContext['adjustRoad'],
 ): AnnotatedPoint[] {
   return points.map((point) => {
-    const { risk, factor } = adjustRoad(point);
-    return { ...point, risk, roadFactor: factor };
+    const { risk, roadFactor, canyonFactor } = adjustRoad(point);
+    return { ...point, risk, roadFactor, canyonFactor };
   });
 }
 

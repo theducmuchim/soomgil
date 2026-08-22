@@ -39,9 +39,9 @@ async function main() {
   const { getRiskSnapshot } = await import('@/lib/api');
   const { deriveDongRisks } = await import('@/lib/risk/dong');
   const { buildNodeRiskMap, createRiskSampler } = await import('@/lib/risk/route-score');
-  const { createRoadAdjuster, roadKindOf, ROAD_KINDS, enclosedFacility } = await import(
-    '@/lib/risk/road-exposure'
-  );
+  const { createRoadAdjuster, roadKindOf, ROAD_KINDS, enclosedFacility, canyonFactorAt } =
+    await import('@/lib/risk/road-exposure');
+  const { canyonCoverage, CANYON_SOURCE } = await import('@/data/buildings');
   const { fetchPedestrianRoute } = await import('@/lib/routing/tmap');
   const { annotatePath, exposureOfPath, dongNameMap } = await import(
     '@/lib/routing/geo-match'
@@ -65,6 +65,11 @@ async function main() {
     '보정 전 지표 기여:',
     dongRisks[0].breakdown.contributions.map((c) => `${c.id} ${c.points}점`).join(' · '),
     `/ 보정 전 총점 ${dongRisks[0].breakdown.baseScore}`,
+  );
+
+  const cov = canyonCoverage();
+  console.log(
+    `건물 격자: ${CANYON_SOURCE} · 값 있는 셀 ${cov.cells}/${cov.total} (${cov.pct}%)`,
   );
 
   const wind = snapshot.districts[0].wind;
@@ -119,6 +124,10 @@ async function main() {
       const mix = new Map<RoadKind, number>();
       const byDong = new Map<string, DongCell>();
       let enclosedM = 0;
+      let canyonM = 0;
+      let canyonSum = 0;
+      let topAspect = 0;
+      let topCanyon = '';
 
       for (let i = 0; i < raw.length - 1; i++) {
         const a = raw[i];
@@ -130,6 +139,15 @@ async function main() {
         const kind = roadKindOf(a.roadType);
         mix.set(kind, (mix.get(kind) ?? 0) + d);
         if (enclosedFacility(a.facilityType)) enclosedM += d;
+        const cy = canyonFactorAt(a.lat, a.lng, a.roadName);
+        if (cy && cy.factor > 1.001) {
+          canyonM += d;
+          canyonSum += cy.aspect * d;
+          if (cy.aspect > topAspect) {
+            topAspect = cy.aspect;
+            topCanyon = `H${cy.meanHeightM}m/W${cy.widthM}m=${cy.aspect} ×${cy.factor}`;
+          }
+        }
 
         const key = a.dongId ?? 'unknown';
         const cur: DongCell = byDong.get(key) ?? {
@@ -162,9 +180,13 @@ async function main() {
       console.log(
         `  opt=${option.padEnd(2)} ${String(Math.round(route.totalDistanceM)).padStart(5)}m  ` +
           `노출 ${before.score.toFixed(2)} → ${after.score.toFixed(2)} (${pct(after.score, before.score)})` +
-          (enclosedM > 0 ? `  밀폐 ${Math.round(enclosedM)}m` : ''),
+          (enclosedM > 0 ? `  밀폐 ${Math.round(enclosedM)}m` : '') +
+          (canyonM > 0
+            ? `  캐니언 ${Math.round(canyonM)}m (평균 H/W ${(canyonSum / canyonM).toFixed(2)})`
+            : ''),
       );
       console.log(`         ${mixText}`);
+      if (topCanyon) console.log(`         최대 캐니언 ${topCanyon}`);
     }
 
     if (variants.length < 2) continue;

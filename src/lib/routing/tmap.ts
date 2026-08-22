@@ -269,15 +269,17 @@ function parseRoute(json: TmapResponse): TmapRoute {
 
     const roadType = feature.properties.roadType ?? null;
     const facilityType = feature.properties.facilityType ?? null;
+    const roadName = feature.properties.name?.trim() || null;
 
     for (const [lng, lat] of feature.geometry.coordinates) {
       const last = path[path.length - 1];
       if (last && last.lat === lat && last.lng === lng) {
         last.roadType = roadType;
         last.facilityType = facilityType;
+        last.roadName = roadName;
         continue;
       }
-      path.push({ lat, lng, roadType, facilityType });
+      path.push({ lat, lng, roadType, facilityType, roadName });
     }
   }
 

@@ -1,4 +1,5 @@
 import type { AreaRisk, IndicatorId, RoadKind } from '@/types';
+import { canyonAt } from '@/data/buildings';
 
 /**
  * 도로유형 노출 보정 — 교통 배출 오염물질 전용.
@@ -23,11 +24,18 @@ import type { AreaRisk, IndicatorId, RoadKind } from '@/types';
  *
  *  2. street canyon 효과
  *     양옆이 건물로 막힌 도로는 배출된 오염물질이 위로 빠져나가지 못하고
- *     보행 높이에 머문다. 차도와 보도가 나뉘지 않은 좁은 도심 도로가 여기
- *     해당하며, 같은 배출량에도 보행자 노출이 더 높게 나타난다.
+ *     보행 높이에 머문다. 얼마나 갇히는지는 **건물 높이 ÷ 도로 폭**(종횡비 H/W)
+ *     으로 가늠한다. H/W 가 대략 0.5를 넘으면 도로 위 공기가 위쪽 흐름과
+ *     분리되기 시작하고, 1을 넘으면 소용돌이가 갇힌 채 도는 형태가 된다.
  *
- * ⚠ 이 보정은 **관측값이 아니라 추정**이다. 도로 유형별 상대적 차이를 반영할
- *   뿐, 실제 농도를 도로 단위로 측정한 값이 아니다. /guide 에 그대로 밝힌다.
+ * ── 두 축은 서로 다른 것을 본다 ─────────────────────────
+ *   도로 유형 = 배출원과의 거리   (차선에서 얼마나 떨어져 걷는가)
+ *   캐니언     = 환기 조건         (배출된 것이 얼마나 빠져나가는가)
+ * 물리적으로 다른 현상이라 곱한다. 좁은 골목이어도 건물이 낮으면 잘 빠지고,
+ * 인도가 넓어도 고층 건물이 양옆을 막고 있으면 갇힌다.
+ *
+ * ⚠ 이 보정은 **관측값이 아니라 추정**이다. 도로 유형별·캐니언별 상대적 차이를
+ *   반영할 뿐, 실제 농도를 도로 단위로 측정한 값이 아니다. /guide 에 밝힌다.
  *
  * ── 왜 별도 파일인가 ────────────────────────────────────
  * 이미 있는 두 보정과 원리가 다르다.
@@ -36,8 +44,6 @@ import type { AreaRisk, IndicatorId, RoadKind } from '@/types';
  *   도로 유형 (이 파일)            : 배출원과의 거리 — 교통 오염물질에만
  * 곱하는 대상이 달라서 한 체인에 섞으면 무엇에 무엇이 걸렸는지 알 수 없게 된다.
  *
- * 건물 높이로 street canyon 의 폭·종횡비까지 반영하는 건 다음 과제다.
- * 브이월드 건물 데이터가 있어야 하고, 지금은 도로 유형만으로 근사한다.
  */
 
 /* ── 도로 유형 ─────────────────────────────────────────── */
@@ -110,6 +116,111 @@ export const ROAD_KINDS: Record<RoadKind, RoadKindMeta> = {
   },
 };
 
+/* ── street canyon (건물 높이 ÷ 도로 폭) ───────────────── */
+
+/**
+ * 도로명 접미사로 도로 폭을 추정한다.
+ *
+ * 종횡비를 구하려면 도로 폭이 필요한데, TMAP 응답에도 건물 데이터에도 없다.
+ * 다행히 **도로명주소법 시행령 제6조**가 접미사로 폭을 규정해 두었다.
+ *
+ *   대로 : 폭 40m 이상 또는 왕복 8차로 이상
+ *   로   : 폭 12m 이상 40m 미만 또는 왕복 2~8차로
+ *   길   : 그 밖의 도로
+ *
+ * 즉 도로명 자체가 폭의 하한을 알려준다. 정확한 실측 폭은 아니지만,
+ * 종횡비는 자릿수 수준의 구분만 되어도 의미가 있다 — 0.3인지 1.5인지가
+ * 중요하지 0.3인지 0.35인지는 중요하지 않다.
+ *
+ * 대표값은 각 구간의 아래쪽에서 잡았다. 넓게 잡으면 종횡비가 작아져
+ * 보정이 약해지는 쪽이라, 근거가 약할 때 과하게 가지 않는 방향이다.
+ */
+export function estimateRoadWidthM(roadName: string | null | undefined): number {
+  const name = roadName?.trim();
+  if (!name) return DEFAULT_WIDTH_M;
+  if (name.endsWith('대로')) return 40;
+  if (name.endsWith('로')) return 20;
+  if (name.endsWith('길')) return 10;
+  // '보행자도로' 등 도로명 체계 밖의 이름
+  return DEFAULT_WIDTH_M;
+}
+
+/**
+ * 도로명을 모를 때 쓰는 폭.
+ *
+ * TMAP 은 인도 구간의 이름을 '보행자도로'로 준다. 그런데 그 인도는 대개
+ * 큰 도로를 따라 나 있어서, 이면도로로 가정해 좁게 잡으면 종횡비가 부풀고
+ * 보정이 과해진다. 도심 일반 도로 수준(로 등급의 아래쪽)으로 잡는다.
+ */
+const DEFAULT_WIDTH_M = 20;
+
+/**
+ * 종횡비가 이 값을 넘어서면 갇히기 시작한다고 본다.
+ * (이 아래에서는 도로 위 공기가 위쪽 흐름과 충분히 섞인다)
+ */
+const CANYON_ONSET = 0.5;
+
+/** 이 종횡비에서 보정이 최대가 된다 */
+const CANYON_SATURATION = 2;
+
+/** 최대 증가폭 */
+const CANYON_MAX_BOOST = 0.25;
+
+/**
+ * 근거로 삼기에 너무 적은 건물 수.
+ *
+ * 격자 한 칸에 건물 한두 동만 있으면 그 동의 높이가 곧 격자값이 된다.
+ * 우연히 기록된 고층 건물 하나로 주변 전체를 캐니언이라고 부를 수는 없다.
+ *
+ * 지금 잠정 데이터(OSM)는 특히 이 위험이 크다. 사람들이 눈에 띄는 높은 건물부터
+ * 태그하기 때문에, 표본이 실제보다 높은 쪽으로 치우쳐 있다. 국토부 건물통합정보로
+ * 바꾸면 그 동네 건물이 전부 들어와 평균이 제자리를 찾는다.
+ */
+const MIN_BUILDINGS = 3;
+
+export interface CanyonInfo {
+  /** 종횡비 H/W */
+  aspect: number;
+  meanHeightM: number;
+  widthM: number;
+  /** 노출에 곱할 계수 */
+  factor: number;
+}
+
+/**
+ * 이 지점의 street canyon 보정. 건물 데이터가 없으면 null.
+ *
+ * null 은 "캐니언이 아니다"가 아니라 **"모른다"**는 뜻이다. 그래서 계수를
+ * 걸지 않는다. 지금 격자는 대전의 1.4%만 채워져 있어(OSM 잠정 데이터)
+ * 대부분의 구간이 여기 해당한다. 국토부 건물통합정보를 넣으면 거의 전 구간에서
+ * 값이 나온다 — data/buildings.ts 참고.
+ */
+export function canyonFactorAt(
+  lat: number,
+  lng: number,
+  roadName: string | null | undefined,
+): CanyonInfo | null {
+  const sample = canyonAt(lat, lng);
+  if (!sample || sample.buildings < MIN_BUILDINGS) return null;
+
+  const widthM = estimateRoadWidthM(roadName);
+  const aspect = sample.meanHeightM / widthM;
+
+  const over = Math.min(
+    Math.max(aspect - CANYON_ONSET, 0),
+    CANYON_SATURATION - CANYON_ONSET,
+  );
+  const factor =
+    1 + CANYON_MAX_BOOST * (over / (CANYON_SATURATION - CANYON_ONSET));
+
+  return {
+    aspect: Math.round(aspect * 100) / 100,
+    meanHeightM: Math.round(sample.meanHeightM),
+    widthM,
+    factor: Math.round(factor * 1000) / 1000,
+  };
+}
+
 /* ── 시설 유형 ─────────────────────────────────────────── */
 
 /**
@@ -173,13 +284,39 @@ const TRAFFIC_SENSITIVITY: Partial<Record<IndicatorId, number>> = {
  *
  * 도로 유형과 밀폐 여부를 곱한다 — 지하보도이면서 차도인 구간은 둘 다 받는다.
  */
-export function roadExposureFactor(point: {
+export interface ExposureFactors {
+  /** 도로 유형 + 밀폐 시설 — 배출원과의 거리 */
+  road: number;
+  /** street canyon — 환기 조건. 건물 데이터가 없으면 1 */
+  canyon: number;
+  /** 실제로 곱해지는 값 */
+  total: number;
+}
+
+/**
+ * 한 지점에 걸릴 보정 계수.
+ *
+ * 두 몫을 나눠 돌려주는 이유는 화면 때문이다. 합쳐 놓으면 "왜 이 구간이 높은가"에
+ * 답할 수 없다 — 차도라서인지 고층 건물에 갇혀서인지가 사라진다.
+ */
+export function roadExposureFactors(point: {
+  lat?: number;
+  lng?: number;
   roadType?: number | null;
   facilityType?: number | null;
-}): number {
-  const road = ROAD_KINDS[roadKindOf(point.roadType)].factor;
-  const enclosed = enclosedFacility(point.facilityType)?.factor ?? 1;
-  return road * enclosed;
+  roadName?: string | null;
+}): ExposureFactors {
+  const road =
+    ROAD_KINDS[roadKindOf(point.roadType)].factor *
+    (enclosedFacility(point.facilityType)?.factor ?? 1);
+
+  // 건물 데이터가 있는 구간에만 캐니언 보정이 붙는다
+  const canyon =
+    point.lat !== undefined && point.lng !== undefined
+      ? (canyonFactorAt(point.lat, point.lng, point.roadName)?.factor ?? 1)
+      : 1;
+
+  return { road, canyon, total: road * canyon };
 }
 
 /* ── 적용 ──────────────────────────────────────────────── */
@@ -218,8 +355,10 @@ function trafficShareByArea(areaRisks: AreaRisk[]): Map<string, number> {
 export interface RoadAdjustment {
   /** 보정 후 위험도 */
   risk: number;
-  /** 실제로 걸린 계수 (1이면 보정 없음) */
-  factor: number;
+  /** 도로 유형 몫 */
+  roadFactor: number;
+  /** street canyon 몫 */
+  canyonFactor: number;
 }
 
 /**
@@ -236,23 +375,31 @@ export interface RoadAdjustment {
 export function createRoadAdjuster(
   areaRisks: AreaRisk[],
 ): (point: {
+  lat: number;
+  lng: number;
   risk: number;
   dongId: string | null;
   roadType?: number | null;
   facilityType?: number | null;
+  roadName?: string | null;
 }) => RoadAdjustment {
   const shares = trafficShareByArea(areaRisks);
 
   return (point) => {
-    const factor = roadExposureFactor(point);
-    if (factor === 1 || point.risk <= 0) return { risk: point.risk, factor };
+    const { road, canyon, total } = roadExposureFactors(point);
+    const none = { risk: point.risk, roadFactor: 1, canyonFactor: 1 };
+
+    if (total === 1 || point.risk <= 0) {
+      return { risk: point.risk, roadFactor: road, canyonFactor: canyon };
+    }
 
     const share = (point.dongId && shares.get(point.dongId)) || 0;
-    if (share <= 0) return { risk: point.risk, factor: 1 };
+    if (share <= 0) return none;
 
     return {
-      risk: Math.min(point.risk * (1 + share * (factor - 1)), 100),
-      factor,
+      risk: Math.min(point.risk * (1 + share * (total - 1)), 100),
+      roadFactor: road,
+      canyonFactor: canyon,
     };
   };
 }
