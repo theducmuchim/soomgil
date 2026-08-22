@@ -268,6 +268,7 @@ function SegmentList({ option }: { option: RouteOption }) {
               */}
               <RoadChip segment={segment} />
               <CanyonChip segment={segment} />
+              <ShadeChip segment={segment} />
               <span className="tabular shrink-0 text-[0.71875rem] text-ink-400">
                 {formatDuration(segment.durationSec)}
               </span>
@@ -296,6 +297,32 @@ function SegmentList({ option }: { option: RouteOption }) {
         </Link>
       </p>
     </div>
+  );
+}
+
+/**
+ * 그늘 배지.
+ *
+ * 여름에는 반가운 정보(더위가 덜하다), 겨울에는 반대다. 그래서 계수 방향에
+ * 따라 색과 문구를 바꾼다 — 그늘이라는 사실만 알리면 겨울에 잘못 읽힌다.
+ */
+function ShadeChip({ segment }: { segment: RouteSegment }) {
+  if (segment.shadeFraction < 0.15) return null;
+  if (Math.abs(segment.shadeFactor - 1) < 0.005) return null;
+
+  const relief = segment.shadeFactor < 1;
+  const pct = Math.round(segment.shadeFraction * 100);
+
+  return (
+    <span
+      title={`이 구간의 약 ${pct}%가 건물 그늘입니다. 체감온도 몫에 ×${segment.shadeFactor}`}
+      className={cn(
+        'shrink-0 rounded px-1.5 py-px text-[0.625rem] font-semibold',
+        relief ? 'bg-risk-low/12 text-risk-low' : 'bg-brand-100 text-brand-700',
+      )}
+    >
+      {relief ? '그늘 많음' : '그늘·추위'}
+    </span>
   );
 }
 
@@ -457,6 +484,13 @@ function ExposureBreakdown({
             {' '}
             양옆 건물이 높아 배기가스가 빠져나가기 어려운 구간이 있어 ×
             {worst.canyonFactor}가 더 걸렸습니다.
+          </>
+        )}
+        {worst.shadeFraction >= 0.15 && Math.abs(worst.shadeFactor - 1) >= 0.005 && (
+          <>
+            {' '}
+            이 구간의 약 {Math.round(worst.shadeFraction * 100)}%가 건물 그늘이라
+            체감온도 몫에 ×{worst.shadeFactor}가 걸렸습니다.
           </>
         )}
       </p>

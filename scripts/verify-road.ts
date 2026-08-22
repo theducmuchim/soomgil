@@ -41,7 +41,7 @@ async function main() {
   const { buildNodeRiskMap, createRiskSampler } = await import('@/lib/risk/route-score');
   const { createRoadAdjuster, roadKindOf, ROAD_KINDS, enclosedFacility, canyonFactorAt } =
     await import('@/lib/risk/road-exposure');
-  const { canyonCoverage, CANYON_SOURCE } = await import('@/data/buildings');
+  const { canyonCoverage, canyonAt, CANYON_SOURCE } = await import('@/data/buildings');
   const { fetchPedestrianRoute } = await import('@/lib/routing/tmap');
   const { annotatePath, exposureOfPath, dongNameMap } = await import(
     '@/lib/routing/geo-match'
@@ -93,6 +93,9 @@ async function main() {
     byDong: Map<string, DongCell>;
   }
 
+  let totalRouteM = 0;
+  let totalCoveredM = 0;
+
   for (const [fromId, toId] of PAIRS) {
     const origin = place(fromId);
     const destination = place(toId);
@@ -124,6 +127,7 @@ async function main() {
       const mix = new Map<RoadKind, number>();
       const byDong = new Map<string, DongCell>();
       let enclosedM = 0;
+      let coveredM = 0;
       let canyonM = 0;
       let canyonSum = 0;
       let topAspect = 0;
@@ -139,6 +143,7 @@ async function main() {
         const kind = roadKindOf(a.roadType);
         mix.set(kind, (mix.get(kind) ?? 0) + d);
         if (enclosedFacility(a.facilityType)) enclosedM += d;
+        if (canyonAt(a.lat, a.lng)) coveredM += d;
         const cy = canyonFactorAt(a.lat, a.lng, a.roadName);
         if (cy && cy.factor > 1.001) {
           canyonM += d;
@@ -163,6 +168,9 @@ async function main() {
         byDong.set(key, cur);
       }
 
+      totalRouteM += route.totalDistanceM;
+      totalCoveredM += coveredM;
+
       variants.push({
         option,
         distanceM: route.totalDistanceM,
@@ -181,6 +189,7 @@ async function main() {
         `  opt=${option.padEnd(2)} ${String(Math.round(route.totalDistanceM)).padStart(5)}m  ` +
           `노출 ${before.score.toFixed(2)} → ${after.score.toFixed(2)} (${pct(after.score, before.score)})` +
           (enclosedM > 0 ? `  밀폐 ${Math.round(enclosedM)}m` : '') +
+          `  건물데이터 ${Math.round((coveredM / route.totalDistanceM) * 100)}%` +
           (canyonM > 0
             ? `  캐니언 ${Math.round(canyonM)}m (평균 H/W ${(canyonSum / canyonM).toFixed(2)})`
             : ''),
@@ -239,6 +248,19 @@ async function main() {
       );
     }
   }
+
+  /*
+   * 격자 채움률(19.7%)이 아니라 이 숫자가 이 기능의 실제 적용 범위다.
+   * 격자는 대전을 감싸는 사각형이고 그 안의 대부분은 산·농지라 건물이 없다.
+   * 경로가 지나는 곳은 사람이 걸어다니는 곳이므로 훨씬 높게 나온다.
+   */
+  console.log('');
+  console.log('════ 전체 ════');
+  console.log(
+    `경로 총 ${Math.round(totalRouteM).toLocaleString('ko-KR')}m 중 ` +
+      `건물 데이터가 있는 구간 ${Math.round(totalCoveredM).toLocaleString('ko-KR')}m ` +
+      `(${((totalCoveredM / totalRouteM) * 100).toFixed(1)}%)`,
+  );
 }
 
 main().catch((e) => {

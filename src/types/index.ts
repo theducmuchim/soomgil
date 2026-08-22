@@ -229,6 +229,14 @@ export interface RouteSegment {
    * 건물 데이터가 없는 구간은 1 — "캐니언이 아니다"가 아니라 "모른다"는 뜻이다.
    */
   canyonFactor: number;
+  /**
+   * 이 구간에서 그늘을 만날 비율 0~1 (거리 가중 평균).
+   *
+   * 건물 데이터가 없거나 해가 낮으면 0 — "볕이 든다"가 아니라 "모른다"는 뜻이다.
+   */
+  shadeFraction: number;
+  /** 그늘이 체감온도 몫에 건 계수. 1보다 작으면 더위가 덜한 구간 */
+  shadeFactor: number;
   /** 이 구간에서 거리를 가장 많이 차지한 도로 유형 */
   dominantRoad: RoadKind;
   /**

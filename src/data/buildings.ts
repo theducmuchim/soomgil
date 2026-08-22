@@ -12,24 +12,33 @@ import GRID from './geo/canyon-grid.json';
  * 가중하는 이유는 캐니언 벽을 만드는 게 큰 건물이기 때문이다 — 20층 아파트
  * 한 동과 그 옆 단층 상가 열 채의 평균을 단순히 내면 실제 벽 높이보다 낮아진다.
  *
- * ── 지금 데이터의 한계 ──────────────────────────────────
- * 지금 실려 있는 값은 **OpenStreetMap 에서 높이·층수 태그가 달린 대전 건물
- * 1,993동**으로 만든 잠정 데이터다. 대전 전체 건물의 1% 남짓이라
- * 격자의 1.4%에만 값이 있다.
+ * ── 데이터 ──────────────────────────────────────────────
+ * 국토교통부 GIS건물통합정보(대전분, 2026-08-09 기준) 175,270동에서 만들었다.
+ * 연속지적도 건물 공간정보에 건축물대장 속성을 결합한 자료라, 대전에 실제로
+ * 서 있는 건물이 사실상 전부 들어 있다.
  *
- * 값이 없는 격자에는 **보정을 걸지 않는다**(계수 1.0). 건물 데이터가 없는 곳에
- * 평균값을 넣어 보정하면, 실제로 확인한 것과 추측한 것이 화면에서 구분되지
- * 않는다. 이 서비스에서 그건 하면 안 되는 종류의 일이다.
+ * 그중 높이를 알 수 있는 120,767동을 썼다. 나머지 54,073동은 건축물대장에
+ * 높이도 지상층수도 비어 있어(무허가·미등기 등) 뺐다.
  *
- * ── 실제 데이터로 바꾸기 ────────────────────────────────
- * 국토교통부 GIS건물통합정보(대전분)를 받아 scripts/build-canyon-grid.ts 를
- * 돌리면 이 파일이 그대로 교체된다. 절차는 README 참고.
- * 그때 격자 채움률이 1.4% → 거의 100% 가 되고, 이 파일의 다른 코드는
- * 손대지 않아도 된다.
+ * ── 격자 채움률을 어떻게 읽어야 하나 ────────────────────
+ * 격자 39,984칸 중 값이 있는 칸은 7,875칸(19.7%)이다. 낮아 보이지만 이 격자는
+ * 대전을 감싸는 사각형이고, 그 안의 대부분은 산·농지·하천이라 건물이 없다.
+ * 계족산·보문산 좌표를 찍으면 "데이터 없음"이 나오는 게 맞다.
+ *
+ * 의미 있는 숫자는 **실제 경로가 지나는 지점 중 몇 %에서 값이 나오는가**이고,
+ * 그건 scripts/verify-road.ts 가 알려준다.
+ *
+ * ── 값이 없으면 보정하지 않는다 ─────────────────────────
+ * 건물 데이터가 없는 칸에 평균값을 넣어 보정하면, 실제로 확인한 것과 추측한
+ * 것이 화면에서 구분되지 않는다. 이 서비스에서 그건 하면 안 되는 일이다.
+ *
+ * ── 데이터를 갱신하려면 ─────────────────────────────────
+ * 새 배포본을 받아 scripts/build-canyon-grid.ts 를 돌리면 이 파일이 참조하는
+ * JSON 이 교체된다. 나머지 코드는 손대지 않아도 된다. 절차는 README 참고.
  */
 
 /** 이 격자가 실제 건축물대장 기반인지, 잠정 데이터인지 */
-export const CANYON_SOURCE: 'osm-partial' | 'molit-building' = 'osm-partial';
+export const CANYON_SOURCE: 'osm-partial' | 'molit-building' = 'molit-building';
 
 interface CanyonGrid {
   minLat: number;
@@ -39,29 +48,40 @@ interface CanyonGrid {
   rows: number;
   cols: number;
   cellM: number;
-  /** [셀 index, 평균높이(m), 건물 수] 를 3개씩 이어붙인 배열 */
+  /** [셀 index, 평균높이(m), 건물 수, 바닥면적합(m²)] 을 4개씩 이어붙인 배열 */
   cells: number[];
 }
 
 const grid = GRID as CanyonGrid;
 
-/** 셀 index → [평균높이, 건물 수] */
-let lookup: Map<number, [number, number]> | null = null;
+/** 셀 index → [평균높이, 건물 수, 바닥면적합] */
+let lookup: Map<number, [number, number, number]> | null = null;
 
-function getLookup(): Map<number, [number, number]> {
+function getLookup(): Map<number, [number, number, number]> {
   if (lookup) return lookup;
   lookup = new Map();
-  for (let i = 0; i < grid.cells.length; i += 3) {
-    lookup.set(grid.cells[i], [grid.cells[i + 1], grid.cells[i + 2]]);
+  for (let i = 0; i < grid.cells.length; i += 4) {
+    lookup.set(grid.cells[i], [
+      grid.cells[i + 1],
+      grid.cells[i + 2],
+      grid.cells[i + 3],
+    ]);
   }
   return lookup;
 }
+
+/** 격자 한 칸의 넓이 (m²) */
+const CELL_AREA_M2 = grid.cellM * grid.cellM;
 
 export interface CanyonSample {
   /** 주변 건물의 바닥면적 가중 평균 높이 (m) */
   meanHeightM: number;
   /** 이 값을 만든 건물 수 — 적을수록 근거가 약하다 */
   buildings: number;
+  /** 건폐율 0~1 — 격자 넓이 중 건물이 덮은 비율 */
+  builtRatio: number;
+  /** 건물 한 동의 평균 바닥 한 변 길이 (m). 그림자 길이 환산에 쓴다 */
+  meanFootprintM: number;
 }
 
 /**
@@ -83,12 +103,21 @@ export function canyonAt(lat: number, lng: number): CanyonSample | null {
   const hit = getLookup().get(row * grid.cols + col);
   if (!hit) return null;
 
-  return { meanHeightM: hit[0], buildings: hit[1] };
+  const [meanHeightM, buildings, footprintM2] = hit;
+
+  return {
+    meanHeightM,
+    buildings,
+    builtRatio: Math.min(footprintM2 / CELL_AREA_M2, 1),
+    // 건물 한 동을 정사각형으로 보고 한 변의 길이를 잡는다 — 그림자 길이와
+    // 견주어 "그림자가 옆 건물까지 닿는가"를 가늠하는 데 쓴다
+    meanFootprintM: Math.sqrt(Math.max(footprintM2 / buildings, 1)),
+  };
 }
 
 /** 격자에 값이 있는 셀 비율 — /guide 에 커버리지를 밝히는 데 쓴다 */
 export function canyonCoverage(): { cells: number; total: number; pct: number } {
-  const cells = grid.cells.length / 3;
+  const cells = grid.cells.length / 4;
   const total = grid.rows * grid.cols;
   return { cells, total, pct: Math.round((cells / total) * 1000) / 10 };
 }

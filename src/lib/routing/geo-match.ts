@@ -44,6 +44,10 @@ export interface AnnotatedPoint extends LatLng {
   roadFactor?: number;
   /** 이 점에 걸린 street canyon 보정 계수 */
   canyonFactor?: number;
+  /** 이 점의 그늘 비율 0~1 */
+  shadeFraction?: number;
+  /** 이 점에 걸린 그림자 보정 계수 */
+  shadeFactor?: number;
 }
 
 /* ── 행정동 조회 (bbox 프리필터 + 캐시) ─────────────────── */
@@ -183,6 +187,8 @@ export function buildSegments(
     /** 계수 × 거리 누적 (거리 가중 평균용) */
     factorMeters: number;
     canyonMeters: number;
+    shadeMeters: number;
+    shadeFactorMeters: number;
     weightedMeters: number;
   }
 
@@ -192,6 +198,8 @@ export function buildSegments(
     draft.roadMeters.set(kind, (draft.roadMeters.get(kind) ?? 0) + meters);
     draft.factorMeters += (from.roadFactor ?? 1) * meters;
     draft.canyonMeters += (from.canyonFactor ?? 1) * meters;
+    draft.shadeMeters += (from.shadeFraction ?? 0) * meters;
+    draft.shadeFactorMeters += (from.shadeFactor ?? 1) * meters;
     draft.weightedMeters += meters;
   };
 
@@ -215,12 +223,16 @@ export function buildSegments(
         effectiveScore: 0,
         roadFactor: 1,
         canyonFactor: 1,
+        shadeFraction: 0,
+        shadeFactor: 1,
         dominantRoad: 'unknown',
         roadDriver: 'unknown',
         riskSamples: [point.risk],
         roadMeters: new Map(),
         factorMeters: 0,
         canyonMeters: 0,
+        shadeMeters: 0,
+        shadeFactorMeters: 0,
         weightedMeters: 0,
       };
 
@@ -257,6 +269,8 @@ export function buildSegments(
       prev.riskSamples = [...prev.riskSamples, ...draft.riskSamples];
       prev.factorMeters += draft.factorMeters;
       prev.canyonMeters += draft.canyonMeters;
+      prev.shadeMeters += draft.shadeMeters;
+      prev.shadeFactorMeters += draft.shadeFactorMeters;
       prev.weightedMeters += draft.weightedMeters;
       for (const [kind, m] of draft.roadMeters) {
         prev.roadMeters.set(kind, (prev.roadMeters.get(kind) ?? 0) + m);
@@ -272,6 +286,8 @@ export function buildSegments(
       roadMeters,
       factorMeters,
       canyonMeters,
+      shadeMeters,
+      shadeFactorMeters,
       weightedMeters,
       ...segment
     }) => ({
@@ -283,6 +299,12 @@ export function buildSegments(
         weightedMeters > 0 ? Math.round((factorMeters / weightedMeters) * 100) / 100 : 1,
       canyonFactor:
         weightedMeters > 0 ? Math.round((canyonMeters / weightedMeters) * 100) / 100 : 1,
+      shadeFraction:
+        weightedMeters > 0 ? Math.round((shadeMeters / weightedMeters) * 100) / 100 : 0,
+      shadeFactor:
+        weightedMeters > 0
+          ? Math.round((shadeFactorMeters / weightedMeters) * 1000) / 1000
+          : 1,
       dominantRoad: dominantKind(roadMeters),
       roadDriver: drivingKind(roadMeters),
     }),

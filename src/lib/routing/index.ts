@@ -10,6 +10,7 @@ import type { Place } from '@/data/places';
 import { levelFromScore } from '@/lib/risk/score';
 import { buildNodeRiskMap, createRiskSampler } from '@/lib/risk/route-score';
 import { createRoadAdjuster } from '@/lib/risk/road-exposure';
+import { createShadeAdjuster } from '@/lib/risk/shade';
 import { findPath } from './astar';
 import { getGrid, nearestNode, type GridNode } from './grid';
 import {
@@ -84,6 +85,7 @@ export async function planRoutes(args: PlanRoutesArgs): Promise<RouteResult> {
     speedMs: TRAVEL_MODES[mode].speedMs,
     riskAt,
     adjustRoad: createRoadAdjuster(dongRisks),
+    adjustShade: createShadeAdjuster(dongRisks, new Date(snapshot.baseTime)),
     riskById: new Map(dongRisks.map((r) => [r.areaId, r])),
     names: dongNameMap(),
   };
@@ -111,6 +113,8 @@ interface PlanContext {
   riskAt: (lat: number, lng: number) => number;
   /** 도로유형 보정 — 경로 위 점마다 교통 오염물질 몫에만 계수를 건다 */
   adjustRoad: ReturnType<typeof createRoadAdjuster>;
+  /** 그림자 보정 — 체감온도 몫에만. 기준 시각의 태양 위치를 쓴다 */
+  adjustShade: ReturnType<typeof createShadeAdjuster>;
   riskById: Map<string, AreaRisk>;
   names: Map<string, string>;
 }
@@ -127,10 +131,28 @@ interface PlanContext {
 function applyRoadExposure(
   points: AnnotatedPoint[],
   adjustRoad: PlanContext['adjustRoad'],
+  adjustShade: PlanContext['adjustShade'],
 ): AnnotatedPoint[] {
   return points.map((point) => {
-    const { risk, roadFactor, canyonFactor } = adjustRoad(point);
-    return { ...point, risk, roadFactor, canyonFactor };
+    const road = adjustRoad(point);
+
+    /*
+     * 그림자 보정은 도로 보정 **뒤에** 건다.
+     *
+     * 순서가 결과를 바꾸지는 않는다(둘 다 곱셈이고 서로 다른 지표의 몫에
+     * 걸린다). 다만 각 단계가 무엇을 받아 무엇을 내놓는지 읽히도록
+     * 체인을 한 방향으로 세워 둔다.
+     */
+    const shade = adjustShade({ ...point, risk: road.risk });
+
+    return {
+      ...point,
+      risk: shade.risk,
+      roadFactor: road.roadFactor,
+      canyonFactor: road.canyonFactor,
+      shadeFraction: shade.shadeFraction,
+      shadeFactor: shade.factor,
+    };
   });
 }
 
@@ -214,6 +236,7 @@ async function planWithTmap(ctx: PlanContext, baseTime: string): Promise<RouteRe
     const points = applyRoadExposure(
       annotatePath(route.path, ctx.riskAt),
       ctx.adjustRoad,
+      ctx.adjustShade,
     );
     const stats = exposureOfPath(points, ctx.speedMs);
 
