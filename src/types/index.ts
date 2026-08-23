@@ -150,6 +150,13 @@ export interface RiskSnapshot {
    * 골랐거나. 화면에 안내할 문구가 서로 달라서 구분해 둔다.
    */
   preview: boolean;
+  /**
+   * 실데이터 모드인데 호출이 실패해 예시 데이터로 대체된 소스 이름들.
+   *
+   * 비어 있으면 전부 실제로 받아온 값이다. 폴백이 일어나도 화면이 비지는 않지만,
+   * 그 사실을 감추면 '실시간'이라고 적힌 시나리오 숫자를 보여주게 된다.
+   */
+  degradedSources: string[];
 }
 
 export interface WeatherWarning {

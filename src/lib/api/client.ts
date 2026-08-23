@@ -9,11 +9,35 @@ import { DATA_MODE, KMA_APIHUB_KEY, SERVICE_KEY } from '@/lib/env';
  * "정규화된 도메인 객체"만 다룬다.
  *
  * live 전환 시 할 일은 .env.local 에
- *   NEXT_PUBLIC_DATA_MODE=live
  *   DATA_GO_KR_SERVICE_KEY=<발급받은 Decoding 키>
- * 두 줄을 채우는 것뿐이다. 코드는 건드리지 않는다.
+ * 한 줄을 채우는 것뿐이다. 코드는 건드리지 않는다 (lib/env.ts 참고).
  * ────────────────────────────────────────────────────
  */
+
+/**
+ * 실 호출이 예시 데이터로 대체됐을 때 그 사실을 모아 두는 곳.
+ *
+ * ── 왜 필요한가 ─────────────────────────────────────────
+ * 아래 폴백은 발표 중 공공데이터 서버가 죽어도 화면이 비지 않게 해 준다.
+ * 그런데 지금까지는 그 사실이 콘솔에만 남았다. 화면은 여전히 '실시간'이라고
+ * 적힌 채 시나리오 숫자를 보여줬다 — 데이터 출처를 밝히겠다는 이 서비스의
+ * 약속을 정면으로 어기는 동작이다.
+ *
+ * 어느 소스가 대체됐는지 요청 단위로 모아 스냅샷에 실어 보낸다.
+ */
+export interface FallbackSink {
+  record(name: string): void;
+}
+
+export function createFallbackSink(): FallbackSink & { names: string[] } {
+  const names: string[] = [];
+  return {
+    names,
+    record(name) {
+      if (!names.includes(name)) names.push(name);
+    },
+  };
+}
 
 /**
  * 인증 방식.
@@ -41,6 +65,8 @@ export interface CallOptions<T> {
   revalidate: number;
   /** mock 모드에서 쓸 가짜 응답 */
   mock: () => T;
+  /** 실 호출이 실패해 예시 데이터로 대체되면 여기에 기록한다 */
+  sink?: FallbackSink;
 }
 
 /**
@@ -62,6 +88,8 @@ export async function callPublicApi<T>(options: CallOptions<T>): Promise<T> {
       `[soomgil] ${options.name} 실 API 호출 실패 — 예시 데이터로 대체합니다.`,
       error,
     );
+    // 화면이 '실시간'이라고 말하지 않도록 대체 사실을 남긴다
+    options.sink?.record(options.name);
     return options.mock();
   }
 }

@@ -18,15 +18,26 @@ import { cn } from '@/lib/utils/cn';
  * "3개월 전 갱신"을 붙이면 데이터가 낡은 것처럼 읽힌다. 낡은 게 아니라 예시라서
  * 그런 것이므로, 신선도 대신 예시임을 밝힌다.
  */
+/** 렌더마다 새 배열을 만들지 않도록 모듈 상수로 둔다 */
+const EMPTY: string[] = [];
+
 export function FreshnessStamp({
   baseTime,
   /** 예시 데이터(오늘이 아닌 계절)인지 */
   preview = false,
+  /**
+   * 실데이터 모드인데 일부 소스가 예시 데이터로 대체된 경우 그 이름들.
+   *
+   * 전부 실패한 것도 아니고 전부 성공한 것도 아닌 중간 상태다. '실시간'이라고만
+   * 적으면 대체된 숫자까지 실측인 것처럼 읽힌다.
+   */
+  degraded = EMPTY,
   size = 'md',
   className,
 }: {
   baseTime: string;
   preview?: boolean;
+  degraded?: string[];
   size?: 'sm' | 'md';
   className?: string;
 }) {
@@ -42,7 +53,15 @@ export function FreshnessStamp({
   const fresh =
     now !== null && ageMs !== null && ageMs >= 0 && ageMs < 24 * 60 * 60 * 1000;
 
-  const dot = preview ? 'bg-risk-moderate' : fresh ? 'bg-risk-low' : 'bg-ink-300';
+  const partial = !preview && degraded.length > 0;
+
+  const dot = preview
+    ? 'bg-risk-moderate'
+    : partial
+      ? 'bg-risk-moderate'
+      : fresh
+        ? 'bg-risk-low'
+        : 'bg-ink-300';
 
   return (
     <p
@@ -57,6 +76,11 @@ export function FreshnessStamp({
         <strong className="font-semibold">{formatKstStamp(baseTime)}</strong> 기준
         {preview ? (
           <span className="text-ink-400"> · 예시 데이터</span>
+        ) : partial ? (
+          <span className="text-ink-500" title={`대체된 소스: ${degraded.join(', ')}`}>
+            {' '}
+            · {degraded.length}개 소스 일시 대체
+          </span>
         ) : (
           fresh && (
             <span className="text-ink-400">

@@ -6,11 +6,28 @@ import type { DataMode } from '@/types';
  * DATA_MODE=mock  → lib/api/client.ts 가 실제 fetch 대신 src/mocks/raw 를 반환
  * DATA_MODE=live  → 공공데이터포털 실 API 호출
  *
- * 키가 없으면 무조건 mock 으로 떨어진다(시연 중 사고 방지).
+ * ── 판정은 서버 런타임 값으로만 한다 ────────────────────
+ * 예전에는 NEXT_PUBLIC_DATA_MODE 가 'live' 인지를 함께 봤다. 그게 사고를 냈다.
+ *
+ * Next 는 NEXT_PUBLIC_* 을 **빌드 시점에 문자열로 박아 넣는다**. 그래서 그 변수가
+ * 없던 시점에 만들어진 빌드는 조건이 통째로 false 로 접혀 버리고, 나중에 런타임
+ * 환경변수를 아무리 채워도 영원히 mock 으로 돈다. 실제로 배포본이 그 상태였다 —
+ * /api/health 는 키가 다 있다고 하는데 화면에는 '예시 데이터' 배지가 떴다.
+ * (빌드 산출물에서 확인: NEXT_PUBLIC_DATA_MODE 는 흔적도 없이 사라져 있었다)
+ *
+ * 지금은 **서버에서만 읽히는 키의 존재 여부**로 정한다. 이 값들은 빌드에
+ * 박히지 않고 매 요청 런타임에 읽히므로, 키를 넣으면 재배포 없이도 즉시 반영된다.
+ * 판정 기준과 실제로 호출에 쓰는 값이 같아져서 둘이 어긋날 수도 없다.
+ *
+ * 시연용으로 일부러 예시 데이터를 쓰고 싶으면 SOOMGIL_FORCE_MOCK=1 을 준다.
+ * (예전 표기 NEXT_PUBLIC_DATA_MODE=mock 도 계속 받아 준다)
  */
+const FORCE_MOCK =
+  process.env.SOOMGIL_FORCE_MOCK === '1' ||
+  process.env.NEXT_PUBLIC_DATA_MODE === 'mock';
+
 export const DATA_MODE: DataMode =
-  process.env.NEXT_PUBLIC_DATA_MODE === 'live' &&
-  (process.env.DATA_GO_KR_SERVICE_KEY || process.env.KMA_APIHUB_KEY)
+  !FORCE_MOCK && (process.env.DATA_GO_KR_SERVICE_KEY || process.env.KMA_APIHUB_KEY)
     ? 'live'
     : 'mock';
 

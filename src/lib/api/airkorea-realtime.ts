@@ -1,6 +1,6 @@
 import type { AirkoreaRealtimeItem, AirkoreaResponse } from './types';
 import type { Scenario } from '@/mocks/scenarios';
-import { callPublicApi } from './client';
+import { callPublicApi, type FallbackSink } from './client';
 import { ENDPOINTS } from './endpoints';
 import { CACHE_TTL } from '@/lib/env';
 import { buildRealtimeResponse } from '@/mocks/raw/airkorea';
@@ -14,6 +14,7 @@ import { buildRealtimeResponse } from '@/mocks/raw/airkorea';
 export function fetchAirRealtime(
   scenario: Scenario,
   preview = false,
+  sink?: FallbackSink,
 ): Promise<AirkoreaResponse<AirkoreaRealtimeItem>> {
   return callPublicApi<AirkoreaResponse<AirkoreaRealtimeItem>>({
     name: '에어코리아 실시간',
@@ -26,6 +27,7 @@ export function fetchAirRealtime(
       numOfRows: 100,
     },
     forceMock: preview,
+    sink,
     revalidate: CACHE_TTL.airkorea,
     mock: () => buildRealtimeResponse(scenario),
   });

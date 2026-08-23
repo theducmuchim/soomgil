@@ -1,6 +1,6 @@
 import type { WthrWrnResponse } from './types';
 import type { Scenario } from '@/mocks/scenarios';
-import { callPublicApi } from './client';
+import { callPublicApi, type FallbackSink } from './client';
 import { ENDPOINTS } from './endpoints';
 import { CACHE_TTL } from '@/lib/env';
 import { buildWarningResponse } from '@/mocks/raw/kma';
@@ -14,6 +14,7 @@ export function fetchWarnings(
   scenario: Scenario,
   now: Date = new Date(),
   preview = false,
+  sink?: FallbackSink,
 ): Promise<WthrWrnResponse> {
   // 특보는 며칠 전에 발표돼 아직 발효 중일 수 있어서 3일치를 받아온다
   const from = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
@@ -30,6 +31,7 @@ export function fetchWarnings(
       numOfRows: 50,
     },
     forceMock: preview,
+    sink,
     revalidate: CACHE_TTL.warning,
     mock: () => buildWarningResponse(scenario),
   });

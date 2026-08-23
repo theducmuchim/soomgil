@@ -36,6 +36,7 @@ import { fetchStagnation } from './kma-stagnation';
 import { fetchVilageFcst } from './kma-forecast';
 import { fetchWarnings } from './kma-warning';
 import { fetchAirRealtime } from './airkorea-realtime';
+import { createFallbackSink } from './client';
 
 export { fetchAirForecast } from './airkorea-forecast';
 
@@ -78,6 +79,15 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
   const scenario = getScenario(season);
   const useMock = preview || DATA_MODE === 'mock';
 
+  /*
+   * 실 호출이 실패해 예시 데이터로 대체되면 여기에 쌓인다.
+   *
+   * 폴백 자체는 필요하다 — 발표 중 공공데이터 서버가 죽어도 화면이 비면 안 된다.
+   * 다만 그 사실을 감추면 안 된다. 화면이 '실시간'이라고 적힌 채 시나리오 숫자를
+   * 보여주는 게 지금까지의 동작이었고, 그건 출처를 밝히겠다는 약속과 어긋난다.
+   */
+  const sink = createFallbackSink();
+
   // 기준 시각 — 예시 데이터면 시나리오에 적힌 그 계절의 대표 일시를 쓴다.
   // 그래야 "겨울을 보는 중인데 8월 기준으로 꽃가루 서비스 기간을 판정"하는 어긋남이 없다.
   const baseTime = useMock ? scenario.baseTime : now.toISOString();
@@ -94,14 +104,19 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
 
   // ── 시 단위 호출 (자치구 수와 무관하게 1회씩) ──
   const [airRes, warnRes] = await Promise.all([
-    fetchAirRealtime(scenario, preview),
-    fetchWarnings(scenario, referenceDate, preview),
+    fetchAirRealtime(scenario, preview, sink),
+    fetchWarnings(scenario, referenceDate, preview, sink),
   ]);
   const airByDistrict = parseRealtimeByDistrict(airRes);
   const warnings = parseWarnings(warnRes);
 
   // ── 단기예보: 격자가 겹치는 구는 한 번만 부른다 ──
-  const forecastByDistrict = await fetchForecastsDeduped(scenario, referenceDate, preview);
+  const forecastByDistrict = await fetchForecastsDeduped(
+    scenario,
+    referenceDate,
+    preview,
+    sink,
+  );
 
   // ── 자치구별 호출 (꽃가루 · 대기정체) ──
   const pollenIds = readingIds.filter((id) => id in POLLEN_KIND);
@@ -109,9 +124,16 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
   const districts: AreaRisk[] = await Promise.all(
     DISTRICTS.map(async (district) => {
       const [stagnationRes, ...pollenResList] = await Promise.all([
-        fetchStagnation(scenario, district.areaNo, indexTime, preview),
+        fetchStagnation(scenario, district.areaNo, indexTime, preview, sink),
         ...pollenIds.map((id) =>
-          fetchPollen(scenario, district.areaNo, POLLEN_KIND[id] as PollenKind, indexTime, preview),
+          fetchPollen(
+            scenario,
+            district.areaNo,
+            POLLEN_KIND[id] as PollenKind,
+            indexTime,
+            preview,
+            sink,
+          ),
         ),
       ]);
 
@@ -165,6 +187,8 @@ export async function getRiskSnapshot(options: SnapshotOptions = {}): Promise<Ri
     warnings,
     source: useMock ? 'mock' : 'live',
     preview,
+    // 실데이터 모드인데 일부 소스가 대체된 경우에만 채워진다
+    degradedSources: useMock ? [] : sink.names,
   };
 }
 
@@ -228,6 +252,7 @@ async function fetchForecastsDeduped(
   scenario: Scenario,
   referenceDate: Date,
   preview: boolean,
+  sink: ReturnType<typeof createFallbackSink>,
 ): Promise<Partial<Record<DistrictId, ForecastValues>>> {
   const groups = new Map<string, DistrictId[]>();
   for (const d of DISTRICTS) {
@@ -239,7 +264,13 @@ async function fetchForecastsDeduped(
 
   await Promise.all(
     [...groups.values()].map(async (memberIds) => {
-      const res = await fetchVilageFcst(scenario, memberIds[0], referenceDate, preview);
+      const res = await fetchVilageFcst(
+        scenario,
+        memberIds[0],
+        referenceDate,
+        preview,
+        sink,
+      );
       const parsed = parseVilageFcst(res);
       if (!parsed) return;
       for (const id of memberIds) out[id] = parsed;

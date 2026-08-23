@@ -118,6 +118,7 @@ export default async function RoutePage({
             <FreshnessStamp
               baseTime={snapshot.baseTime}
               preview={snapshot.source === 'mock'}
+              degraded={snapshot.degradedSources}
               className="rounded-full border border-line bg-surface px-2.5 py-1 text-ink-700"
             />
 

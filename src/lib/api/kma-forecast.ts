@@ -1,7 +1,7 @@
 import type { VilageFcstResponse } from './types';
 import type { DistrictId } from '@/types';
 import type { Scenario } from '@/mocks/scenarios';
-import { callPublicApi } from './client';
+import { callPublicApi, type FallbackSink } from './client';
 import { ENDPOINTS } from './endpoints';
 import { CACHE_TTL } from '@/lib/env';
 import { buildVilageFcstResponse } from '@/mocks/raw/kma';
@@ -51,6 +51,7 @@ export function fetchVilageFcst(
   districtId: DistrictId,
   now: Date = new Date(),
   preview = false,
+  sink?: FallbackSink,
 ): Promise<VilageFcstResponse> {
   const { grid } = DISTRICT_BY_ID[districtId];
   const { base_date, base_time } = latestBaseDateTime(now);
@@ -69,6 +70,7 @@ export function fetchVilageFcst(
     },
     auth: 'apiHub',
     forceMock: preview,
+    sink,
     revalidate: CACHE_TTL.forecast,
     mock: () => buildVilageFcstResponse(scenario, districtId),
   });
