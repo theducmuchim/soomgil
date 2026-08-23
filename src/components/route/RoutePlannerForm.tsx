@@ -69,7 +69,7 @@ export function RoutePlannerForm({
           type="button"
           onClick={swap}
           aria-label="출발지와 목적지 바꾸기"
-          className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-line text-ink-500 transition-colors hover:bg-surface-sunken hover:text-ink-900 sm:mt-6"
+          className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-ink-500 transition-colors hover:bg-surface-sunken hover:text-ink-900 sm:mt-6"
         >
           <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
             <path
@@ -93,7 +93,7 @@ export function RoutePlannerForm({
 
       <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div
-          className="inline-flex rounded-lg border border-line p-1"
+          className="inline-flex rounded-xl border border-line p-1"
           role="group"
           aria-label="이동 수단"
         >
@@ -104,7 +104,7 @@ export function RoutePlannerForm({
               onClick={() => push({ mode: key })}
               aria-pressed={mode === key}
               className={cn(
-                'rounded-md px-3.5 py-1.5 text-[0.8125rem] font-semibold transition-colors',
+                'rounded-full px-3.5 py-1.5 text-[0.8125rem] font-semibold transition-colors',
                 mode === key
                   ? 'bg-brand-600 text-white'
                   : 'text-ink-500 hover:bg-surface-sunken hover:text-ink-900',
@@ -117,13 +117,13 @@ export function RoutePlannerForm({
 
         <button
           type="submit"
-          className="h-11 rounded-lg bg-brand-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-700 sm:h-10"
+          className="h-11 rounded-full bg-brand-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-brand-700 sm:h-10"
         >
           경로 찾기
         </button>
       </div>
 
-      <p className="mt-3 text-[0.71875rem] leading-relaxed text-ink-400">
+      <p className="mt-3 text-[0.75rem] leading-relaxed text-ink-400">
         이동 수단에 따라 같은 구간이라도 머무는 시간이 달라져 노출량이 바뀝니다. 현재{' '}
         {TRAVEL_MODES[mode].label} 기준 {TRAVEL_MODES[mode].note}로 계산합니다.
       </p>

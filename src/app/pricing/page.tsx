@@ -23,10 +23,10 @@ export default function PricingPage() {
         <PlanComparison />
 
         <section className="mt-10 rounded-2xl border border-line bg-surface-sunken p-5 sm:p-6">
-          <h2 className="text-[0.9375rem] font-bold text-ink-900">
+          <h2 className="text-[1rem] font-bold text-ink-900">
             구독료는 어디에 쓰이나요
           </h2>
-          <ul className="mt-3.5 space-y-2.5 text-[0.84375rem] leading-relaxed text-ink-700">
+          <ul className="mt-3.5 space-y-2.5 text-[0.875rem] leading-relaxed text-ink-700">
             <li className="flex gap-2.5">
               <span
                 className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400"

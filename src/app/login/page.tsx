@@ -25,7 +25,7 @@ export default function LoginPage() {
             <p className="text-[0.8125rem] font-semibold text-brand-700">
               시연용 화면입니다
             </p>
-            <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-brand-700/80">
+            <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-brand-700/80">
               실제 인증 서버에 연결되어 있지 않습니다. 아무 값이나 넣고 눌러도 넘어가며,
               입력한 내용은 어디에도 전송되지 않습니다. 관심 지역·경로 설정은 이용자
               브라우저에만 저장됩니다.
@@ -34,7 +34,7 @@ export default function LoginPage() {
 
           <LoginForm />
 
-          <p className="mt-6 text-center text-[0.78125rem] text-ink-400">
+          <p className="mt-6 text-center text-[0.8125rem] text-ink-400">
             로그인 없이도 모든 기능을 쓸 수 있습니다.{' '}
             <Link
               href="/route"

@@ -111,7 +111,7 @@ export function SeasonToggle({
                     {isNow && (
                       <span
                         className={cn(
-                          'rounded px-1 py-px text-[0.625rem] font-medium',
+                          'rounded px-1 py-px text-[0.6875rem] font-medium',
                           isActive ? 'bg-white/20 text-white' : 'bg-line text-ink-400',
                         )}
                       >
@@ -127,9 +127,9 @@ export function SeasonToggle({
           {isPreview ? (
             <p
               role="status"
-              className="flex items-start gap-2 text-[0.71875rem] leading-snug lg:ml-auto lg:shrink-0 lg:items-center lg:pl-4"
+              className="flex items-start gap-2 text-[0.75rem] leading-snug lg:ml-auto lg:shrink-0 lg:items-center lg:pl-4"
             >
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-risk-moderate/50 bg-surface px-2 py-0.5 text-[0.6875rem] font-bold text-ink-900">
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-risk-moderate/50 bg-surface px-2 py-0.5 text-[0.6875rem] font-bold text-ink-900">
                 <svg
                   viewBox="0 0 16 16"
                   className="h-3 w-3 text-risk-moderate"
@@ -157,7 +157,7 @@ export function SeasonToggle({
               </span>
             </p>
           ) : (
-            <p className="ml-auto hidden shrink-0 pl-4 text-[0.71875rem] text-ink-400 lg:block">
+            <p className="ml-auto hidden shrink-0 pl-4 text-[0.75rem] text-ink-400 lg:block">
               {SEASONS[active].headline}
             </p>
           )}

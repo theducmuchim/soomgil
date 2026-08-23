@@ -73,10 +73,10 @@ export function ProblemSolutionSection({ snapshot }: { snapshot: RiskSnapshot })
     <section className="border-b border-line py-14 sm:py-20">
       <Container>
         <div className="max-w-2xl">
-          <p className="text-[0.78125rem] font-semibold tracking-wide text-brand-600">
+          <p className="text-[0.8125rem] font-semibold tracking-wide text-brand-600">
             숨쉬는길이 푸는 문제
           </p>
-          <h2 className="mt-2 text-[1.625rem] leading-tight font-bold tracking-tight text-ink-900 sm:text-[2rem]">
+          <h2 className="mt-2 text-[1.25rem] leading-tight font-bold text-ink-900 sm:text-[1.75rem]">
             위험도는 알려주는데,
             <br className="sm:hidden" /> 어디로 가라는 말은 없습니다
           </h2>
@@ -123,7 +123,7 @@ function Column({
     >
       <h3
         className={cn(
-          'text-[0.9375rem] font-bold',
+          'text-[1rem] font-bold',
           isSolution ? 'text-brand-700' : 'text-ink-700',
         )}
       >
@@ -142,7 +142,7 @@ function Column({
             <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
               <span
                 className={cn(
-                  'tabular text-[1.375rem] leading-none font-bold tracking-tight sm:text-[1.625rem]',
+                  'tabular text-[1.25rem] leading-none font-bold sm:text-[1.25rem]',
                   isSolution ? 'text-brand-600' : 'text-ink-900',
                 )}
               >
@@ -159,7 +159,7 @@ function Column({
 
       <p
         className={cn(
-          'mt-6 border-t pt-4 text-[0.71875rem] leading-relaxed',
+          'mt-6 border-t pt-4 text-[0.75rem] leading-relaxed',
           isSolution ? 'border-brand-200/70 text-brand-700/70' : 'border-line text-ink-400',
         )}
       >

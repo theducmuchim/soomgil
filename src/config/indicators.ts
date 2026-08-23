@@ -170,28 +170,28 @@ export const RISK_LEVELS: Record<
     color: '#1A9E5C',
     bg: 'bg-risk-low/10',
     border: 'border-risk-low/30',
-    text: 'text-risk-low',
+    text: 'text-risk-low-text',
   },
   moderate: {
     label: '보통',
     color: '#E0A800',
     bg: 'bg-risk-moderate/10',
     border: 'border-risk-moderate/30',
-    text: 'text-risk-moderate',
+    text: 'text-risk-moderate-text',
   },
   high: {
     label: '높음',
     color: '#E4692B',
     bg: 'bg-risk-high/10',
     border: 'border-risk-high/30',
-    text: 'text-risk-high',
+    text: 'text-risk-high-text',
   },
   veryHigh: {
     label: '매우높음',
     color: '#A3132B',
     bg: 'bg-risk-very-high/10',
     border: 'border-risk-very-high/30',
-    text: 'text-risk-very-high',
+    text: 'text-risk-very-high-text',
   },
 };
 

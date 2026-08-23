@@ -29,7 +29,7 @@ export function TurnByTurnList({
   if (guides.length === 0) {
     return (
       <div className="rounded-2xl border border-line bg-surface p-4">
-        <p className="text-[0.78125rem] font-semibold text-ink-900">길 안내</p>
+        <p className="text-[0.8125rem] font-semibold text-ink-900">길 안내</p>
         <p className="mt-2 text-[0.75rem] leading-relaxed text-ink-500">
           {engine === 'grid'
             ? '지금 보고 있는 경로는 실제 도로망이 아니라 격자 위에서 계산한 근사 경로라, 회전 안내를 만들 수 없습니다. 없는 안내를 지어내면 그대로 걸을 수 없기 때문에 표시하지 않습니다.'
@@ -44,7 +44,7 @@ export function TurnByTurnList({
   return (
     <div className="rounded-2xl border border-line bg-surface p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[0.78125rem] font-semibold text-ink-900">
+        <p className="text-[0.8125rem] font-semibold text-ink-900">
           길 안내 {guides.length}단계
         </p>
         <p className="tabular text-[0.6875rem] text-ink-400">
@@ -60,7 +60,7 @@ export function TurnByTurnList({
           return (
             <li
               key={`${i}-${guide.coord[0]}-${guide.coord[1]}`}
-              className="flex gap-2.5 rounded-lg px-1.5 py-2 hover:bg-surface-sunken"
+              className="flex gap-2.5 rounded-xl px-1.5 py-2 hover:bg-surface-sunken"
             >
               <span className="flex w-5 shrink-0 justify-center pt-0.5">
                 <span className="tabular text-[0.6875rem] font-semibold text-ink-300">
@@ -71,7 +71,7 @@ export function TurnByTurnList({
               <TurnIcon shape={meta.shape} />
 
               <div className="min-w-0 flex-1">
-                <p className="text-[0.78125rem] leading-snug font-medium text-ink-900">
+                <p className="text-[0.8125rem] leading-snug font-medium text-ink-900">
                   {guide.description}
                 </p>
                 {/*
@@ -87,11 +87,11 @@ export function TurnByTurnList({
 
               {!isEnd && guide.distanceM > 0 && (
                 <div className="shrink-0 text-right">
-                  <p className="tabular text-[0.71875rem] font-semibold text-ink-700">
+                  <p className="tabular text-[0.75rem] font-semibold text-ink-700">
                     {formatDistance(guide.distanceM)}
                   </p>
                   {guide.durationSec >= 60 && (
-                    <p className="tabular text-[0.625rem] text-ink-400">
+                    <p className="tabular text-[0.6875rem] text-ink-400">
                       {formatDuration(guide.durationSec)}
                     </p>
                   )}

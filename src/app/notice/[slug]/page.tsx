@@ -65,7 +65,7 @@ export default async function NoticeDetailPage({
           {notice.body.map((paragraph, i) => (
             <p
               key={i}
-              className="mt-4 text-[0.9375rem] leading-[1.85] text-ink-700 first:mt-0"
+              className="mt-4 text-[1rem] leading-[1.85] text-ink-700 first:mt-0"
             >
               {paragraph}
             </p>
@@ -76,12 +76,12 @@ export default async function NoticeDetailPage({
           {prev && (
             <Link
               href={`/notice/${prev.slug}`}
-              className="group flex items-baseline gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-sunken"
+              className="group flex items-baseline gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface-sunken"
             >
               <span className="shrink-0 text-[0.75rem] font-semibold text-ink-400">
                 이전 글
               </span>
-              <span className="truncate text-[0.84375rem] text-ink-700 group-hover:text-brand-600">
+              <span className="truncate text-[0.875rem] text-ink-700 group-hover:text-brand-600">
                 {prev.title}
               </span>
             </Link>
@@ -89,12 +89,12 @@ export default async function NoticeDetailPage({
           {next && (
             <Link
               href={`/notice/${next.slug}`}
-              className="group flex items-baseline gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-sunken"
+              className="group flex items-baseline gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface-sunken"
             >
               <span className="shrink-0 text-[0.75rem] font-semibold text-ink-400">
                 다음 글
               </span>
-              <span className="truncate text-[0.84375rem] text-ink-700 group-hover:text-brand-600">
+              <span className="truncate text-[0.875rem] text-ink-700 group-hover:text-brand-600">
                 {next.title}
               </span>
             </Link>

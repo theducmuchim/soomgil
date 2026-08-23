@@ -29,7 +29,7 @@ export function PlanTrialPicker({
   const body = (
     <>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-[0.9375rem] font-bold text-ink-900">요금제 체험</h2>
+        <h2 className="text-[1rem] font-bold text-ink-900">요금제 체험</h2>
         <span className="rounded-full bg-brand-600 px-2.5 py-0.5 text-[0.6875rem] font-semibold text-white">
           지금 {current.name}
         </span>
@@ -54,7 +54,7 @@ export function PlanTrialPicker({
               aria-checked={active}
               onClick={() => setPlan(id)}
               className={cn(
-                'flex flex-col items-center gap-0.5 rounded-lg border px-2 py-2.5 transition-colors',
+                'flex flex-col items-center gap-0.5 rounded-xl border px-2 py-2.5 transition-colors',
                 active
                   ? 'border-brand-600 bg-brand-600 text-white'
                   : 'border-line bg-surface text-ink-700 hover:bg-surface-sunken',
@@ -77,7 +77,7 @@ export function PlanTrialPicker({
       </div>
 
       {/* 결제한 것으로 오해하면 안 되는 부분이라 눈에 보이게 둔다 */}
-      <p className="mt-4 rounded-lg bg-surface-sunken px-3.5 py-2.5 text-[0.71875rem] leading-relaxed text-ink-500">
+      <p className="mt-4 rounded-xl bg-surface-sunken px-3.5 py-2.5 text-[0.75rem] leading-relaxed text-ink-500">
         <strong className="font-semibold text-ink-700">체험 모드입니다.</strong> 실제
         결제는 이루어지지 않으며 요금이 청구되지 않습니다. 구독 기능이 어떻게 동작하는지
         보여주기 위한 것이고, 상태는 이 브라우저에만 저장됩니다. 표시된 금액
@@ -87,7 +87,7 @@ export function PlanTrialPicker({
       {!bare && (
         <Link
           href="/pricing"
-          className="mt-3 inline-block text-[0.78125rem] font-semibold text-brand-600 hover:text-brand-700"
+          className="mt-3 inline-block text-[0.8125rem] font-semibold text-brand-600 hover:text-brand-700"
         >
           요금제 비교 보기
         </Link>

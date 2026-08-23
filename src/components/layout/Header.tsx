@@ -45,7 +45,7 @@ export function Header() {
                         href={item.href}
                         aria-current={isActive(item.href) ? 'page' : undefined}
                         className={cn(
-                          'relative flex h-16 items-center px-3 text-[0.90625rem] font-semibold transition-colors',
+                          'relative flex h-16 items-center px-3 text-[0.875rem] font-semibold transition-colors',
                           isActive(item.href)
                             ? 'text-brand-700'
                             : 'text-ink-700 hover:text-brand-600',
@@ -80,7 +80,7 @@ export function Header() {
                         href={item.href}
                         aria-current={isActive(item.href) ? 'page' : undefined}
                         className={cn(
-                          'rounded-md px-2.5 py-1.5 text-[0.8125rem] font-medium transition-colors',
+                          'rounded-full px-2.5 py-1.5 text-[0.8125rem] font-medium transition-colors',
                           isActive(item.href)
                             ? 'text-brand-700'
                             : 'text-ink-400 hover:bg-surface-sunken hover:text-ink-700',
@@ -95,7 +95,7 @@ export function Header() {
 
               <Link
                 href="/login"
-                className="hidden rounded-md px-2.5 py-1.5 text-[0.84375rem] font-semibold text-ink-700 transition-colors hover:bg-surface-sunken lg:block"
+                className="hidden rounded-full px-2.5 py-1.5 text-[0.875rem] font-semibold text-ink-700 transition-colors hover:bg-surface-sunken lg:block"
               >
                 로그인
               </Link>
@@ -113,7 +113,7 @@ export function Header() {
                 onClick={() => setMenuOpen(true)}
                 aria-label="전체 메뉴 열기"
                 aria-expanded={menuOpen}
-                className="-mr-2 flex h-10 w-10 items-center justify-center rounded-lg text-ink-700 hover:bg-surface-sunken lg:hidden"
+                className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full text-ink-700 hover:bg-surface-sunken lg:hidden"
               >
                 <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
                   <path

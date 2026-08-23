@@ -21,19 +21,45 @@ const ANCHORS: { at: number; color: string }[] = [
   { at: 100, color: RISK_LEVELS.veryHigh.color },
 ];
 
-export function scoreColor(score: number): string {
+/**
+ * 흰 배경 위 **글자색**으로 쓸 때의 짝.
+ *
+ * 위 ANCHORS 는 면(지도·막대·배지 배경)에 쓰라고 고른 값이라 채도가 높고,
+ * 그대로 글자에 쓰면 대비가 모자란다. 색상은 유지하고 명도만 내려
+ * WCAG AA(4.5:1)를 넘긴 값이다. 자세한 근거는 globals.css 주석 참고.
+ */
+const TEXT_ANCHORS: { at: number; color: string }[] = [
+  { at: 0, color: '#16864e' },
+  { at: 12.5, color: '#16864e' },
+  { at: 37.5, color: '#967100' },
+  { at: 62.5, color: '#c05824' },
+  { at: 87.5, color: '#a3132b' },
+  { at: 100, color: '#a3132b' },
+];
+
+function interpolate(anchors: { at: number; color: string }[], score: number): string {
   const s = clamp(score, 0, 100);
 
-  for (let i = 0; i < ANCHORS.length - 1; i++) {
-    const a = ANCHORS[i];
-    const b = ANCHORS[i + 1];
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const a = anchors[i];
+    const b = anchors[i + 1];
     if (s >= a.at && s <= b.at) {
       const span = b.at - a.at;
       const t = span === 0 ? 0 : (s - a.at) / span;
       return mix(a.color, b.color, t);
     }
   }
-  return ANCHORS[ANCHORS.length - 1].color;
+  return anchors[anchors.length - 1].color;
+}
+
+/** 면에 칠할 색 — 지도 폴리곤·막대·배지 배경 */
+export function scoreColor(score: number): string {
+  return interpolate(ANCHORS, score);
+}
+
+/** 흰 배경 위에 글자로 쓸 색 */
+export function scoreTextColor(score: number): string {
+  return interpolate(TEXT_ANCHORS, score);
 }
 
 /** 색 위에 올릴 글자색 — 배경이 밝으면 어두운 글자를 쓴다 */
@@ -41,7 +67,7 @@ export function readableTextOn(hex: string): string {
   const { r, g, b } = parseHex(hex);
   // ITU-R BT.601 상대 휘도
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.62 ? '#14181d' : '#ffffff';
+  return luminance > 0.62 ? '#000000' : '#ffffff';
 }
 
 /** 등급 색 (단색이 필요한 자리 — 범례, 배지) */

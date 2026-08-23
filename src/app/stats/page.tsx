@@ -11,7 +11,7 @@ import { AdSlot } from '@/components/ads/AdSlot';
 import { INDICATORS, RISK_LEVELS } from '@/config/indicators';
 import { formatKstLong } from '@/lib/utils/time';
 import { formatDelta } from '@/lib/utils/format';
-import { scoreColor } from '@/lib/risk/color';
+import { scoreColor, scoreTextColor } from '@/lib/risk/color';
 
 export const metadata: Metadata = {
   title: '통계',
@@ -56,7 +56,7 @@ export default async function StatsPage({
           <div className="flex items-center gap-2.5 rounded-xl border border-line bg-surface px-4 py-2.5">
             <div>
               <p className="text-[0.6875rem] text-ink-400">대전 평균</p>
-              <p className="tabular text-[1.1875rem] leading-tight font-bold text-ink-900">
+              <p className="tabular text-[1.25rem] leading-tight font-bold text-ink-900">
                 {Math.round(snapshot.cityAverage.score)}
               </p>
             </div>
@@ -72,7 +72,7 @@ export default async function StatsPage({
             label="가장 위험한 자치구"
             value={ranked[0].areaName}
             detail={`${Math.round(ranked[0].score)}점 · ${INDICATORS[ranked[0].dominantIndicator].shortLabel}`}
-            color={scoreColor(ranked[0].score)}
+            color={scoreTextColor(ranked[0].score)}
           />
           <SummaryCard
             label="24시간 내 가장 안전한 시각"
@@ -84,7 +84,7 @@ export default async function StatsPage({
             label="24시간 내 정점"
             value={`${worstHour.hour}시`}
             detail={`${Math.round(worstHour.score)}점 · ${RISK_LEVELS[worstHour.level].label}`}
-            color={scoreColor(worstHour.score)}
+            color={scoreTextColor(worstHour.score)}
           />
         </div>
 
@@ -92,12 +92,12 @@ export default async function StatsPage({
           {/* 자치구 비교 */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[0.9375rem] font-bold text-ink-900">자치구별 위험도</h2>
-              <p className="text-[0.71875rem] text-ink-400">
+              <h2 className="text-[1rem] font-bold text-ink-900">자치구별 위험도</h2>
+              <p className="text-[0.75rem] text-ink-400">
                 대기정체 보정 후 · 100점 만점
               </p>
             </div>
-            <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-500">
+            <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink-500">
               모든 자치구에 같은 대기정체 보정({formatDelta(snapshot.cityAverage.stagnationDeltaPct, 1)}{' '}
               내외)이 적용됩니다. 구별 차이는 지표값 자체에서 나옵니다.
             </p>
@@ -109,10 +109,10 @@ export default async function StatsPage({
           {/* 시간대별 추이 */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[0.9375rem] font-bold text-ink-900">앞으로 24시간 추이</h2>
-              <p className="text-[0.71875rem] text-ink-400">대전 평균</p>
+              <h2 className="text-[1rem] font-bold text-ink-900">앞으로 24시간 추이</h2>
+              <p className="text-[0.75rem] text-ink-400">대전 평균</p>
             </div>
-            <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-500">
+            <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink-500">
               {seasonMeta.label}철은 {trendNote(snapshot.season)}
             </p>
             <div className="mt-4">
@@ -125,7 +125,7 @@ export default async function StatsPage({
 
         {/* 안전한 시간대 추천 */}
         <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50/60 p-5 sm:p-6">
-          <h2 className="text-[0.9375rem] font-bold text-brand-700">
+          <h2 className="text-[1rem] font-bold text-brand-700">
             지금 이후 나가기 좋은 시간대
           </h2>
           <ul className="mt-4 grid gap-2.5 sm:grid-cols-3">
@@ -141,7 +141,7 @@ export default async function StatsPage({
                   <p className="tabular text-[1rem] font-bold text-ink-900">
                     {point.hour}시
                   </p>
-                  <p className="text-[0.71875rem] text-ink-400">
+                  <p className="text-[0.75rem] text-ink-400">
                     위험도 {Math.round(point.score)} ·{' '}
                     {RISK_LEVELS[point.level].label}
                   </p>
@@ -154,7 +154,7 @@ export default async function StatsPage({
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-[0.71875rem] leading-relaxed text-brand-700/75">
+          <p className="mt-4 text-[0.75rem] leading-relaxed text-brand-700/75">
             기준 {formatKstLong(snapshot.baseTime)} ·{' '}
             {forecastBacked > 0
               ? '체감온도는 단기예보의 시각별 기온·습도·풍속으로, 대기정체는 대기확산지수 예보로 매 시각 다시 계산합니다. 미세먼지·오존·꽃가루는 시간별 예보가 제공되지 않아 현재값을 유지합니다.'
@@ -191,14 +191,14 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-xl border border-line bg-surface px-4 py-3.5">
-      <p className="text-[0.71875rem] font-medium text-ink-400">{label}</p>
+      <p className="text-[0.75rem] font-medium text-ink-400">{label}</p>
       <p className="mt-1.5 flex items-center gap-2">
         <span
           className="h-3.5 w-1 rounded-full"
           style={{ backgroundColor: color }}
           aria-hidden="true"
         />
-        <span className="text-[1.1875rem] leading-none font-bold text-ink-900">{value}</span>
+        <span className="text-[1.25rem] leading-none font-bold text-ink-900">{value}</span>
       </p>
       <p className="tabular mt-1.5 text-[0.75rem] text-ink-500">{detail}</p>
     </div>

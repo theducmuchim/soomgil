@@ -36,7 +36,7 @@ export default function RouteMap({
   const style = (feature?: Feature<Geometry, DongFeatureProps>): PathOptions => {
     const risk = feature ? riskById.get(feature.properties.id) : undefined;
     return {
-      fillColor: risk ? scoreColor(risk.score) : '#e2e7ec',
+      fillColor: risk ? scoreColor(risk.score) : '#e2e2e2',
       // 배경이 진하면 경로선이 묻힌다. 겨울처럼 시 전역이 붉은 날에도
       // 경로가 읽히도록 옅게 깐다.
       fillOpacity: 0.3,
@@ -98,7 +98,7 @@ function RouteLine({ option, selected }: { option: RouteOption; selected: boolea
       <Polyline
         positions={all}
         pathOptions={{
-          color: '#7c8895',
+          color: '#757575',
           weight: 3,
           opacity: 0.5,
           dashArray: '4 6',
@@ -157,9 +157,9 @@ function Endpoints({ result }: { result: RouteResult }) {
           }),
         }).addTo(map);
 
-      markers.push(make(result.origin.coord, '출발', result.origin.name, '#1b5b94'));
+      markers.push(make(result.origin.coord, '출발', result.origin.name, '#000000'));
       markers.push(
-        make(result.destination.coord, '도착', result.destination.name, '#14181d'),
+        make(result.destination.coord, '도착', result.destination.name, '#262626'),
       );
     });
 

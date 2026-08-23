@@ -98,7 +98,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
               : 'border-risk-low/30 bg-risk-low/8',
           )}
         >
-          <h2 className="text-[0.9375rem] font-bold text-ink-900">
+          <h2 className="text-[1rem] font-bold text-ink-900">
             {triggered.length > 0
               ? `관심 지역 ${triggered.length}곳이 알림 기준을 넘었습니다`
               : '관심 지역이 모두 알림 기준 아래입니다'}
@@ -118,7 +118,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
                   <p className="text-[0.875rem] font-semibold text-ink-900">
                     {area.areaName}
                   </p>
-                  <p className="tabular text-[0.71875rem] text-ink-400">
+                  <p className="tabular text-[0.75rem] text-ink-400">
                     위험도 {Math.round(area.score)}
                   </p>
                 </div>
@@ -132,8 +132,8 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
       {/* 관심 지역 선택 */}
       <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[0.9375rem] font-bold text-ink-900">관심 지역</h2>
-          <span className="text-[0.71875rem] text-ink-400">
+          <h2 className="text-[1rem] font-bold text-ink-900">관심 지역</h2>
+          <span className="text-[0.75rem] text-ink-400">
             {multiFavorite ? '자치구 전체' : `${favoriteLimit}곳까지`}
           </span>
         </div>
@@ -164,7 +164,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
         </div>
 
         {atLimit && (
-          <p className="mt-3 rounded-lg bg-brand-50 px-3.5 py-2.5 text-[0.71875rem] leading-relaxed text-brand-700">
+          <p className="mt-3 rounded-xl bg-brand-50 px-3.5 py-2.5 text-[0.75rem] leading-relaxed text-brand-700">
             여러 자치구를 함께 보려면 프리미엄 이상이 필요합니다.{' '}
             <Link href="/pricing" className="font-semibold underline underline-offset-2">
               요금제 보기
@@ -181,9 +181,9 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
         )}
       >
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[0.9375rem] font-bold text-ink-900">알림 기준 등급</h2>
+          <h2 className="text-[1rem] font-bold text-ink-900">알림 기준 등급</h2>
           {!alerts && (
-            <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.65625rem] font-semibold text-white">
+            <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
               프리미엄
             </span>
           )}
@@ -193,7 +193,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
         </p>
 
         {!alerts && (
-          <p className="mt-3 rounded-lg bg-brand-50 px-3.5 py-2.5 text-[0.71875rem] leading-relaxed text-brand-700">
+          <p className="mt-3 rounded-xl bg-brand-50 px-3.5 py-2.5 text-[0.75rem] leading-relaxed text-brand-700">
             기준 등급 설정과 자동 알림은 프리미엄 이상에서 제공됩니다.{' '}
             <Link href="/pricing" className="font-semibold underline underline-offset-2">
               요금제 보기
@@ -202,7 +202,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
         )}
 
         <div
-          className="mt-4 inline-flex flex-wrap gap-1.5 rounded-lg border border-line p-1"
+          className="mt-4 inline-flex flex-wrap gap-1.5 rounded-xl border border-line p-1"
           role="group"
           aria-label="알림 기준 등급"
         >
@@ -213,7 +213,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
               disabled={!alerts}
               aria-pressed={alertLevel === level}
               className={cn(
-                'rounded-md px-3.5 py-1.5 text-[0.8125rem] font-semibold transition-colors',
+                'rounded-full px-3.5 py-1.5 text-[0.8125rem] font-semibold transition-colors',
                 !alerts && 'cursor-not-allowed opacity-45',
                 alertLevel === level
                   ? 'text-white'
@@ -236,7 +236,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
 
       {/* 자주 쓰는 경로 */}
       <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-        <h2 className="text-[0.9375rem] font-bold text-ink-900">자주 쓰는 경로</h2>
+        <h2 className="text-[1rem] font-bold text-ink-900">자주 쓰는 경로</h2>
         <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink-500">
           최대 5개까지 저장됩니다. 누르면 바로 경로 안내로 이동합니다.
         </p>
@@ -256,7 +256,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
                 >
                   <Link
                     href={`/route?from=${route.from}&to=${route.to}`}
-                    className="min-w-0 flex-1 text-[0.84375rem] font-medium text-ink-900 hover:text-brand-600"
+                    className="min-w-0 flex-1 text-[0.875rem] font-medium text-ink-900 hover:text-brand-600"
                   >
                     {from.name}
                     <span className="mx-2 text-ink-300" aria-hidden="true">
@@ -267,7 +267,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
                   <button
                     onClick={() => removeRoute(i)}
                     aria-label={`${from.name}에서 ${to.name} 경로 삭제`}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-surface-sunken hover:text-ink-900"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-ink-400 hover:bg-surface-sunken hover:text-ink-900"
                   >
                     <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
                       <path
@@ -283,13 +283,13 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
             })}
           </ul>
         ) : (
-          <p className="mt-4 rounded-lg bg-surface-sunken px-4 py-3 text-[0.78125rem] text-ink-400">
+          <p className="mt-4 rounded-xl bg-surface-sunken px-4 py-3 text-[0.8125rem] text-ink-400">
             저장된 경로가 없습니다.
           </p>
         )}
       </section>
 
-      <p className="text-[0.71875rem] leading-relaxed text-ink-400">
+      <p className="text-[0.75rem] leading-relaxed text-ink-400">
         모든 설정은 이 브라우저에만 저장되며 서버로 전송되지 않습니다. 브라우저 저장소를
         지우면 함께 사라집니다.
       </p>
@@ -319,7 +319,7 @@ function RouteAdder({ onAdd }: { onAdd: (from: string, to: string) => void }) {
         value={from}
         onChange={(e) => setFrom(e.target.value)}
         aria-label="출발지"
-        className="h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-[0.84375rem] text-ink-900 sm:h-10 sm:min-w-0 sm:flex-1"
+        className="h-11 w-full rounded-xl border border-line-strong bg-surface px-3 text-[0.875rem] text-ink-900 sm:h-10 sm:min-w-0 sm:flex-1"
       >
         {options(to)}
       </select>
@@ -327,13 +327,13 @@ function RouteAdder({ onAdd }: { onAdd: (from: string, to: string) => void }) {
         value={to}
         onChange={(e) => setTo(e.target.value)}
         aria-label="목적지"
-        className="h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-[0.84375rem] text-ink-900 sm:h-10 sm:min-w-0 sm:flex-1"
+        className="h-11 w-full rounded-xl border border-line-strong bg-surface px-3 text-[0.875rem] text-ink-900 sm:h-10 sm:min-w-0 sm:flex-1"
       >
         {options(from)}
       </select>
       <button
         onClick={() => onAdd(from, to)}
-        className="h-11 shrink-0 rounded-lg border border-line-strong px-4 text-[0.84375rem] font-semibold text-ink-700 transition-colors hover:bg-surface-sunken sm:h-10"
+        className="h-11 shrink-0 rounded-full border border-line-strong px-4 text-[0.875rem] font-semibold text-ink-700 transition-colors hover:bg-surface-sunken sm:h-10"
       >
         추가
       </button>
@@ -355,8 +355,8 @@ function FamilySeats({ seats }: { seats: number }) {
   return (
     <section className="rounded-2xl border border-brand-200 bg-brand-50/40 p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-[0.9375rem] font-bold text-ink-900">가족 계정</h2>
-        <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.65625rem] font-semibold text-white">
+        <h2 className="text-[1rem] font-bold text-ink-900">가족 계정</h2>
+        <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
           패밀리
         </span>
       </div>
@@ -371,7 +371,7 @@ function FamilySeats({ seats }: { seats: number }) {
           <li
             key={i}
             className={cn(
-              'flex flex-col items-center gap-1 rounded-lg border px-2 py-3 text-center',
+              'flex flex-col items-center gap-1 rounded-xl border px-2 py-3 text-center',
               i === 0
                 ? 'border-brand-300 bg-surface'
                 : 'border-dashed border-line bg-surface/60',
@@ -387,7 +387,7 @@ function FamilySeats({ seats }: { seats: number }) {
         ))}
       </ul>
 
-      <p className="mt-4 rounded-lg bg-surface px-3.5 py-2.5 text-[0.71875rem] leading-relaxed text-ink-500">
+      <p className="mt-4 rounded-xl bg-surface px-3.5 py-2.5 text-[0.75rem] leading-relaxed text-ink-500">
         가족 초대는 계정 서버가 필요해 아직 붙이지 않았습니다. 지금은 자리 수만
         보여드립니다.
       </p>

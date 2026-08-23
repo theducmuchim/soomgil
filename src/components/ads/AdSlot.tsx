@@ -118,14 +118,14 @@ export function AdSlot({
       aria-label="광고 영역"
     >
       {/* 광고 표시 — 실제 광고로 바꿔도 반드시 유지 */}
-      <span className="absolute top-2 right-2 rounded bg-ink-900/8 px-1.5 py-0.5 text-[0.625rem] font-semibold text-ink-400">
+      <span className="absolute top-2 right-2 rounded bg-ink-900/8 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-ink-400">
         광고
       </span>
 
       <div className="flex items-center gap-4">
         {/* 브랜드 로고가 들어갈 자리 */}
         <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-line-strong bg-surface-sunken sm:h-14 sm:w-14"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-dashed border-line-strong bg-surface-sunken sm:h-14 sm:w-14"
           aria-hidden="true"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 text-ink-300" fill="none">
@@ -157,12 +157,12 @@ export function AdSlot({
           >
             {copy.headline}
           </p>
-          <p className="mt-1 text-[0.71875rem] text-ink-400">
+          <p className="mt-1 text-[0.75rem] text-ink-400">
             여기에 계절 맞춤 {copy.sponsor} 광고가 표시됩니다
           </p>
         </div>
 
-        <span className="hidden shrink-0 rounded-lg border border-line-strong px-3.5 py-2 text-[0.78125rem] font-semibold text-ink-400 sm:block">
+        <span className="hidden shrink-0 rounded-xl border border-line-strong px-3.5 py-2 text-[0.8125rem] font-semibold text-ink-400 sm:block">
           자세히 보기
         </span>
       </div>

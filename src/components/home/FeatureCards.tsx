@@ -65,10 +65,10 @@ export function FeatureCards() {
     <section className="border-b border-line py-14 sm:py-20">
       <Container>
         <div className="max-w-2xl">
-          <p className="text-[0.78125rem] font-semibold tracking-wide text-brand-600">
+          <p className="text-[0.8125rem] font-semibold tracking-wide text-brand-600">
             주요 기능
           </p>
-          <h2 className="mt-2 text-[1.625rem] leading-tight font-bold tracking-tight text-ink-900 sm:text-[2rem]">
+          <h2 className="mt-2 text-[1.25rem] leading-tight font-bold text-ink-900 sm:text-[1.75rem]">
             이런 걸 할 수 있어요
           </h2>
         </div>
@@ -80,14 +80,14 @@ export function FeatureCards() {
                 href={feature.href}
                 className="group flex h-full flex-col rounded-2xl border border-line bg-surface p-5 transition-colors hover:border-brand-300 hover:bg-brand-50/40 sm:p-6"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-100">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-100">
                   {feature.icon}
                 </span>
 
                 <h3 className="mt-4 text-[1rem] font-bold text-ink-900">
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-[0.84375rem] leading-relaxed text-ink-500">
+                <p className="mt-2 text-[0.875rem] leading-relaxed text-ink-500">
                   {feature.body}
                 </p>
 
@@ -95,7 +95,7 @@ export function FeatureCards() {
                   {feature.points.map((point) => (
                     <li
                       key={point}
-                      className="flex gap-2 text-[0.78125rem] leading-snug text-ink-500"
+                      className="flex gap-2 text-[0.8125rem] leading-snug text-ink-500"
                     >
                       <span
                         className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-300"

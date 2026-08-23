@@ -84,7 +84,7 @@ export default async function RoutePage({
           </Suspense>
 
           {outOfArea && (
-            <p className="rounded-lg border border-risk-moderate/30 bg-risk-moderate/8 px-4 py-3 text-[0.78125rem] leading-relaxed text-ink-700">
+            <p className="rounded-xl border border-risk-moderate/30 bg-risk-moderate/8 px-4 py-3 text-[0.8125rem] leading-relaxed text-ink-700">
               선택하신 장소가 대전 경계 밖이라 기본 지점으로 되돌렸습니다. 위험도 데이터가
               대전 5개 자치구 안에만 있어서, 시 경계를 벗어나면 노출량을 계산할 수 없습니다.
             </p>
@@ -101,12 +101,12 @@ export default async function RoutePage({
               }
             />
 
-            <span className="flex items-center gap-2 text-[0.78125rem] text-ink-500">
+            <span className="flex items-center gap-2 text-[0.8125rem] text-ink-500">
               <WindArrow degree={wind.degree} speed={wind.speed} className="h-8 w-8" />
               {wind.label}풍 {wind.speed}m/s
             </span>
 
-            <span className="text-[0.78125rem] text-ink-500">
+            <span className="text-[0.8125rem] text-ink-500">
               대전 평균 {Math.round(snapshot.cityAverage.score)}점 · 대기정체{' '}
               {formatDelta(snapshot.cityAverage.stagnationDeltaPct, 1)}
             </span>
@@ -126,8 +126,8 @@ export default async function RoutePage({
             <span
               className={
                 result.engine === 'tmap'
-                  ? 'inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-2.5 py-1 text-[0.71875rem] font-semibold text-white'
-                  : 'inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-surface px-2.5 py-1 text-[0.71875rem] font-medium text-ink-500'
+                  ? 'inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-2.5 py-1 text-[0.75rem] font-semibold text-white'
+                  : 'inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-surface px-2.5 py-1 text-[0.75rem] font-medium text-ink-500'
               }
             >
               <span
@@ -147,7 +147,7 @@ export default async function RoutePage({
           {/* 경로를 확인한 직후가 대비 용품을 챙길 마음이 가장 큰 시점이다 */}
           <SeasonProducts snapshot={snapshot} bare />
 
-          <div className="rounded-lg bg-surface-sunken px-4 py-3 text-[0.71875rem] leading-relaxed text-ink-500">
+          <div className="rounded-xl bg-surface-sunken px-4 py-3 text-[0.75rem] leading-relaxed text-ink-500">
             {result.engine === 'tmap' ? (
               <>
                 경로는 <strong className="font-semibold">TMAP 보행자 경로 API</strong>로 받은

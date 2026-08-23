@@ -175,7 +175,7 @@ export function PlaceSearchInput({
             aria-controls={listId}
             aria-autocomplete="list"
             aria-activedescendant={open ? `${listId}-${activeIndex}` : undefined}
-            className="h-11 w-full rounded-lg border border-line-strong bg-surface pr-9 pl-3 text-[0.875rem] font-medium text-ink-900 transition-colors placeholder:font-normal placeholder:text-ink-300 hover:border-brand-300"
+            className="h-11 w-full rounded-xl border border-line-strong bg-surface pr-9 pl-3 text-[0.875rem] font-medium text-ink-900 transition-colors placeholder:font-normal placeholder:text-ink-300 hover:border-brand-300"
           />
 
           <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
@@ -212,9 +212,9 @@ export function PlaceSearchInput({
       )}
 
       {open && (
-        <div className="absolute z-30 mt-1.5 w-full overflow-hidden rounded-xl border border-line bg-surface shadow-lg">
+        <div className="absolute z-30 mt-1.5 w-full overflow-hidden floating rounded-2xl border border-line bg-surface">
           {usingFallback && searching && status !== 'loading' && (
-            <p className="border-b border-line bg-surface-sunken px-3.5 py-2 text-[0.71875rem] text-ink-500">
+            <p className="border-b border-line bg-surface-sunken px-3.5 py-2 text-[0.75rem] text-ink-500">
               {status === 'error'
                 ? '장소 검색을 불러오지 못했습니다. 주요 지점에서 골라 주세요.'
                 : '검색 결과가 없습니다. 주요 지점에서 골라 주세요.'}
@@ -223,7 +223,7 @@ export function PlaceSearchInput({
 
           <ul id={listId} role="listbox" className="max-h-72 overflow-y-auto py-1">
             {options.length === 0 && (
-              <li className="px-3.5 py-3 text-[0.78125rem] text-ink-400">
+              <li className="px-3.5 py-3 text-[0.8125rem] text-ink-400">
                 일치하는 장소가 없습니다.
               </li>
             )}
@@ -240,16 +240,16 @@ export function PlaceSearchInput({
                   )}
                 >
                   <span className="flex w-full items-center gap-2">
-                    <span className="flex-1 truncate text-[0.84375rem] font-semibold text-ink-900">
+                    <span className="flex-1 truncate text-[0.875rem] font-semibold text-ink-900">
                       {option.name}
                     </span>
                     {option.id === selectedId && (
-                      <span className="shrink-0 text-[0.65625rem] font-medium text-brand-600">
+                      <span className="shrink-0 text-[0.6875rem] font-medium text-brand-600">
                         선택됨
                       </span>
                     )}
                   </span>
-                  <span className="w-full truncate text-[0.71875rem] text-ink-400">
+                  <span className="w-full truncate text-[0.75rem] text-ink-400">
                     {option.detail}
                   </span>
                 </button>
@@ -257,7 +257,7 @@ export function PlaceSearchInput({
             ))}
           </ul>
 
-          <p className="border-t border-line px-3.5 py-2 text-[0.65625rem] text-ink-400">
+          <p className="border-t border-line px-3.5 py-2 text-[0.6875rem] text-ink-400">
             대전 안에 있는 장소만 검색됩니다.
           </p>
         </div>

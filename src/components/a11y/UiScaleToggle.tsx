@@ -47,7 +47,7 @@ export function UiScaleToggle({ className }: { className?: string }) {
             aria-pressed={active}
             title={option.name}
             className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-md font-bold transition-colors',
+              'flex h-8 w-8 items-center justify-center rounded-full font-bold transition-colors',
               active
                 ? 'bg-brand-600 text-white'
                 : 'text-ink-500 hover:bg-surface-sunken hover:text-ink-900',

@@ -1,5 +1,6 @@
 import type { RiskLevel } from '@/types';
 import { RISK_LEVELS } from '@/config/indicators';
+import { scoreTextColor } from '@/lib/risk/color';
 import { cn } from '@/lib/utils/cn';
 
 /**
@@ -21,8 +22,8 @@ export function RiskBadge({
     <span
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full font-semibold whitespace-nowrap',
-        size === 'sm' && 'px-2 py-0.5 text-[0.71875rem]',
-        size === 'md' && 'px-2.5 py-1 text-[0.78125rem]',
+        size === 'sm' && 'px-2 py-0.5 text-[0.75rem]',
+        size === 'md' && 'px-2.5 py-1 text-[0.8125rem]',
         size === 'lg' && 'px-3 py-1.5 text-sm',
         meta.bg,
         meta.text,
@@ -54,13 +55,12 @@ export function RiskScore({
   level: RiskLevel;
   className?: string;
 }) {
-  const meta = RISK_LEVELS[level];
-
   return (
     <div className={cn('flex items-end gap-2', className)}>
+      {/* 큰 숫자는 글자라서 면용 색이 아니라 글자용 색을 쓴다 (lib/risk/color.ts) */}
       <span
-        className="tabular text-[2.5rem] leading-none font-bold tracking-tight"
-        style={{ color: meta.color }}
+        className="tabular text-[2.5rem] leading-none font-bold"
+        style={{ color: scoreTextColor(score) }}
       >
         {Math.round(score)}
       </span>

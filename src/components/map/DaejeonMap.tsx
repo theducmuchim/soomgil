@@ -60,9 +60,9 @@ export default function DaejeonMap({
     const selected = id === selectedId;
 
     return {
-      fillColor: risk ? scoreColor(risk.score) : '#e2e7ec',
+      fillColor: risk ? scoreColor(risk.score) : '#e2e2e2',
       fillOpacity: selected ? 0.92 : 0.74,
-      color: selected ? '#14181d' : '#ffffff',
+      color: selected ? '#000000' : '#ffffff',
       weight: selected ? 2.5 : 1.2,
     };
   };

@@ -6,31 +6,47 @@
    위험 색상(초록~빨강)은 브랜드 색과 절대 겹치지 않게 분리한다.
    ────────────────────────────────────────────────────────── */
 @theme {
-  /* 브랜드 — 공공 블루 */
-  --color-brand-50: #eef5fb;
-  --color-brand-100: #d7e7f5;
-  --color-brand-200: #b0cfea;
-  --color-brand-300: #7fb0da;
-  --color-brand-400: #4d8fc7;
-  --color-brand-500: #2b73b0;
-  --color-brand-600: #1b5b94;
-  --color-brand-700: #164a79;
-  --color-brand-800: #143c60;
-  --color-brand-900: #12314c;
+  /*
+   * 브랜드 — 검정 하나.
+   *
+   * 원래는 공공 블루 램프였다. 파랑을 걷어내고 무채색으로 내린 이유는,
+   * 화면에서 **유채색이 곧 정보**가 되게 하기 위해서다. 지금 이 서비스에서
+   * 색으로 말해야 하는 건 위험 등급 네 단계뿐인데, 파란 버튼과 파란 배지가
+   * 함께 있으면 그 신호가 묻힌다.
+   *
+   * 그래서 버튼·링크·강조는 전부 검정 계열로 두고, 초록/노랑/주황/빨강은
+   * 위험도에만 쓴다. 아래 risk-* 토큰은 그대로 유지한다.
+   */
+  --color-brand-50: #f6f6f6;
+  --color-brand-100: #eeeeee;
+  --color-brand-200: #e2e2e2;
+  --color-brand-300: #afafaf;
+  --color-brand-400: #757575;
+  --color-brand-500: #545454;
+  --color-brand-600: #000000; /* 기본 동작 — 버튼·CTA */
+  --color-brand-700: #262626; /* hover / 강조 텍스트 */
+  --color-brand-800: #141414;
+  --color-brand-900: #000000;
 
   /* 잉크(텍스트) / 라인 / 표면 */
-  --color-ink-900: #14181d;
-  --color-ink-700: #333b45;
-  --color-ink-500: #5b6774;
-  --color-ink-400: #7c8895;
-  --color-ink-300: #a8b2bd;
-  --color-line: #e2e7ec;
-  --color-line-strong: #cbd3db;
+  --color-ink-900: #000000;
+  --color-ink-700: #262626;
+  --color-ink-500: #545454;
+  --color-ink-400: #757575;
+  --color-ink-300: #afafaf;
+  --color-line: #e2e2e2;
+  --color-line-strong: #cbcbcb;
   --color-surface: #ffffff;
-  --color-surface-sunken: #f5f7f9;
-  --color-surface-raised: #fafbfc;
+  --color-surface-sunken: #f6f6f6;
+  --color-surface-raised: #fafafa;
 
-  /* 위험 4단계 — 기상청 낮음/보통/높음/매우높음 */
+  /*
+   * 위험 4단계 — 기상청 낮음/보통/높음/매우높음.
+   *
+   * ⚠ 이 네 색은 무채색으로 바꾸지 않는다. 정보 전달의 핵심이고, 화면에서
+   * 유일하게 색으로만 구분되는 값이다. 브랜드가 검정으로 내려오면서
+   * 오히려 이 네 색이 유일한 유채색이 되어 신호가 더 또렷해진다.
+   */
   --color-risk-low: #1a9e5c;
   --color-risk-moderate: #e0a800;
   --color-risk-high: #e4692b;
@@ -43,18 +59,56 @@
    */
   --color-risk-very-high: #a3132b;
 
+  /*
+   * 위 네 색을 **흰 배경 위 글자색**으로 쓸 때만 바꿔 끼우는 짝.
+   *
+   * 원래 색은 면(배지 배경·지도 폴리곤·막대)에 쓰라고 고른 값이라 채도가 높다.
+   * 그대로 글자에 쓰면 흰 배경에서 대비가 모자란다 — 특히 '보통'(#e0a800)은
+   * 2.15:1 로 큰 글자 기준에도 못 미친다. 배경이 검정/흰색으로 정리되면서
+   * 이 흐릿함이 더 눈에 띄게 됐다.
+   *
+   * 색상(hue)은 그대로 두고 명도만 내려 4.5:1(WCAG AA)을 넘긴 값이다.
+   * 등급 체계는 그대로고, 쓰이는 자리만 나뉜다.
+   *   면    → --color-risk-*
+   *   글자  → --color-risk-*-text
+   */
+  --color-risk-low-text: #16864e; /* 4.61:1 */
+  --color-risk-moderate-text: #967100; /* 4.51:1 */
+  --color-risk-high-text: #c05824; /* 4.50:1 */
+  --color-risk-very-high-text: #a3132b; /* 7.82:1 — 원래 값이 이미 통과 */
+
   /* 지표 레이어 색 (레이어 지도 범례) */
   --color-layer-pollen: #7c5cc4;
   --color-layer-dust: #8a6a4a;
   --color-layer-heat: #d94f2b;
   --color-layer-ozone: #2f9bb5;
 
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
-    system-ui, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  /* next/font/local 이 만들어 주는 변수 — src/app/fonts.ts 참고 */
+  --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui,
+    "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
 
   /* 헤더 높이 — sticky 오프셋 계산에 재사용 */
   --spacing-header: 3.5rem;
+
+  /*
+   * 그림자는 기본이 '없음'이다.
+   *
+   * 면을 나누는 일은 선(--color-line)과 배경(--color-surface-sunken)이 맡는다.
+   * 그림자는 **실제로 떠 있는 것**에만 쓴다 — 경로 결과 카드, 지도 위 플로팅,
+   * 모바일 하단 고정 버튼. 그 밖에는 붙이지 않는다.
+   */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px rgb(0 0 0 / 0.06);
+  --shadow-float: 0 2px 6px rgb(0 0 0 / 0.08), 0 12px 28px rgb(0 0 0 / 0.12);
+
+  /*
+   * 모서리는 세 가지만 쓴다.
+   *   pill  버튼·칩·배지  (rounded-full)
+   *   16px  카드·패널     (rounded-2xl)
+   *   12px  입력창        (rounded-xl)
+   * 예전에는 md·lg·xl·2xl·full 다섯 가지가 섞여 있었고, 그 들쭉날쭉함이
+   * 화면을 어수선하게 만들던 가장 큰 원인이었다.
+   */
 }
 
 /* ──────────────────────────────────────────────────────────
@@ -116,11 +170,24 @@ body {
   background: var(--color-surface);
   color: var(--color-ink-900);
   font-family: var(--font-sans);
-  /* 한글 가독성: 자간 살짝 좁히고 줄간격 넉넉히 */
-  letter-spacing: -0.01em;
+  /*
+   * 본문 자간은 건드리지 않는다.
+   *
+   * 예전에는 전역으로 -0.01em 을 걸었는데, 한글 본문에서 음수 자간은 글자가
+   * 서로 붙어 답답해 보인다. 자간을 조이는 건 큰 글자에서만 이득이다.
+   */
+  letter-spacing: 0;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/*
+ * 제목은 크기가 클수록 글자 사이가 벌어져 보인다. 그만큼만 조인다.
+ * (본문에는 걸지 않는다 — 위 body 주석 참고)
+ */
+:where(h1, h2, h3) {
+  letter-spacing: -0.02em;
 }
 
 /* 숫자는 표에서 자리가 흔들리지 않게 고정폭으로 */
@@ -133,6 +200,18 @@ body {
   outline: 2px solid var(--color-brand-500);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/*
+ * 떠 있는 것에만 그림자를 준다.
+ * shadow-sm/md/lg 같은 유틸리티를 여기저기 뿌리는 대신, 역할이 분명한
+ * 두 클래스만 두고 그 밖에는 선과 배경으로 면을 나눈다.
+ */
+.elevated {
+  box-shadow: var(--shadow-card);
+}
+.floating {
+  box-shadow: var(--shadow-float);
 }
 
 /* Leaflet 컨테이너가 부모 높이를 채우도록 */

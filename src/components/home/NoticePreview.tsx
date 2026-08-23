@@ -13,16 +13,16 @@ export function NoticePreview() {
       <Container>
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-[0.78125rem] font-semibold tracking-wide text-brand-600">
+            <p className="text-[0.8125rem] font-semibold tracking-wide text-brand-600">
               알림
             </p>
-            <h2 className="mt-2 text-[1.625rem] leading-tight font-bold tracking-tight text-ink-900 sm:text-[2rem]">
+            <h2 className="mt-2 text-[1.25rem] leading-tight font-bold text-ink-900 sm:text-[1.75rem]">
               최신 공지
             </h2>
           </div>
           <Link
             href="/notice"
-            className="-my-2 shrink-0 py-2 text-[0.84375rem] font-semibold text-brand-600 hover:text-brand-700"
+            className="-my-2 shrink-0 py-2 text-[0.875rem] font-semibold text-brand-600 hover:text-brand-700"
           >
             전체 보기
           </Link>
@@ -35,7 +35,7 @@ export function NoticePreview() {
               <li key={notice.slug}>
                 <Link
                   href={`/notice/${notice.slug}`}
-                  className="-mx-3 block rounded-lg px-3 py-5 transition-colors hover:bg-surface-sunken"
+                  className="-mx-3 block rounded-xl px-3 py-5 transition-colors hover:bg-surface-sunken"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span
@@ -53,16 +53,16 @@ export function NoticePreview() {
                     )}
                     <time
                       dateTime={notice.publishedAt}
-                      className="tabular text-[0.71875rem] text-ink-400"
+                      className="tabular text-[0.75rem] text-ink-400"
                     >
                       {formatDate(notice.publishedAt)}
                     </time>
                   </div>
 
-                  <p className="mt-2 text-[0.9375rem] leading-snug font-semibold text-ink-900">
+                  <p className="mt-2 text-[1rem] leading-snug font-semibold text-ink-900">
                     {notice.title}
                   </p>
-                  <p className="mt-1.5 line-clamp-2 text-[0.84375rem] leading-relaxed text-ink-500">
+                  <p className="mt-1.5 line-clamp-2 text-[0.875rem] leading-relaxed text-ink-500">
                     {notice.summary}
                   </p>
                 </Link>

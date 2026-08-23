@@ -34,6 +34,7 @@
     "proj4": "^2.21.0",
     "shapefile": "^0.6.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wawoff2": "^2.0.1"
   }
 }

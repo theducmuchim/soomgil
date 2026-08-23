@@ -32,15 +32,15 @@ export function SeasonProducts({
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
-          <p className="text-[0.78125rem] font-semibold tracking-wide text-brand-600">
+          <p className="text-[0.8125rem] font-semibold tracking-wide text-brand-600">
             {season.label}철 대비 용품
           </p>
-          <h2 className="mt-2 text-[1.375rem] leading-tight font-bold tracking-tight text-ink-900 sm:text-[1.625rem]">
+          <h2 className="mt-2 text-[1.25rem] leading-tight font-bold text-ink-900 sm:text-[1.25rem]">
             {urgent
               ? '오늘 같은 날 챙기면 좋은 것들'
               : '이 계절에 미리 챙겨두면 좋은 것들'}
           </h2>
-          <p className="mt-2.5 text-[0.84375rem] leading-relaxed text-ink-500">
+          <p className="mt-2.5 text-[0.875rem] leading-relaxed text-ink-500">
             지금 대전 종합 위험도는{' '}
             <span
               className="font-semibold"

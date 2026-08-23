@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { AreaRisk } from '@/types';
 import { INDICATORS, RISK_LEVELS } from '@/config/indicators';
-import { scoreColor } from '@/lib/risk/color';
+import { scoreTextColor } from '@/lib/risk/color';
 import { formatDelta } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 
@@ -24,7 +24,7 @@ export function DistrictRiskBar({
   href?: string;
   showBreakdown?: boolean;
 }) {
-  const color = scoreColor(area.score);
+  const color = scoreTextColor(area.score);
   const widthPct = Math.max(4, (area.score / Math.max(maxScore, 1)) * 100);
   const dominant = INDICATORS[area.dominantIndicator];
   const levelLabel = RISK_LEVELS[area.level].label;
@@ -34,10 +34,10 @@ export function DistrictRiskBar({
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-[0.875rem] font-semibold text-ink-900">{area.areaName}</span>
         <span className="flex items-baseline gap-1.5">
-          <span className="tabular text-[1.0625rem] font-bold" style={{ color }}>
+          <span className="tabular text-[1rem] font-bold" style={{ color }}>
             {Math.round(area.score)}
           </span>
-          <span className="text-[0.71875rem] font-medium text-ink-400">{levelLabel}</span>
+          <span className="text-[0.75rem] font-medium text-ink-400">{levelLabel}</span>
         </span>
       </div>
 
@@ -53,7 +53,7 @@ export function DistrictRiskBar({
       </div>
 
       {showBreakdown && (
-        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.71875rem] text-ink-400">
+        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.75rem] text-ink-400">
           <span>주요 요인 {dominant.shortLabel}</span>
           <span aria-hidden="true">·</span>
           <span>
@@ -74,7 +74,7 @@ export function DistrictRiskBar({
     <Link
       href={href}
       className={cn(
-        'block rounded-lg px-3 py-3 transition-colors',
+        'block rounded-xl px-3 py-3 transition-colors',
         '-mx-3 hover:bg-surface-sunken',
       )}
     >

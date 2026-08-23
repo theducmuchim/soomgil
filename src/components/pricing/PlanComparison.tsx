@@ -51,7 +51,7 @@ export function PlanComparison() {
                 >
                   {PLANS[id].name}
                   {plan === id && (
-                    <span className="ml-1.5 rounded bg-brand-600 px-1 py-px text-[0.625rem] font-semibold text-white">
+                    <span className="ml-1.5 rounded bg-brand-600 px-1 py-px text-[0.6875rem] font-semibold text-white">
                       사용 중
                     </span>
                   )}
@@ -92,7 +92,7 @@ export function PlanComparison() {
         </table>
       </div>
 
-      <p className="mt-5 rounded-lg bg-surface-sunken px-4 py-3 text-[0.71875rem] leading-relaxed text-ink-500">
+      <p className="mt-5 rounded-xl bg-surface-sunken px-4 py-3 text-[0.75rem] leading-relaxed text-ink-500">
         <strong className="font-semibold text-ink-700">
           아직 실제 결제를 받지 않습니다.
         </strong>{' '}
@@ -163,12 +163,12 @@ function PlanCard({
       </h3>
 
       <p className="mt-2 flex items-baseline gap-1.5">
-        <span className="tabular text-[1.625rem] leading-none font-bold text-ink-900">
+        <span className="tabular text-[1.25rem] leading-none font-bold text-ink-900">
           {plan.monthlyPrice === 0
             ? '0원'
             : `${plan.monthlyPrice.toLocaleString('ko-KR')}원`}
         </span>
-        {isPaid && <span className="text-[0.78125rem] text-ink-400">/ 월</span>}
+        {isPaid && <span className="text-[0.8125rem] text-ink-400">/ 월</span>}
       </p>
 
       <p className="mt-2.5 min-h-[3.4em] text-[0.8125rem] leading-relaxed text-ink-500">
@@ -177,7 +177,7 @@ function PlanCard({
 
       <ul className="mt-4 flex-1 space-y-2 border-t border-line pt-4">
         {included.map((feature) => (
-          <li key={feature.label} className="flex gap-2.5 text-[0.78125rem] text-ink-700">
+          <li key={feature.label} className="flex gap-2.5 text-[0.8125rem] text-ink-700">
             <svg
               viewBox="0 0 16 16"
               className={cn(
@@ -202,7 +202,7 @@ function PlanCard({
           </li>
         ))}
         {included.length === 0 && (
-          <li className="text-[0.78125rem] text-ink-400">
+          <li className="text-[0.8125rem] text-ink-400">
             광고가 표시되고, 추천 경로 1개와 관심 지역 1곳을 쓸 수 있습니다.
           </li>
         )}
@@ -212,7 +212,7 @@ function PlanCard({
         onClick={onSelect}
         disabled={active}
         className={cn(
-          'mt-5 h-11 rounded-lg text-[0.875rem] font-semibold transition-colors',
+          'mt-5 h-11 rounded-full text-[0.875rem] font-semibold transition-colors',
           active && 'cursor-default bg-surface-sunken text-ink-400',
           !active && isPaid && 'bg-brand-600 text-white hover:bg-brand-700',
           !active &&

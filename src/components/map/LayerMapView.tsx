@@ -110,8 +110,8 @@ export function LayerMapView({
         {/* 레이어 토글 */}
         <div className="rounded-2xl border border-line bg-surface p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[0.78125rem] font-semibold text-ink-900">위험요소 레이어</p>
-            <p className="text-[0.71875rem] text-ink-400">
+            <p className="text-[0.8125rem] font-semibold text-ink-900">위험요소 레이어</p>
+            <p className="text-[0.75rem] text-ink-400">
               기준 {formatKstLong(snapshot.baseTime)}
             </p>
           </div>
@@ -153,12 +153,12 @@ export function LayerMapView({
                   />
                   {layer.label}
                   {st === 'off' && (
-                    <span className="text-[0.65625rem] font-medium">서비스 기간 아님</span>
+                    <span className="text-[0.6875rem] font-medium">서비스 기간 아님</span>
                   )}
                   {st === 'zero' && (
                     <span
                       className={cn(
-                        'text-[0.65625rem] font-medium',
+                        'text-[0.6875rem] font-medium',
                         on ? 'text-white/75' : 'text-ink-400',
                       )}
                     >
@@ -170,7 +170,7 @@ export function LayerMapView({
             })}
           </div>
 
-          <p className="mt-3 text-[0.71875rem] leading-relaxed text-ink-500">
+          <p className="mt-3 text-[0.75rem] leading-relaxed text-ink-500">
             {active.length === 1
               ? LAYERS.find((l) => l.id === active[0])!.description
               : `${activeLabels.join(' + ')} 레이어를 겹쳐 봅니다. 겹칠 때는 각 레이어 값의 평균으로 색을 칠합니다.`}
@@ -186,7 +186,7 @@ export function LayerMapView({
             .map((id) => (
               <p
                 key={id}
-                className="mt-2 rounded-lg border border-line bg-surface-sunken px-3 py-2.5 text-[0.71875rem] leading-relaxed text-ink-700"
+                className="mt-2 rounded-xl border border-line bg-surface-sunken px-3 py-2.5 text-[0.75rem] leading-relaxed text-ink-700"
               >
                 <strong className="font-semibold">
                   지금 대전 전역의 {LAYER_BY_ID[id].label} 관측값이 0입니다.
@@ -223,8 +223,8 @@ export function LayerMapView({
           />
         ) : (
           <div className="rounded-2xl border border-line bg-surface p-5">
-            <p className="text-[0.84375rem] font-semibold text-ink-900">지역을 선택하세요</p>
-            <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-500">
+            <p className="text-[0.875rem] font-semibold text-ink-900">지역을 선택하세요</p>
+            <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink-500">
               지도나 아래 목록에서 지역을 고르면 켜 둔 레이어의 지표별 값을 볼 수
               있습니다.
             </p>
@@ -234,7 +234,7 @@ export function LayerMapView({
         <MapLegend note="레이어 값은 지표의 0~100 정규화값입니다. 단위가 다른 지표(µg/m³·ppm·℃·지수)를 같은 눈금에서 비교하기 위한 변환입니다." />
 
         <div className="rounded-2xl border border-line bg-surface p-4">
-          <p className="text-[0.78125rem] font-semibold text-ink-900">
+          <p className="text-[0.8125rem] font-semibold text-ink-900">
             {activeLabels.join(' + ')} 높은 순
           </p>
           <ul className="mt-2.5 max-h-[300px] space-y-0.5 overflow-y-auto">
@@ -246,7 +246,7 @@ export function LayerMapView({
                   }
                   aria-pressed={area.areaId === selectedId}
                   className={cn(
-                    'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors',
+                    'flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors',
                     area.areaId === selectedId ? 'bg-brand-50' : 'hover:bg-surface-sunken',
                   )}
                 >
@@ -307,7 +307,7 @@ function LayerDetail({
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-[1.0625rem] font-bold text-ink-900">{areaName}</h3>
+        <h3 className="text-[1rem] font-bold text-ink-900">{areaName}</h3>
         <span
           className="rounded-full px-2.5 py-1 text-[0.75rem] font-semibold text-white"
           style={{ backgroundColor: scoreColor(score) }}
@@ -322,10 +322,10 @@ function LayerDetail({
           return (
             <li key={reading.id}>
               <div className="flex items-baseline justify-between gap-2">
-                <span className="text-[0.78125rem] font-medium text-ink-700">
+                <span className="text-[0.8125rem] font-medium text-ink-700">
                   {meta.shortLabel}
                 </span>
-                <span className="tabular text-[0.78125rem] text-ink-500">
+                <span className="tabular text-[0.8125rem] text-ink-500">
                   {reading.available ? (
                     <>
                       {formatValue(reading.value, meta.unit)}

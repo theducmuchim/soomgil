@@ -86,7 +86,7 @@ export function DistrictBarChart({ districts }: { districts: AreaRisk[] }) {
           표로 보기
         </summary>
         <div className="mt-2.5 overflow-x-auto">
-          <table className="w-full min-w-[380px] text-[0.78125rem]">
+          <table className="w-full min-w-[380px] text-[0.8125rem]">
             <thead>
               <tr className="border-b border-line text-left text-ink-400">
                 <th className="py-1.5 pr-3 font-medium">자치구</th>

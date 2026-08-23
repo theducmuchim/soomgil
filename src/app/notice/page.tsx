@@ -30,7 +30,7 @@ export default function NoticePage() {
               <li key={notice.slug}>
                 <Link
                   href={`/notice/${notice.slug}`}
-                  className="-mx-3 block rounded-lg px-3 py-5 transition-colors hover:bg-surface-sunken"
+                  className="-mx-3 block rounded-xl px-3 py-5 transition-colors hover:bg-surface-sunken"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span
@@ -48,15 +48,15 @@ export default function NoticePage() {
                     )}
                     <time
                       dateTime={notice.publishedAt}
-                      className="tabular text-[0.71875rem] text-ink-400"
+                      className="tabular text-[0.75rem] text-ink-400"
                     >
                       {formatDate(notice.publishedAt)}
                     </time>
                   </div>
-                  <p className="mt-2 text-[0.96875rem] leading-snug font-semibold text-ink-900">
+                  <p className="mt-2 text-[1rem] leading-snug font-semibold text-ink-900">
                     {notice.title}
                   </p>
-                  <p className="mt-1.5 text-[0.84375rem] leading-relaxed text-ink-500">
+                  <p className="mt-1.5 text-[0.875rem] leading-relaxed text-ink-500">
                     {notice.summary}
                   </p>
                 </Link>

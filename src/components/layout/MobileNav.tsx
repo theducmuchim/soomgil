@@ -62,7 +62,7 @@ export function MobileNav({ open, onClose, pathname }: Props) {
         aria-label="전체 메뉴"
         className={cn(
           'fixed inset-y-0 right-0 z-50 flex h-dvh w-[86%] max-w-sm flex-col',
-          'bg-surface shadow-xl transition-transform duration-200 ease-out',
+          'bg-surface floating transition-transform duration-200 ease-out',
           open ? 'translate-x-0' : 'translate-x-full',
         )}
       >
@@ -72,7 +72,7 @@ export function MobileNav({ open, onClose, pathname }: Props) {
             ref={closeButtonRef}
             onClick={onClose}
             aria-label="메뉴 닫기"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-ink-500 hover:bg-surface-sunken hover:text-ink-900"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink-500 hover:bg-surface-sunken hover:text-ink-900"
           >
             <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
               <path
@@ -91,7 +91,7 @@ export function MobileNav({ open, onClose, pathname }: Props) {
             메뉴 항목들 아래에 묻어두면 글씨가 작아 못 읽는 사람이 스크롤해서
             찾아야 한다. 그건 순서가 거꾸로다.
           */}
-          <div className="mb-3 flex items-center justify-between rounded-lg bg-surface-sunken px-3 py-2.5 sm:hidden">
+          <div className="mb-3 flex items-center justify-between rounded-xl bg-surface-sunken px-3 py-2.5 sm:hidden">
             <span className="text-[0.8125rem] font-semibold text-ink-700">
               화면 글자 크기
             </span>
@@ -108,20 +108,20 @@ export function MobileNav({ open, onClose, pathname }: Props) {
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex min-h-14 flex-col justify-center gap-0.5 rounded-lg px-3 py-2.5',
+                      'flex min-h-14 flex-col justify-center gap-0.5 rounded-xl px-3 py-2.5',
                       active ? 'bg-brand-50' : 'hover:bg-surface-sunken',
                     )}
                   >
                     <span
                       className={cn(
-                        'text-[0.9375rem] font-semibold',
+                        'text-[1rem] font-semibold',
                         active ? 'text-brand-700' : 'text-ink-900',
                       )}
                     >
                       {item.label}
                     </span>
                     {item.desc && (
-                      <span className="text-[0.78125rem] leading-snug text-ink-400">
+                      <span className="text-[0.8125rem] leading-snug text-ink-400">
                         {item.desc}
                       </span>
                     )}
@@ -143,7 +143,7 @@ export function MobileNav({ open, onClose, pathname }: Props) {
                     onClick={onClose}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex min-h-12 items-center rounded-lg px-3 text-[0.875rem] font-medium',
+                      'flex min-h-12 items-center rounded-xl px-3 text-[0.875rem] font-medium',
                       active ? 'bg-brand-50 text-brand-700' : 'text-ink-700 hover:bg-surface-sunken',
                     )}
                   >
