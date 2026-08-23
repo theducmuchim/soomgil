@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import type { FeatureCollection, Geometry } from 'geojson';
 import type { AreaRisk, IndicatorReading, RiskSnapshot } from '@/types';
 import { DONG_GEOJSON } from '@/data/geo/dong';
-import { LAYERS, type LayerId } from '@/config/layers';
+import { LAYERS, LAYER_BY_ID, type LayerId } from '@/config/layers';
 import { INDICATORS, RISK_LEVELS } from '@/config/indicators';
 import { MapFrame, type MapAreaFeatureProps } from '@/components/map';
 import { MapLegend } from '@/components/map/MapLegend';
@@ -23,20 +23,53 @@ export function LayerMapView({
   snapshot: RiskSnapshot;
   dongRisks: AreaRisk[];
 }) {
-  /** 이번 계절에 실제로 데이터가 있는 레이어만 켤 수 있다 */
-  const availability = useMemo(() => {
-    const sample = dongRisks[0];
-    const map = new Map<LayerId, boolean>();
+  /**
+   * 레이어 상태.
+   *
+   *   off   : 이번 달 서비스 기간이 아니다 (예: 8월의 소나무·참나무 꽃가루)
+   *   zero  : 기간 안이고 값도 받았는데 대전 전역이 0이다
+   *   on    : 값이 있다
+   *
+   * zero 를 on 과 구분하는 게 핵심이다. 예전에는 available 만 봐서, 관측값이 0인
+   * 레이어도 켜진 채 지도 전체를 0으로 칠했다. 그런데 설명문에는 "도심에서 멀수록
+   * 높다"고 적혀 있어 화면과 문구가 정면으로 어긋났다.
+   * 실제로 8월 하순 잡초류 꽃가루가 이 상태다 — 기상청이 대전 5개 구 모두 0으로 준다.
+   */
+  const status = useMemo(() => {
+    const map = new Map<LayerId, 'on' | 'zero' | 'off'>();
+
     for (const layer of LAYERS) {
-      const has = layer.indicators.some((id) =>
-        sample?.readings.some((r) => r.id === id && r.available),
+      const inService = dongRisks[0]?.readings.some(
+        (r) => layer.indicators.includes(r.id) && r.available,
       );
-      map.set(layer.id, has);
+      if (!inService) {
+        map.set(layer.id, 'off');
+        continue;
+      }
+
+      const anyValue = dongRisks.some((area) =>
+        area.readings.some(
+          (r) => layer.indicators.includes(r.id) && r.available && r.normalized > 0,
+        ),
+      );
+      map.set(layer.id, anyValue ? 'on' : 'zero');
     }
+
     return map;
   }, [dongRisks]);
 
-  const firstAvailable = LAYERS.find((l) => availability.get(l.id))?.id ?? 'dust';
+  /** 켤 수 있는가 — 관측값이 0이어도 켜서 "0이다"를 보여주는 편이 낫다 */
+  const availability = useMemo(() => {
+    const map = new Map<LayerId, boolean>();
+    for (const [id, st] of status) map.set(id, st !== 'off');
+    return map;
+  }, [status]);
+
+  // 처음 켜 둘 레이어는 값이 있는 것으로 고른다 — 0짜리를 기본으로 띄우면 고장으로 보인다
+  const firstAvailable =
+    LAYERS.find((l) => status.get(l.id) === 'on')?.id ??
+    LAYERS.find((l) => availability.get(l.id))?.id ??
+    'dust';
   const [active, setActive] = useState<LayerId[]>([firstAvailable]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -85,7 +118,8 @@ export function LayerMapView({
 
           <div className="mt-3 flex flex-wrap gap-2">
             {LAYERS.map((layer) => {
-              const enabled = availability.get(layer.id) ?? false;
+              const st = status.get(layer.id) ?? 'off';
+              const enabled = st !== 'off';
               const on = active.includes(layer.id);
               return (
                 <button
@@ -93,7 +127,13 @@ export function LayerMapView({
                   onClick={() => toggle(layer.id)}
                   disabled={!enabled}
                   aria-pressed={on}
-                  title={enabled ? layer.description : '지금은 서비스 기간이 아닙니다'}
+                  title={
+                    st === 'off'
+                      ? '지금은 서비스 기간이 아닙니다'
+                      : st === 'zero'
+                        ? '서비스 기간이지만 관측값이 0입니다'
+                        : layer.description
+                  }
                   className={cn(
                     'inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[0.8125rem] font-semibold transition-colors',
                     !enabled &&
@@ -112,8 +152,18 @@ export function LayerMapView({
                     aria-hidden="true"
                   />
                   {layer.label}
-                  {!enabled && (
+                  {st === 'off' && (
                     <span className="text-[0.65625rem] font-medium">서비스 기간 아님</span>
+                  )}
+                  {st === 'zero' && (
+                    <span
+                      className={cn(
+                        'text-[0.65625rem] font-medium',
+                        on ? 'text-white/75' : 'text-ink-400',
+                      )}
+                    >
+                      관측값 0
+                    </span>
                   )}
                 </button>
               );
@@ -125,6 +175,27 @@ export function LayerMapView({
               ? LAYERS.find((l) => l.id === active[0])!.description
               : `${activeLabels.join(' + ')} 레이어를 겹쳐 봅니다. 겹칠 때는 각 레이어 값의 평균으로 색을 칠합니다.`}
           </p>
+
+          {/*
+            관측값이 0인 레이어는 그 사실을 말한다.
+            지도만 보면 "왜 전부 같은 색이지"로 끝나고, 설명문의 공간 분포 이야기와
+            어긋나 버그처럼 읽힌다.
+          */}
+          {active
+            .filter((id) => status.get(id) === 'zero')
+            .map((id) => (
+              <p
+                key={id}
+                className="mt-2 rounded-lg border border-line bg-surface-sunken px-3 py-2.5 text-[0.71875rem] leading-relaxed text-ink-700"
+              >
+                <strong className="font-semibold">
+                  지금 대전 전역의 {LAYER_BY_ID[id].label} 관측값이 0입니다.
+                </strong>{' '}
+                서비스 기간 안이지만 기상청이 5개 자치구 모두 0으로 발표했습니다. 지역별
+                차이가 없어 지도가 한 가지 색으로 보이는 것이 맞습니다 — 위 설명의 공간
+                분포는 값이 0보다 클 때 나타납니다.
+              </p>
+            ))}
         </div>
 
         <div className="h-[52vh] min-h-[340px] overflow-hidden rounded-2xl border border-line lg:h-[560px]">

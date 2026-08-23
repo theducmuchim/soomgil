@@ -1,3 +1,4 @@
+import { kstStampToDate, kstYmdH } from '@/lib/utils/time';
 import type { KmaIndexResponse, VilageFcstResponse, WthrWrnResponse } from '@/lib/api/types';
 import type { WeatherWarning } from '@/types';
 
@@ -63,6 +64,73 @@ function clamp(v: number, min: number, max: number): number {
 }
 
 /** 지수류의 시간대별 값 전체 (통계 화면용) */
+/**
+ * 지수 응답의 3시간 간격 예보를 **벽시계 시각**에 맞춰 편다.
+ *
+ * 응답은 발표 시각(item.date, 'YYYYMMDDHH')과 그로부터의 오프셋(h3·h6…h78)으로
+ * 되어 있다. 오프셋 그대로는 화면에 쓸 수 없어 실제 시각으로 되돌린다.
+ *
+ * ⚠ h0 은 없다. 실제 응답은 h3 부터 시작한다.
+ *
+ * 반환: 'YYYYMMDDHH' → 값
+ */
+export function indexSeriesByHour(res: KmaIndexResponse): Map<string, number> {
+  const out = new Map<string, number>();
+  const item = res.response?.body?.items?.item?.[0];
+  if (!item?.date) return out;
+
+  const base = kstStampToDate(String(item.date));
+  if (!base) return out;
+
+  for (let h = 0; h <= 78; h += 3) {
+    const raw = item[`h${h}`];
+    if (raw === undefined || raw === null || raw === '') continue;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) continue;
+    out.set(kstYmdH(new Date(base.getTime() + h * 3_600_000)), n);
+  }
+
+  return out;
+}
+
+/**
+ * 단기예보를 시각별로 편다.
+ *
+ * parseVilageFcst 는 가장 이른 시각 하나만 뽑는다. 그건 "지금"을 그릴 때는 맞지만
+ * 시간대별 추이에는 쓸 수 없다. 응답에는 3일치가 시각마다 들어 있으므로
+ * 카테고리를 시각별로 묶어 준다.
+ *
+ * 반환: 'YYYYMMDDHH' → 기온·습도·풍속·풍향
+ */
+export function parseVilageFcstSeries(
+  res: VilageFcstResponse,
+): Map<string, ForecastValues> {
+  const items = res.response?.body?.items?.item ?? [];
+  const byStamp = new Map<string, Map<string, number>>();
+
+  for (const i of items) {
+    const stamp = `${i.fcstDate}${String(i.fcstTime).slice(0, 2)}`;
+    const n = Number(i.fcstValue);
+    if (!Number.isFinite(n)) continue;
+    if (!byStamp.has(stamp)) byStamp.set(stamp, new Map());
+    byStamp.get(stamp)!.set(i.category, n);
+  }
+
+  const out = new Map<string, ForecastValues>();
+  for (const [stamp, cats] of byStamp) {
+    const tempC = cats.get('TMP');
+    if (tempC === undefined) continue; // 기온이 없으면 체감온도를 낼 수 없다
+    out.set(stamp, {
+      tempC,
+      humidity: cats.get('REH') ?? 50,
+      windMs: cats.get('WSD') ?? 0,
+      windDeg: cats.get('VEC') ?? 0,
+    });
+  }
+
+  return out;
+}
+
 export function parseIndexSeries(res: KmaIndexResponse): { hour: number; value: number }[] {
   const item = res.response?.body?.items?.item?.[0];
   if (!item) return [];

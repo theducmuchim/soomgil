@@ -9,13 +9,13 @@ import { HourlyTrendChart } from '@/components/chart/HourlyTrendChart';
 import { RiskBadge } from '@/components/risk/RiskBadge';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { INDICATORS, RISK_LEVELS } from '@/config/indicators';
-import { kstParts, formatKstLong } from '@/lib/utils/time';
+import { formatKstLong } from '@/lib/utils/time';
 import { formatDelta } from '@/lib/utils/format';
 import { scoreColor } from '@/lib/risk/color';
 
 export const metadata: Metadata = {
   title: '통계',
-  description: '자치구별 위험도 비교와 시간대별 추이를 확인합니다.',
+  description: '자치구별 위험도 비교와 앞으로 24시간 추이를 확인합니다.',
 };
 
 export default async function StatsPage({
@@ -27,10 +27,21 @@ export default async function StatsPage({
   const snapshot = await getRiskSnapshot({ seasonOverride: parseSeason(season) });
   const seasonMeta = getSeasonMeta(snapshot.season);
 
-  const trend = getHourlyTrend(snapshot);
-  const nowHour = kstParts(new Date(snapshot.baseTime)).hour;
-  const safest = safestHours(trend, nowHour, 3);
+  const trend = await getHourlyTrend(snapshot);
+  const safest = safestHours(trend, 3);
   const bestHour = safest[0];
+
+  /** 예보로 실제 계산된 지점이 있는지 — 없으면 화면에서 평평한 이유를 밝힌다 */
+  const forecastBacked = trend.filter((p) => p.forecast).length;
+
+  /**
+   * 폭염·한파 특보가 발효 중이면 위쪽 종합 점수와 곡선의 '지금' 값이 다를 수 있다.
+   * 종합 점수에는 특보 하한이 반영되고, 곡선은 시각별 예보를 그대로 쓰기 때문이다.
+   * 숫자가 다른 이유를 밝히지 않으면 둘 중 하나가 틀린 것으로 읽힌다.
+   */
+  const thermalWarning = snapshot.warnings.find(
+    (w) => w.type === 'heat' || w.type === 'cold',
+  );
 
   const worstHour = [...trend].sort((a, b) => b.score - a.score)[0];
   const ranked = [...snapshot.districts].sort((a, b) => b.score - a.score);
@@ -64,13 +75,13 @@ export default async function StatsPage({
             color={scoreColor(ranked[0].score)}
           />
           <SummaryCard
-            label="오늘 가장 안전한 시각"
+            label="24시간 내 가장 안전한 시각"
             value={`${bestHour.hour}시`}
             detail={`${Math.round(bestHour.score)}점 · ${RISK_LEVELS[bestHour.level].label}`}
             color={RISK_LEVELS.low.color}
           />
           <SummaryCard
-            label="오늘 정점"
+            label="24시간 내 정점"
             value={`${worstHour.hour}시`}
             detail={`${Math.round(worstHour.score)}점 · ${RISK_LEVELS[worstHour.level].label}`}
             color={scoreColor(worstHour.score)}
@@ -98,7 +109,7 @@ export default async function StatsPage({
           {/* 시간대별 추이 */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[0.9375rem] font-bold text-ink-900">오늘 시간대별 추이</h2>
+              <h2 className="text-[0.9375rem] font-bold text-ink-900">앞으로 24시간 추이</h2>
               <p className="text-[0.71875rem] text-ink-400">대전 평균</p>
             </div>
             <p className="mt-1.5 text-[0.78125rem] leading-relaxed text-ink-500">
@@ -144,8 +155,18 @@ export default async function StatsPage({
             ))}
           </ul>
           <p className="mt-4 text-[0.71875rem] leading-relaxed text-brand-700/75">
-            기준 {formatKstLong(snapshot.baseTime)} · 시간대별 값은 기상청 지수 예보와
-            에어코리아 예보통보를 합쳐 계산합니다.
+            기준 {formatKstLong(snapshot.baseTime)} ·{' '}
+            {forecastBacked > 0
+              ? '체감온도는 단기예보의 시각별 기온·습도·풍속으로, 대기정체는 대기확산지수 예보로 매 시각 다시 계산합니다. 미세먼지·오존·꽃가루는 시간별 예보가 제공되지 않아 현재값을 유지합니다.'
+              : '지금은 시간별 예보를 받지 못해 현재값을 그대로 폅니다.'}
+            {thermalWarning && (
+              <>
+                {' '}
+                지금 {thermalWarning.grade}가 발효 중이라 위쪽 종합 점수에는 특보 하한이
+                반영돼 있습니다. 이 곡선은 시각별 예보값을 그대로 그리므로 &lsquo;지금&rsquo;
+                지점의 값이 위와 다를 수 있습니다.
+              </>
+            )}
             {snapshot.source === 'mock' &&
               (snapshot.preview
                 ? ` ${seasonMeta.label}은 오늘이 아니라 관측값이 없어 예시 데이터로 표시합니다.`
@@ -188,11 +209,11 @@ function SummaryCard({
 function trendNote(season: string): string {
   switch (season) {
     case 'spring':
-      return '꽃가루가 오전 6~11시에 가장 많이 날립니다.';
+      return '꽃가루는 오전 6~11시에 많지만 시간별 예보가 없어, 곡선은 체감온도와 대기정체 변화만 따릅니다.';
     case 'summer':
-      return '체감온도와 오존 모두 오후 2~4시에 정점을 찍습니다.';
+      return '체감온도가 오후 2~4시에 정점을 찍습니다. 오존도 같은 시간대에 오르지만 시간별 예보가 없어 곡선에는 반영되지 않습니다.';
     case 'autumn':
-      return '잡초 꽃가루가 아침에, 미세먼지가 출퇴근 시간에 오릅니다.';
+      return '잡초 꽃가루는 아침에 많지만 시간별 예보가 없어, 곡선은 체감온도와 대기정체 변화만 따릅니다.';
     default:
       return '난방과 교통 배출이 겹치는 아침·저녁에 두 번 정점을 찍습니다.';
   }

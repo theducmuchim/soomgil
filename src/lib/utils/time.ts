@@ -35,6 +35,20 @@ export function kstYmdH(date: Date = new Date()): string {
   return `${kstYmd(date)}${pad(hour)}`;
 }
 
+/**
+ * 'YYYYMMDDHH'(KST) → Date. 형식이 아니면 null.
+ *
+ * 기상청 지수 API 는 발표 시각을 이 형태로 주고 h3·h6… 를 그로부터의 시간 오프셋으로
+ * 준다. 시계열을 벽시계 시각에 맞추려면 되돌릴 수 있어야 한다.
+ */
+export function kstStampToDate(stamp: string): Date | null {
+  const m = /^(\d{4})(\d{2})(\d{2})(\d{2})$/.exec(stamp.trim());
+  if (!m) return null;
+  const [, y, mo, d, h] = m;
+  // KST(UTC+9) 벽시계 값이므로 9시간 빼면 UTC
+  return new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h) - 9));
+}
+
 /** '2026년 8월 20일 (목) 오후 3시' */
 export function formatKstLong(iso: string): string {
   const { year, month, day, hour, weekday } = kstParts(new Date(iso));
