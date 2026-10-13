@@ -61,7 +61,7 @@ export function MobileNav({ open, onClose, pathname }: Props) {
         aria-modal="true"
         aria-label="전체 메뉴"
         className={cn(
-          'fixed inset-y-0 right-0 z-50 flex h-dvh w-[86%] max-w-sm flex-col',
+          'safe-top safe-bottom fixed inset-y-0 right-0 z-50 flex h-dvh w-[86%] max-w-sm flex-col',
           'bg-surface floating transition-transform duration-200 ease-out',
           open ? 'translate-x-0' : 'translate-x-full',
         )}

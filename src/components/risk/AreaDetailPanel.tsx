@@ -5,6 +5,7 @@ import { formatDelta, formatValue } from '@/lib/utils/format';
 import { RiskBadge } from '@/components/risk/RiskBadge';
 import { WindArrow } from '@/components/map/WindArrow';
 import { cn } from '@/lib/utils/cn';
+import { GrowBar } from '@/components/motion/GrowBar';
 
 /**
  * 지역 한 곳의 상세.
@@ -29,10 +30,10 @@ export function AreaDetailPanel({
   const stagnation = area.readings.find((r) => r.id === 'stagnation');
 
   return (
-    <div className={cn('rounded-2xl border border-line bg-surface p-5', className)}>
+    <div className={cn('rounded-2xl border border-cream-line bg-surface p-5', className)}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-[1rem] font-bold text-ink-900">{area.areaName}</h3>
+          <h3 className="font-display text-[1.25rem] leading-none font-normal text-night">{area.areaName}</h3>
           <p className="mt-1 text-[0.75rem] text-ink-400">
             주요 요인 {INDICATORS[area.dominantIndicator].shortLabel}
             {estimated && ' · 추정치'}
@@ -43,7 +44,7 @@ export function AreaDetailPanel({
 
       <div className="mt-4 flex items-end gap-2">
         <span
-          className="tabular text-[2.5rem] leading-none font-bold"
+          className="tabular font-display text-[2.75rem] leading-none font-normal"
           style={{ color }}
         >
           {Math.round(area.score)}
@@ -52,16 +53,16 @@ export function AreaDetailPanel({
       </div>
 
       {/* 보정 전 → 보정계수 → 보정 후 */}
-      <div className="mt-4 rounded-xl bg-surface-sunken p-3.5">
+      <div className="mt-4 rounded-xl bg-cream-deep p-3.5">
         <p className="text-[0.75rem] font-semibold text-ink-700">점수 계산</p>
         <div className="tabular mt-2.5 flex items-center gap-2 text-[0.8125rem]">
-          <span className="rounded-full bg-surface px-2 py-1 font-semibold text-ink-900">
+          <span className="rounded-full bg-surface px-2 py-1 font-semibold text-night">
             {b.baseScore}
           </span>
           <span className="text-ink-400" aria-hidden="true">
             ×
           </span>
-          <span className="rounded-full bg-surface px-2 py-1 font-semibold text-brand-600">
+          <span className="rounded-full bg-surface px-2 py-1 font-semibold text-forest-700">
             {b.stagnationFactor}
           </span>
           <span className="text-ink-400" aria-hidden="true">
@@ -89,7 +90,7 @@ export function AreaDetailPanel({
         <div className="mt-4">
           <p className="text-[0.75rem] font-semibold text-ink-700">지표별 기여도</p>
           <ul className="mt-2.5 space-y-2.5">
-            {b.contributions.map((c) => {
+            {b.contributions.map((c, i) => {
               const meta = INDICATORS[c.id];
               const reading = area.readings.find((r) => r.id === c.id);
               return (
@@ -116,15 +117,13 @@ export function AreaDetailPanel({
                       </span>
                     </span>
                   </div>
-                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-line/70">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${(c.points / maxPoints) * 100}%`,
-                        backgroundColor: scoreColor(c.normalized),
-                      }}
-                    />
-                  </div>
+                  {/* 순서대로 자라 기여도 순위가 자라는 동안 드러난다 */}
+                  <GrowBar
+                    pct={(c.points / maxPoints) * 100}
+                    delayMs={i * 60}
+                    className="mt-1 h-1.5 bg-cream-line"
+                    style={{ backgroundColor: scoreColor(c.normalized) }}
+                  />
                 </li>
               );
             })}
@@ -133,10 +132,10 @@ export function AreaDetailPanel({
       )}
 
       {/* 바람 */}
-      <div className="mt-4 flex items-center gap-3 border-t border-line pt-4">
+      <div className="mt-4 flex items-center gap-3 border-t border-cream-line pt-4">
         <WindArrow degree={area.wind.degree} className="h-9 w-9 shrink-0" />
         <div>
-          <p className="text-[0.8125rem] font-semibold text-ink-900">
+          <p className="text-[0.8125rem] font-semibold text-night">
             {area.wind.label}풍 {area.wind.speed}m/s
           </p>
           <p className="mt-0.5 text-[0.6875rem] text-ink-400">

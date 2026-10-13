@@ -16,16 +16,16 @@ export function PageHeading({
   size?: 'default' | 'wide' | 'narrow';
 }) {
   return (
-    <div className="border-b border-line bg-surface-sunken">
+    <div className="border-b border-cream-line bg-cream">
       <Container size={size}>
         <div className="flex flex-col gap-5 py-9 sm:flex-row sm:items-end sm:justify-between sm:py-11">
           <div>
             {eyebrow && (
-              <p className="text-[0.8125rem] font-semibold tracking-wide text-brand-600">
+              <p className="text-[0.75rem] font-semibold tracking-[0.08em] text-ink-400">
                 {eyebrow}
               </p>
             )}
-            <h1 className="mt-1.5 text-2xl font-bold text-ink-900 sm:text-[1.75rem]">
+            <h1 className="mt-2 font-display text-[1.875rem] leading-[1.15] font-normal tracking-tight text-night sm:text-[2.375rem]">
               {title}
             </h1>
             {description && (

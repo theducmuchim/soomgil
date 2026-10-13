@@ -21,8 +21,8 @@ export function MapLegend({
     .join(', ');
 
   return (
-    <div className={cn('rounded-xl border border-line bg-surface p-4', className)}>
-      <p className="text-[0.8125rem] font-semibold text-ink-900">위험도 범례</p>
+    <div className={cn('rounded-xl border border-cream-line bg-surface p-4', className)}>
+      <p className="text-[0.8125rem] font-semibold text-night">위험도 범례</p>
 
       <div
         className="mt-3 h-2.5 w-full rounded-full"
@@ -56,7 +56,7 @@ export function MapLegend({
       </div>
 
       {note && (
-        <p className="mt-3 border-t border-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
+        <p className="mt-3 border-t border-cream-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
           {note}
         </p>
       )}

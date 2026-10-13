@@ -22,7 +22,7 @@ export default function NoticePage() {
         description="서비스 업데이트와 데이터 반영 현황을 알려드립니다."
       />
 
-      <Container className="py-8 sm:py-10">
+      <Container reveal className="py-8 sm:py-10">
         <ul className="divide-y divide-line border-y border-line">
           {notices.map((notice) => {
             const category = NOTICE_CATEGORY[notice.category];

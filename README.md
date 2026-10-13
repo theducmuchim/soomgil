@@ -494,7 +494,7 @@ npx eslint src     # 린트
 - 기상청 꽃가루농도위험지수 · 생활기상지수 3.0 · 단기예보 · 기상특보
 - 한국환경공단 에어코리아 대기오염정보
 - 행정구역 경계: 통계청 SGIS 2013 (southkorea-maps 공개 데이터셋을 단순화)
-- 지도 타일: OpenStreetMap · CARTO
+- 지도 타일: Esri World Light Gray Base (Esri, HERE, Garmin, © OpenStreetMap contributors)
 
 본 서비스는 공공데이터를 재가공한 참고용 정보이며, 기상·대기질 공식 발표는
 기상청과 에어코리아를 따릅니다.

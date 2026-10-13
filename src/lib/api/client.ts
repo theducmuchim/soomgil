@@ -61,6 +61,13 @@ export interface CallOptions<T> {
    * 받아올 수 없으므로 전역 모드와 무관하게 시나리오를 쓴다.
    */
   forceMock?: boolean;
+  /**
+   * 결과가 0건이면 실패로 본다.
+   *
+   * 특보처럼 "없음"이 정상인 소스에는 쓰지 않는다. 실시간 측정값처럼
+   * 항상 무언가 와야 하는 소스에서, 0건이 곧 제공처 장애일 때만 켠다.
+   */
+  requireItems?: boolean;
   /** 서버 캐시 유지 시간(초) — lib/env.ts 의 CACHE_TTL 사용 */
   revalidate: number;
   /** mock 모드에서 쓸 가짜 응답 */
@@ -76,6 +83,17 @@ export interface CallOptions<T> {
  * 화면이 통째로 빈 채로 남지 않게 한다. 대신 콘솔에 반드시 경고를 남긴다.
  */
 const FALLBACK_TO_MOCK_ON_ERROR = true;
+
+/**
+ * 시도 한 번의 제한 시간.
+ *
+ * data.go.kr 은 가끔 응답 없이 매달린다. 제한이 없으면 소스 하나 때문에
+ * 페이지 전체가 함수 실행 한도까지 멈춰 있다.
+ */
+const ATTEMPT_TIMEOUT_MS = 8000;
+
+/** 잠시 뒤 다시 부르면 풀릴 수 있는 실패 — 한 번만 재시도한다 */
+class TransientApiError extends Error {}
 
 export async function callPublicApi<T>(options: CallOptions<T>): Promise<T> {
   if (options.forceMock || DATA_MODE === 'mock') return options.mock();
@@ -94,13 +112,20 @@ export async function callPublicApi<T>(options: CallOptions<T>): Promise<T> {
   }
 }
 
-async function fetchLive<T>({
-  name,
-  endpoint,
-  params,
-  revalidate,
-  auth = 'dataGoKr',
-}: CallOptions<T>): Promise<T> {
+async function fetchLive<T>(options: CallOptions<T>): Promise<T> {
+  try {
+    return await fetchOnce<T>(options, false);
+  } catch (error) {
+    // SERVICETIMEOUT_ERROR · 시간 초과 · 5xx 는 대부분 일시적이라 한 번 더 부른다
+    if (!(error instanceof TransientApiError)) throw error;
+    return fetchOnce<T>(options, true);
+  }
+}
+
+async function fetchOnce<T>(
+  { name, endpoint, params, revalidate, requireItems, auth = 'dataGoKr' }: CallOptions<T>,
+  retry: boolean,
+): Promise<T> {
   const url = new URL(endpoint);
 
   // 인증 파라미터 이름이 제공처마다 다르다.
@@ -116,14 +141,25 @@ async function fetchLive<T>({
     url.searchParams.set(key, String(value));
   }
 
-  const res = await fetch(url, {
-    next: { revalidate },
-    headers: { Accept: 'application/json' },
-  });
-
-  if (!res.ok) {
-    throw new Error(`${name}: HTTP ${res.status}`);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      next: { revalidate },
+      // Next 의 fetch 캐시 키에는 헤더가 들어간다. 첫 시도의 오류 응답이
+      // HTTP 200 으로 캐시돼 있어도, 재시도는 다른 키라 그걸 다시 읽지 않는다.
+      headers: retry
+        ? { Accept: 'application/json', 'X-Soomgil-Retry': '1' }
+        : { Accept: 'application/json' },
+      signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
+    });
+  } catch (error) {
+    const e = error as Error;
+    const reason = e.name === 'TimeoutError' ? `${ATTEMPT_TIMEOUT_MS / 1000}초 시간 초과` : e.message;
+    throw new TransientApiError(`${name}: ${reason}`);
   }
+
+  if (res.status >= 500) throw new TransientApiError(`${name}: HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
 
   const text = await res.text();
 
@@ -131,29 +167,50 @@ async function fetchLive<T>({
   // 그대로 JSON.parse 하면 알아보기 힘든 파싱 에러가 나므로 여기서 잡아준다.
   if (text.trimStart().startsWith('<')) {
     const reason = text.match(/<returnAuthMsg>(.*?)<\/returnAuthMsg>/)?.[1] ?? 'XML 오류 응답';
+    if (reason === 'SERVICETIMEOUT_ERROR') throw new TransientApiError(`${name}: ${reason}`);
     throw new Error(`${name}: ${reason}`);
   }
 
   const json = JSON.parse(text) as T;
-  assertResultCode(name, json);
+  const noData = assertResultCode(name, json);
+  if (requireItems && (noData || itemCount(json) === 0)) {
+    throw new Error(`${name}: 정상 코드지만 결과 0건 (제공처 자료 누락)`);
+  }
   return json;
 }
 
 /**
  * 공공데이터 API는 HTTP 200이어도 본문 resultCode로 실패를 알린다.
  *
- * 다만 코드 99는 오류가 아니다. 기상청 지수류는 서비스 기간이 아닐 때
- * "해당지수자료 제공기간이 아닙니다"를 99로 돌려준다. 예를 들어 8월에
- * 소나무 꽃가루를 부르면 99가 온다. 이건 정상적인 응답이므로 예외로 만들지 않고
- * 값 없음으로 흘려보낸다 — 그래야 예시 데이터로 잘못 대체되지 않는다.
+ * 다만 오류가 아닌 코드가 둘 있다.
+ *
+ * 99 — 기상청 지수류는 서비스 기간이 아닐 때 "해당지수자료 제공기간이 아닙니다"를
+ *      돌려준다. 예를 들어 8월에 소나무 꽃가루를 부르면 99가 온다.
+ * 03 — NO_DATA. 기상특보는 발효 중인 특보가 없으면 body 없이 03을 준다.
+ *      이걸 오류로 보면 특보 없는 날마다 예시 시나리오의 특보(여름이면 폭염경보)가
+ *      실제처럼 화면에 뜬다.
+ *
+ * 둘 다 값 없음으로 흘려보낸다 — 그래야 예시 데이터로 잘못 대체되지 않는다.
+ *
+ * @returns 결과가 없다는 응답(03)이면 true
  */
 const OUT_OF_SEASON = '99';
+const NO_DATA = '03';
 
-function assertResultCode(name: string, json: unknown) {
+function assertResultCode(name: string, json: unknown): boolean {
   const header = (json as { response?: { header?: { resultCode?: string; resultMsg?: string } } })
     ?.response?.header;
-  if (!header?.resultCode || header.resultCode === '00') return;
-  if (header.resultCode === OUT_OF_SEASON) return;
+  if (!header?.resultCode || header.resultCode === '00') return false;
+  if (header.resultCode === OUT_OF_SEASON) return false;
+  if (header.resultCode === NO_DATA) return true;
 
   throw new Error(`${name}: [${header.resultCode}] ${header.resultMsg ?? '알 수 없는 오류'}`);
+}
+
+/** 에어코리아는 items 가 배열, 기상청은 items.item 이 배열이다 */
+function itemCount(json: unknown): number {
+  const items = (json as { response?: { body?: { items?: unknown } } })?.response?.body?.items;
+  if (Array.isArray(items)) return items.length;
+  const inner = (items as { item?: unknown } | undefined)?.item;
+  return Array.isArray(inner) ? inner.length : 0;
 }

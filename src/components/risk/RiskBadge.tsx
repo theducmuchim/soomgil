@@ -2,6 +2,7 @@ import type { RiskLevel } from '@/types';
 import { RISK_LEVELS } from '@/config/indicators';
 import { scoreTextColor } from '@/lib/risk/color';
 import { cn } from '@/lib/utils/cn';
+import { CountUp } from '@/components/motion/CountUp';
 
 /**
  * 위험 등급 배지.
@@ -57,12 +58,19 @@ export function RiskScore({
 }) {
   return (
     <div className={cn('flex items-end gap-2', className)}>
-      {/* 큰 숫자는 글자라서 면용 색이 아니라 글자용 색을 쓴다 (lib/risk/color.ts) */}
+      {/*
+        큰 숫자는 글자라서 면용 색이 아니라 글자용 색을 쓴다 (lib/risk/color.ts).
+
+        서체는 세리프(제주돌담체)다. 이 숫자는 화면에서 가장 큰 글자인데
+        sans 볼드로 두면 옆의 배지·라벨과 같은 목소리로 읽힌다. 서체를 바꾸면
+        크기를 더 키우지 않고도 "여기가 결론"이라는 게 구분된다.
+        굵기 한 벌짜리라 font-normal 을 못 박는다.
+      */}
       <span
-        className="tabular text-[2.5rem] leading-none font-bold"
+        className="tabular font-display text-[2.75rem] leading-none font-normal"
         style={{ color: scoreTextColor(score) }}
       >
-        {Math.round(score)}
+        <CountUp to={score} />
       </span>
       <span className="pb-1 text-[0.8125rem] font-medium text-ink-400">/ 100</span>
       <RiskBadge level={level} className="mb-1 ml-1" />

@@ -32,14 +32,14 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
   const stagnationReading = worst.readings.find((r) => r.id === 'stagnation');
 
   return (
-    <section className="border-b border-line bg-surface-sunken py-14 sm:py-20">
+    <section className="border-b border-cream-line bg-cream-deep py-14 sm:py-20">
       <Container>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
-            <p className="text-[0.8125rem] font-semibold tracking-wide text-brand-600">
+            <p className="text-[0.75rem] font-semibold tracking-[0.08em] text-ink-400">
               실시간 현황
             </p>
-            <h2 className="mt-2 text-[1.25rem] leading-tight font-bold text-ink-900 sm:text-[1.75rem]">
+            <h2 className="mt-2.5 font-display text-[1.625rem] leading-[1.22] font-normal tracking-tight text-night sm:text-[2.125rem]">
               지금 대전, 어디가 위험한가
             </h2>
             <p className="mt-3 text-[0.875rem] leading-relaxed text-ink-500">
@@ -54,13 +54,13 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
 
         <div className="mt-9 grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-6">
           {/* 자치구 순위 */}
-          <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+          <div className="rounded-2xl border border-cream-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="text-[0.875rem] font-bold text-ink-900">자치구별 위험도</h3>
+              <h3 className="text-[0.875rem] font-bold text-night">자치구별 위험도</h3>
               <span className="text-[0.75rem] text-ink-400">위험한 순</span>
             </div>
 
-            <ol className="mt-3 divide-y divide-line">
+            <ol className="mt-3 divide-y divide-cream-line">
               {ranked.map((area) => (
                 <li key={area.areaId}>
                   <DistrictRiskBar area={area} maxScore={maxScore} href="/risk-map" />
@@ -69,7 +69,7 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
             </ol>
 
             {/* 범례 — 색만으로 등급을 구분하지 않도록 라벨을 함께 둔다 */}
-            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-4">
+            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-cream-line pt-4">
               {(['low', 'moderate', 'high', 'veryHigh'] as const).map((level) => (
                 <span
                   key={level}
@@ -87,9 +87,9 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
           </div>
 
           {/* 핵심 지표 */}
-          <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+          <div className="rounded-2xl border border-cream-line bg-surface p-5 sm:p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h3 className="text-[0.875rem] font-bold text-ink-900">
+              <h3 className="text-[0.875rem] font-bold text-night">
                 {season.label}철 핵심 지표
               </h3>
               <span className="text-[0.75rem] text-ink-400">
@@ -109,16 +109,16 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
 
             {/* 대기정체는 다른 지표와 성격이 달라(보정계수) 따로 뺀다 */}
             {stagnationReading && (
-              <div className="mt-4 rounded-xl border border-brand-200 bg-brand-50/60 p-4">
+              <div className="mt-4 rounded-xl border border-forest-500/25 bg-forest-500/8 p-4">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <p className="text-[0.8125rem] font-semibold text-brand-700">
+                  <p className="text-[0.8125rem] font-semibold text-forest-700">
                     대기정체지수 {Math.round(stagnationReading.value)}
                   </p>
-                  <p className="text-[0.75rem] font-medium text-brand-700">
+                  <p className="text-[0.75rem] font-medium text-forest-700">
                     종합 위험도 ×{worst.breakdown.stagnationFactor}
                   </p>
                 </div>
-                <p className="mt-2 text-[0.75rem] leading-relaxed text-brand-700/80">
+                <p className="mt-2 text-[0.75rem] leading-relaxed text-forest-700/85">
                   분지 지형 때문에 공기가 빠져나가지 못하는 정도입니다. 다른 지표들의
                   가중합({worst.breakdown.baseScore}점)에 곱해져 최종{' '}
                   {worst.breakdown.score}점이 됩니다.
@@ -126,7 +126,7 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
               </div>
             )}
 
-            <p className="mt-4 border-t border-line pt-3 text-[0.75rem] text-ink-400">
+            <p className="mt-4 border-t border-cream-line pt-3 text-[0.75rem] text-ink-400">
               기준 {formatKstLong(snapshot.baseTime)} ·{' '}
               {snapshot.source !== 'mock'
                 ? '기상청·에어코리아 실시간'

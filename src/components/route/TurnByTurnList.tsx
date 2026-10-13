@@ -28,8 +28,8 @@ export function TurnByTurnList({
 }) {
   if (guides.length === 0) {
     return (
-      <div className="rounded-2xl border border-line bg-surface p-4">
-        <p className="text-[0.8125rem] font-semibold text-ink-900">길 안내</p>
+      <div className="rounded-2xl border border-cream-line bg-surface p-4">
+        <p className="text-[0.8125rem] font-semibold text-night">길 안내</p>
         <p className="mt-2 text-[0.75rem] leading-relaxed text-ink-500">
           {engine === 'grid'
             ? '지금 보고 있는 경로는 실제 도로망이 아니라 격자 위에서 계산한 근사 경로라, 회전 안내를 만들 수 없습니다. 없는 안내를 지어내면 그대로 걸을 수 없기 때문에 표시하지 않습니다.'
@@ -42,9 +42,9 @@ export function TurnByTurnList({
   const totalM = guides.reduce((sum, g) => sum + g.distanceM, 0);
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4">
+    <div className="rounded-2xl border border-cream-line bg-surface p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[0.8125rem] font-semibold text-ink-900">
+        <p className="text-[0.8125rem] font-semibold text-night">
           길 안내 {guides.length}단계
         </p>
         <p className="tabular text-[0.6875rem] text-ink-400">
@@ -60,7 +60,7 @@ export function TurnByTurnList({
           return (
             <li
               key={`${i}-${guide.coord[0]}-${guide.coord[1]}`}
-              className="flex gap-2.5 rounded-xl px-1.5 py-2 hover:bg-surface-sunken"
+              className="flex gap-2.5 rounded-xl px-1.5 py-2 hover:bg-cream-deep"
             >
               <span className="flex w-5 shrink-0 justify-center pt-0.5">
                 <span className="tabular text-[0.6875rem] font-semibold text-ink-300">
@@ -71,7 +71,7 @@ export function TurnByTurnList({
               <TurnIcon shape={meta.shape} />
 
               <div className="min-w-0 flex-1">
-                <p className="text-[0.8125rem] leading-snug font-medium text-ink-900">
+                <p className="text-[0.8125rem] leading-snug font-medium text-night">
                   {guide.description}
                 </p>
                 {/*
@@ -102,7 +102,7 @@ export function TurnByTurnList({
         })}
       </ol>
 
-      <p className="mt-3 border-t border-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
+      <p className="mt-3 border-t border-cream-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
         회전 안내와 도로명은 TMAP 보행자 경로 응답을 그대로 옮긴 것입니다. 실제
         현장의 공사·통제 상황은 반영되지 않습니다.
       </p>
@@ -127,7 +127,7 @@ function TurnIcon({ shape }: { shape: TurnShape }) {
 
   const tone =
     shape === 'start'
-      ? 'text-brand-600'
+      ? 'text-forest-700'
       : shape === 'goal'
         ? 'text-risk-low'
         : shape === 'crosswalk'

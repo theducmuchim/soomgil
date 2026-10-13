@@ -44,6 +44,7 @@ function keyStatus(value: string): KeyStatus {
 async function probeSource(
   name: string,
   url: string,
+  requireItems = false,
   attempt = 1,
 ): Promise<{ name: string; ok: boolean; detail: string }> {
   try {
@@ -61,7 +62,7 @@ async function probeSource(
     if (errMsg) {
       // 서버 쪽 일시적 지연은 한 번 더 시도해 본다
       if (errMsg === 'SERVICETIMEOUT_ERROR' && attempt < 2) {
-        return probeSource(name, url, attempt + 1);
+        return probeSource(name, url, requireItems, attempt + 1);
       }
       return { name, ok: false, detail: errMsg };
     }
@@ -69,10 +70,15 @@ async function probeSource(
     if (!res.ok) return { name, ok: false, detail: `HTTP ${res.status}` };
     if (text.trim().length === 0) return { name, ok: false, detail: '빈 응답' };
 
+    // 정상 코드인데 측정값이 0건인 장애 — client.ts 의 requireItems 와 같은 기준
+    if (requireItems && /"totalCount"\s*:\s*0\b/.test(text)) {
+      return { name, ok: false, detail: '정상 코드지만 측정값 0건' };
+    }
+
     return { name, ok: true, detail: '정상' };
   } catch (error) {
     const e = error as Error;
-    if (attempt < 2) return probeSource(name, url, attempt + 1);
+    if (attempt < 2) return probeSource(name, url, requireItems, attempt + 1);
     return {
       name,
       ok: false,
@@ -126,6 +132,7 @@ export async function GET(request: NextRequest) {
     probeSource(
       '에어코리아 실시간',
       `${ENDPOINTS.airRealtime}?serviceKey=${encodeURIComponent(SERVICE_KEY)}&returnType=json&numOfRows=1&pageNo=1&sidoName=${encodeURIComponent('대전')}&ver=1.3`,
+      true,
     ),
     probeSource(
       '단기예보 (API허브)',

@@ -34,11 +34,37 @@
   --color-ink-500: #545454;
   --color-ink-400: #757575;
   --color-ink-300: #afafaf;
-  --color-line: #e2e2e2;
-  --color-line-strong: #cbcbcb;
+  /*
+   * 선도 따뜻하게 내렸다.
+   *
+   * 회색 선(#e2e2e2)은 흰 배경에서는 중립이지만 크림 지면 위에서는 파랗게
+   * 뜬다. 면이 전부 따뜻해졌는데 선만 차가우면 그 선이 먼저 눈에 띈다.
+   * 명도는 거의 그대로 두고 색온도만 옮겨서, 대비는 유지하면서 지면에 녹는다.
+   *
+   * --color-cream-line 과 같은 값이다. 두 이름을 다 두는 이유는, 크림 위라는
+   * 걸 분명히 말하고 싶은 자리에서는 cream-line 을 쓰고, 그 밖에는 line 을
+   * 그대로 쓰면 되기 때문이다. 어느 쪽을 써도 결과가 같아서 실수가 안 난다.
+   */
+  --color-line: #e3ddcc;
+  --color-line-strong: #cfc7b3;
   --color-surface: #ffffff;
-  --color-surface-sunken: #f6f6f6;
-  --color-surface-raised: #fafafa;
+  /*
+   * 지면(sunken)을 회색에서 크림 계열로 내렸다.
+   *
+   * ⚠ 처음에는 크림(#f7f4ec)과 같은 값으로 뒀는데, body 바탕이 바로 그
+   * 크림이라 **눌린 면이 지면과 완전히 같아졌다**. 결과적으로
+   *   - bg-surface-sunken 을 쓰던 섹션 띠가 통째로 사라졌고
+   *   - hover:bg-surface-sunken 을 쓰던 메뉴·링크 13개 파일에서 hover 가
+   *     아무 반응도 하지 않았다
+   * 색이 틀린 게 아니라 '한 단 내려앉는다'는 뜻 자체가 없어진 상태였다.
+   *
+   * 그래서 크림보다 한 단 진한 cream-deep 으로 내린다. 이 값 하나로 눌린
+   * 면과 hover 가 전부 다시 살아난다. 카드는 계속 흰색이라 위아래로
+   *   흰 카드 → 크림 지면 → 눌린 면
+   * 세 단이 분명해진다.
+   */
+  --color-surface-sunken: #efeade;
+  --color-surface-raised: #fdfcf8;
 
   /*
    * 위험 4단계 — 기상청 낮음/보통/높음/매우높음.
@@ -83,10 +109,43 @@
   --color-layer-heat: #d94f2b;
   --color-layer-ozone: #2f9bb5;
 
+  /*
+   * 에디토리얼 팔레트.
+   *
+   * 위험 4단계 색과 **역할이 다르다**. 초록·노랑·주황·빨강은 정보고,
+   * 아래 라임·크림·나이트·포레스트는 분위기다. 그래서 절대 섞지 않는다 —
+   * 라임을 위험도에 쓰거나, 위험색을 버튼·배경에 쓰지 않는다.
+   *
+   * 라임이 유일하게 위험색이 아닌 유채색인데, 쓰이는 자리가 CTA 버튼과
+   * 불릿점뿐이라 데이터 영역과 부딪히지 않는다.
+   */
+  --color-lime: #d8f34a; /* 네온 라임 CTA */
+  --color-lime-hover: #c7e534;
+  --color-lime-ink: #161a08; /* 라임 위 글자 — 검정보다 초록기가 도는 먹 */
+
+  --color-cream: #f7f4ec; /* 지면 */
+  --color-cream-deep: #efeade; /* 지면 안에서 한 단 내려앉는 띠 */
+  --color-cream-line: #e3ddcc; /* 크림 위 실선 — 회색 선을 그으면 차갑게 뜬다 */
+
+  --color-night: #0f1417; /* 히어로 스크림 · 로고 마크 */
+  --color-night-soft: #1b2226;
+
+  --color-forest-900: #0b160e; /* 짙은 초록 구간의 바탕 */
+  --color-forest-700: #16351b;
+  --color-forest-500: #2b5c2f; /* 그라데이션에서 가장 밝게 도는 점 */
+
   /* next/font/local 이 만들어 주는 변수 — src/app/fonts.ts 참고 */
   --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui,
     "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  /*
+   * 디스플레이(워드마크·큰 제목) — 제주돌담체.
+   * 굵기가 하나뿐이라 이 서체를 쓰는 자리에서는 font-weight 를 400 으로 고정한다
+   * (.display 클래스). 본문에는 쓰지 않는다 — 획이 굵어 14px 이하에서 뭉갠다.
+   */
+  --font-display: var(--font-jeju-doldam), "Nanum Myeongjo", "Apple SD Gothic Neo",
+    Batang, ui-serif, Georgia, serif;
 
   /* 헤더 높이 — sticky 오프셋 계산에 재사용 */
   --spacing-header: 3.5rem;
@@ -167,7 +226,7 @@ html[data-ui-scale='xlarge']
 }
 
 body {
-  background: var(--color-surface);
+  background: var(--color-cream);
   color: var(--color-ink-900);
   font-family: var(--font-sans);
   /*
@@ -333,5 +392,250 @@ body {
     height: 40px;
     line-height: 40px;
     font-size: 20px;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   에디토리얼 표현
+
+   히어로 스크림 · 도트 패턴 · 초록 그라데이션은 유틸리티 클래스 조합으로
+   만들면 길어지기만 하고 뜻이 드러나지 않는다. 여기서 이름을 붙여 둔다.
+   ────────────────────────────────────────────────────────── */
+
+/*
+ * 디스플레이 서체.
+ *
+ * font-weight 를 400 으로 못 박는 게 핵심이다. 제주돌담체는 굵기가 하나뿐이라
+ * font-bold 가 걸리면 브라우저가 가짜 볼드를 그려 획이 뭉갠다. h1~h3 에는
+ * 기본 굵기가 붙는 자리가 많아서, 클래스 쪽에서 되돌린다.
+ */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.22;
+}
+
+/*
+ * 히어로 스크림.
+ *
+ * 사진 위에 글자를 얹으려면 어둡게 깔아야 하는데, 전면을 균일하게 덮으면
+ * 사진이 그냥 어두운 판이 된다. 세 겹으로 나눠 **글자가 있는 왼쪽만** 깊게
+ * 눌러 두고 오른쪽은 풍경이 살아 있게 둔다.
+ *   1층 가로 방향 — 왼쪽 74% → 오른쪽 8%. 오른쪽을 완전히 비우지 않는 건
+ *        첫 화면 아래에 이어지는 소개글이 폭을 꽉 채워 쓰기 때문이다.
+ *   2층 세로 방향 — 62% 지점부터 급격히 짙어진다. 소개글이 놓이는 구간이라
+ *        크림색 글자가 사진 밝은 부분에 걸려도 읽힌다.
+ *   3층 왼쪽 아래 초록 발광 — 포레스트 구간의 예고
+ *
+ * 사진이 아직 없어도 이 세 겹만으로 어두운 지형 느낌이 남는다.
+ */
+.hero-scrim {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(15 20 23 / 0.74) 0%,
+      rgb(15 20 23 / 0.52) 40%,
+      rgb(15 20 23 / 0.2) 74%,
+      rgb(15 20 23 / 0.08) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(15 20 23 / 0.42) 0%,
+      rgb(15 20 23 / 0.22) 30%,
+      rgb(15 20 23 / 0.6) 62%,
+      rgb(11 22 14 / 0.88) 100%
+    ),
+    radial-gradient(90% 60% at 12% 96%, rgb(43 92 47 / 0.3) 0%, transparent 70%);
+}
+
+/*
+ * 반투명 도트 패턴 (푸터·마감 배너).
+ *
+ * 패턴을 전면에 깔면 글자 뒤가 지저분해진다. mask 로 왼쪽 위에서만 진하게
+ * 시작해 오른쪽 아래로 가며 사라지게 한다 — 종이 질감처럼 읽히고 본문은
+ * 깨끗한 자리에 놓인다.
+ */
+.dot-field {
+  background-image: radial-gradient(var(--color-night) 1px, transparent 1px);
+  background-size: 10px 10px;
+  opacity: 0.12;
+  -webkit-mask-image: radial-gradient(
+    120% 90% at 0% 0%,
+    #000 0%,
+    rgb(0 0 0 / 0.55) 42%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    120% 90% at 0% 0%,
+    #000 0%,
+    rgb(0 0 0 / 0.55) 42%,
+    transparent 72%
+  );
+}
+
+/*
+ * 짙은 초록 블러 그라데이션 (서술·통계 구간).
+ *
+ * 라디얼 세 겹에 blur(90px) 를 먹인다. 블러를 거는 이유는 그라데이션 경계를
+ * 없애기 위해서다 — 경계가 보이면 '그라데이션'이 눈에 띄고, 안 보이면 그냥
+ * 깊은 숲 색으로 읽힌다. inset -20% 는 블러가 가장자리에서 잘려 밝은 테두리가
+ * 생기는 걸 막는다.
+ */
+.forest-glow {
+  filter: blur(90px);
+  background:
+    radial-gradient(38% 55% at 22% 45%, rgb(43 92 47 / 0.95) 0%, transparent 70%),
+    radial-gradient(42% 60% at 62% 62%, rgb(96 122 41 / 0.65) 0%, transparent 72%),
+    radial-gradient(30% 45% at 84% 30%, rgb(22 53 27 / 0.9) 0%, transparent 70%);
+  will-change: transform;
+  animation: soomgil-drift 26s ease-in-out infinite;
+}
+
+/*
+ * 아주 느린 표류. 26초 주기라 보고 있으면 알아채지 못하고, 스크롤해 돌아오면
+ * 조금 달라져 있는 정도다. 위 @media (prefers-reduced-motion) 규칙이 이걸
+ * 0.01ms 로 끄기 때문에 별도 처리가 필요 없다.
+ */
+@keyframes soomgil-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-3%, 2%, 0) scale(1.06);
+  }
+}
+
+/*
+ * 목록 항목이 차례로 떠오르는 등장.
+ *
+ * Reveal 은 섹션 하나를 통째로 다루지만, 경로안 카드처럼 **여러 개가 한꺼번에
+ * 나타나는 목록**에는 맞지 않는다. 셋이 동시에 뜨면 어느 것부터 읽어야 할지
+ * 알려 주지 않는다. 각자 조금씩 늦게 떠오르면 시선이 위에서 아래로 자연히 흐른다.
+ *
+ * animation-delay 는 인라인 style 로 준다(항목 순서 × 70ms).
+ * backwards 를 쓰는 이유는, 지연되는 동안 요소가 최종 상태로 먼저 보였다가
+ * 사라지는 깜빡임을 막기 위해서다 — 시작 프레임을 미리 적용해 둔다.
+ */
+[data-rise] {
+  animation: soomgil-rise 520ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes soomgil-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * RevealGroup 이 붙이는 표시.
+ *
+ * 서버 마크업에는 이 속성이 없다. 스크립트가 마운트된 뒤에야 붙기 때문에,
+ * JS 가 꺼진 환경에서는 규칙 자체가 걸리지 않고 내용이 그대로 보인다.
+ * (Reveal 은 서버에서부터 숨겨 두는 방식이라 noscript 규칙이 따로 필요했다)
+ *
+ * 곡선은 ease-out 대신 cubic-bezier(0.16, 1, 0.3, 1) 이다. 처음에 빠르게
+ * 나왔다가 끝에서 길게 눕는 감속이라, 멈추는 순간이 눈에 띄지 않는다.
+ * 기본 ease-out 은 끝에서 갑자기 서는 느낌이 남는다.
+ */
+[data-reveal-item] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-reveal-item][data-reveal-in] {
+  opacity: 1;
+  transform: none;
+}
+
+/*
+ * 카드가 눌리고 떠오르는 반응.
+ *
+ * 클릭할 수 있는 카드에만 붙인다. 링크인지 아닌지가 커서 말고도 드러나야
+ * 하는데, 색만 바뀌는 hover 는 배경이 크림 계열로 통일된 뒤로 잘 안 보인다.
+ *
+ * 값이 작다(2px). 카드가 크게 떠오르면 목록 전체가 출렁이는 것처럼 보인다.
+ * 그림자를 같이 올려야 '떠올랐다'로 읽히고, 위치만 바꾸면 그냥 어긋나 보인다.
+ */
+.lift {
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 150ms linear,
+    background-color 150ms linear;
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+/*
+ * 누를 때는 되돌아온다.
+ * 떠오른 채로 눌리면 눌린 느낌이 없어서, 실제로 반응했는지 알기 어렵다.
+ */
+.lift:active {
+  transform: translateY(0);
+  transition-duration: 80ms;
+}
+
+/* ── 모바일 안전 영역 ─────────────────────────────────────
+   viewport-fit=cover 로 화면 가장자리까지 그리는 대신, 조작하는 것들은
+   노치·홈 인디케이터를 피해 물러나야 한다. 사진과 배경은 그대로 끝까지 간다.
+   ──────────────────────────────────────────────────────── */
+
+/*
+ * 좌우 여백.
+ * 세로 화면에서는 0이라 아무 일도 일어나지 않고, 가로로 눕혔을 때만
+ * 노치 쪽이 밀린다. max() 를 쓰는 이유는 원래 여백(20px)보다 작아지면
+ * 안 되기 때문이다.
+ */
+.safe-x {
+  padding-left: max(var(--gutter-x, 1.25rem), env(safe-area-inset-left));
+  padding-right: max(var(--gutter-x, 1.25rem), env(safe-area-inset-right));
+}
+
+/* 상단 고정 요소 — 상태바/노치 아래로 */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* 하단까지 내려오는 패널 — 홈 인디케이터 위로 */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/*
+ * 터치 기기에서의 최소 버튼 크기.
+ *
+ * 버튼 sm 은 높이 32px 이다. 마우스로는 충분하지만 손가락에는 작다
+ * (WCAG 2.2 Target Size 는 24px 이 최소, 44px 이 권장). 헤더의 '경로 찾기'가
+ * 모바일에서 이 크기라 특히 문제였다.
+ *
+ * pointer:coarse 로 거는 이유는 터치로 조작하는 기기에서만 키우기 위해서다.
+ * 화면 폭으로 걸면 창을 줄인 데스크톱에서도 버튼이 커진다.
+ */
+@media (pointer: coarse) {
+  :where(button, [role='button'], [data-button]):not(.leaflet-container *) {
+    min-height: 40px;
+  }
+
+  /*
+   * 손가락으로 눌렀을 때 파란 사각형이 번쩍이는 걸 없앤다.
+   * 우리 버튼에는 이미 active 상태가 있어서 두 개가 겹치면 지저분하다.
+   */
+  a,
+  button,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
   }
 }

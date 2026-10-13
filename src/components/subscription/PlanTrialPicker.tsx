@@ -29,7 +29,7 @@ export function PlanTrialPicker({
   const body = (
     <>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-[1rem] font-bold text-ink-900">요금제 체험</h2>
+        <h2 className="font-display font-normal text-[1rem] text-night">요금제 체험</h2>
         <span className="rounded-full bg-brand-600 px-2.5 py-0.5 text-[0.6875rem] font-semibold text-white">
           지금 {current.name}
         </span>

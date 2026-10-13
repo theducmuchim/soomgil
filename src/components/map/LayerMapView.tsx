@@ -307,7 +307,7 @@ function LayerDetail({
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-[1rem] font-bold text-ink-900">{areaName}</h3>
+        <h3 className="font-display font-normal text-[1rem] text-night">{areaName}</h3>
         <span
           className="rounded-full px-2.5 py-1 text-[0.75rem] font-semibold text-white"
           style={{ backgroundColor: scoreColor(score) }}

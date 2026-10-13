@@ -34,14 +34,25 @@ const SEASON_AWARE = ['/', '/route', '/risk-map', '/layers', '/stats', '/mypage'
 export function SeasonToggle({
   /** 지금 실제 계절 — 아무것도 선택하지 않았을 때의 기본값 */
   currentSeason,
+  /*
+   * 이 인스턴스가 담당하지 않을 경로.
+   *
+   * 홈은 랜딩 히어로가 화면을 꽉 채워야 해서 헤더가 사진 위로 떠 있다.
+   * 그 자리(레이아웃의 헤더 바로 아래)에 이 띠가 끼면 사진이 잘린다.
+   * 그래서 홈에서는 레이아웃 인스턴스를 끄고, 페이지가 히어로 **아래**에
+   * 직접 한 번 더 렌더한다 (app/page.tsx).
+   */
+  omitPaths,
 }: {
   currentSeason: Season;
+  omitPaths?: string[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   if (!SEASON_AWARE.includes(pathname)) return null;
+  if (omitPaths?.includes(pathname)) return null;
 
   const selected = (searchParams.get('season') as Season) ?? currentSeason;
   const active = SEASON_ORDER.includes(selected) ? selected : currentSeason;

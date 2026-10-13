@@ -110,7 +110,7 @@ export function AdSlot({
   const banner = (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl border border-line bg-surface-raised',
+        'relative overflow-hidden rounded-xl border border-cream-line bg-surface-raised',
         variant === 'leaderboard' ? 'min-h-[96px] px-5 py-4' : 'min-h-[72px] px-4 py-3.5',
       )}
       // 스크린리더에는 광고임을 먼저 알린다
@@ -125,7 +125,7 @@ export function AdSlot({
       <div className="flex items-center gap-4">
         {/* 브랜드 로고가 들어갈 자리 */}
         <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-dashed border-line-strong bg-surface-sunken sm:h-14 sm:w-14"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-dashed border-cream-line bg-cream-deep sm:h-14 sm:w-14"
           aria-hidden="true"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 text-ink-300" fill="none">
@@ -162,7 +162,7 @@ export function AdSlot({
           </p>
         </div>
 
-        <span className="hidden shrink-0 rounded-xl border border-line-strong px-3.5 py-2 text-[0.8125rem] font-semibold text-ink-400 sm:block">
+        <span className="hidden shrink-0 rounded-xl border border-cream-line px-3.5 py-2 text-[0.8125rem] font-semibold text-ink-400 sm:block">
           자세히 보기
         </span>
       </div>

@@ -54,10 +54,10 @@ export default function AboutPage() {
         description="왜 이 문제를 풀기로 했는지, 어떻게 만들었는지 정리했습니다."
       />
 
-      <Container className="py-8 sm:py-10">
+      <Container reveal className="py-8 sm:py-10">
         {/* 문제의식 */}
         <section className="max-w-3xl">
-          <h2 className="text-[1.25rem] font-bold text-ink-900">
+          <h2 className="font-display font-normal text-[1.25rem] text-night">
             왜 이 문제를 골랐나
           </h2>
           <div className="mt-3 space-y-3.5 text-[0.875rem] leading-relaxed text-ink-700">
@@ -84,7 +84,7 @@ export default function AboutPage() {
 
         {/* 기술 구성 */}
         <section className="mt-12">
-          <h2 className="text-[1.25rem] font-bold text-ink-900">
+          <h2 className="font-display font-normal text-[1.25rem] text-night">
             공공데이터에서 경로 추천까지
           </h2>
           <ol className="mt-5 space-y-3">
@@ -112,7 +112,7 @@ export default function AboutPage() {
 
         {/* 팀 */}
         <section className="mt-12">
-          <h2 className="text-[1.25rem] font-bold text-ink-900">팀 구성</h2>
+          <h2 className="font-display font-normal text-[1.25rem] text-night">팀 구성</h2>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {ROLES.map((member) => (
               <li
@@ -150,7 +150,7 @@ export default function AboutPage() {
 
         {/* 앞으로 */}
         <section className="mt-12 rounded-2xl border border-brand-200 bg-brand-50/60 p-5 sm:p-7">
-          <h2 className="text-[1rem] font-bold text-brand-700">앞으로의 계획</h2>
+          <h2 className="font-display font-normal text-[1rem] text-brand-700">앞으로의 계획</h2>
           <ul className="mt-4 space-y-2.5 text-[0.875rem] leading-relaxed text-ink-700">
             <li>
               · 공공데이터포털 인증키를 발급받아 실시간 데이터로 전환합니다. 화면은 그대로

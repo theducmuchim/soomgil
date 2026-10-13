@@ -19,11 +19,11 @@ export default function PricingPage() {
         description="가입 없이 오늘의 위험도와 추천 경로를 확인할 수 있습니다. 광고만 빼고 싶다면 라이트, 매일 다니는 길이 있다면 프리미엄, 부모님 것까지 묶으려면 패밀리를 보세요."
       />
 
-      <Container className="py-8 sm:py-10">
+      <Container reveal className="py-8 sm:py-10">
         <PlanComparison />
 
         <section className="mt-10 rounded-2xl border border-line bg-surface-sunken p-5 sm:p-6">
-          <h2 className="text-[1rem] font-bold text-ink-900">
+          <h2 className="font-display font-normal text-[1rem] text-night">
             구독료는 어디에 쓰이나요
           </h2>
           <ul className="mt-3.5 space-y-2.5 text-[0.875rem] leading-relaxed text-ink-700">

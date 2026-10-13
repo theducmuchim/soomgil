@@ -3,6 +3,7 @@ import { INDICATORS, RISK_LEVELS } from '@/config/indicators';
 import { formatValue } from '@/lib/utils/format';
 import { scoreTextColor } from '@/lib/risk/color';
 import { cn } from '@/lib/utils/cn';
+import { GrowBar } from '@/components/motion/GrowBar';
 
 /**
  * 지표 하나의 현재값 카드.
@@ -29,7 +30,7 @@ export function IndicatorCard({
     return (
       <div
         className={cn(
-          'rounded-xl border border-dashed border-line bg-surface-raised p-4',
+          'rounded-xl border border-dashed border-cream-line bg-surface-raised p-4',
           className,
         )}
       >
@@ -45,18 +46,18 @@ export function IndicatorCard({
   }
 
   return (
-    <div className={cn('rounded-xl border border-line bg-surface p-4', className)}>
+    <div className={cn('rounded-xl border border-cream-line bg-surface p-4', className)}>
       <div className="flex items-start justify-between gap-2">
         <p className="text-[0.8125rem] font-semibold text-ink-700">{meta.shortLabel}</p>
         {weight !== undefined && weight > 0 && (
-          <span className="tabular shrink-0 rounded bg-surface-sunken px-1.5 py-0.5 text-[0.6875rem] font-medium text-ink-400">
+          <span className="tabular shrink-0 rounded bg-cream-deep px-1.5 py-0.5 text-[0.6875rem] font-medium text-ink-400">
             비중 {Math.round(weight * 100)}%
           </span>
         )}
       </div>
 
       <p className="mt-2.5 flex items-baseline gap-1">
-        <span className="tabular text-[1.25rem] leading-none font-bold text-ink-900">
+        <span className="tabular font-display text-[1.5rem] leading-none font-normal text-night">
           {formatValue(reading.value, meta.unit)}
         </span>
         {meta.unit !== '℃' && (
@@ -66,12 +67,11 @@ export function IndicatorCard({
         )}
       </p>
 
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-line/70">
-        <div
-          className="h-full rounded-full"
-          style={{ width: `${Math.max(2, reading.normalized)}%`, backgroundColor: color }}
-        />
-      </div>
+      <GrowBar
+        pct={Math.max(2, reading.normalized)}
+        className="mt-3 h-1.5 bg-cream-deep"
+        style={{ backgroundColor: color }}
+      />
 
       <p className="mt-2 flex items-center justify-between text-[0.6875rem]">
         <span className="font-semibold" style={{ color: levelMeta.color }}>

@@ -98,7 +98,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
               : 'border-risk-low/30 bg-risk-low/8',
           )}
         >
-          <h2 className="text-[1rem] font-bold text-ink-900">
+          <h2 className="font-display font-normal text-[1rem] text-night">
             {triggered.length > 0
               ? `관심 지역 ${triggered.length}곳이 알림 기준을 넘었습니다`
               : '관심 지역이 모두 알림 기준 아래입니다'}
@@ -132,7 +132,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
       {/* 관심 지역 선택 */}
       <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[1rem] font-bold text-ink-900">관심 지역</h2>
+          <h2 className="font-display font-normal text-[1rem] text-night">관심 지역</h2>
           <span className="text-[0.75rem] text-ink-400">
             {multiFavorite ? '자치구 전체' : `${favoriteLimit}곳까지`}
           </span>
@@ -181,7 +181,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
         )}
       >
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[1rem] font-bold text-ink-900">알림 기준 등급</h2>
+          <h2 className="font-display font-normal text-[1rem] text-night">알림 기준 등급</h2>
           {!alerts && (
             <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
               프리미엄
@@ -236,7 +236,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
 
       {/* 자주 쓰는 경로 */}
       <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-        <h2 className="text-[1rem] font-bold text-ink-900">자주 쓰는 경로</h2>
+        <h2 className="font-display font-normal text-[1rem] text-night">자주 쓰는 경로</h2>
         <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink-500">
           최대 5개까지 저장됩니다. 누르면 바로 경로 안내로 이동합니다.
         </p>
@@ -355,7 +355,7 @@ function FamilySeats({ seats }: { seats: number }) {
   return (
     <section className="rounded-2xl border border-brand-200 bg-brand-50/40 p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-[1rem] font-bold text-ink-900">가족 계정</h2>
+        <h2 className="font-display font-normal text-[1rem] text-night">가족 계정</h2>
         <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
           패밀리
         </span>

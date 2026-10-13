@@ -2,7 +2,13 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import type { AreaRisk, RouteOption, RouteResult, RouteSegment } from '@/types';
+import type {
+  AreaRisk,
+  RouteNeedId,
+  RouteOption,
+  RouteResult,
+  RouteSegment,
+} from '@/types';
 import Link from 'next/link';
 import { MapSkeleton } from '@/components/map';
 import { RiskBadge } from '@/components/risk/RiskBadge';
@@ -52,8 +58,8 @@ export function RouteView({
 
   if (!selected) {
     return (
-      <div className="rounded-2xl border border-line bg-surface p-8 text-center">
-        <p className="text-[0.875rem] font-semibold text-ink-900">
+      <div className="rounded-2xl border border-cream-line bg-surface p-8 text-center">
+        <p className="text-[0.875rem] font-semibold text-night">
           경로를 찾지 못했습니다
         </p>
         <p className="mt-2 text-[0.8125rem] text-ink-500">
@@ -63,9 +69,17 @@ export function RouteView({
     );
   }
 
+  /*
+    막대 길이의 기준.
+    절대값(그늘 0.42)은 사람에게 아무 뜻도 없다. 후보 중 최댓값을 100%로 두고
+    길이로만 비교하게 한다 — 알고 싶은 건 "다른 안보다 그늘이 많은가"다.
+  */
+  const maxShade = Math.max(...visibleOptions.map((o) => o.traits.shadeFraction), 0.01);
+  const maxRoad = Math.max(...visibleOptions.map((o) => o.traits.roadFactor), 1);
+
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-6">
-      <div className="order-2 h-[46vh] min-h-[320px] overflow-hidden rounded-2xl border border-line lg:order-1 lg:h-[560px]">
+      <div className="order-2 h-[46vh] min-h-[320px] overflow-hidden rounded-2xl border border-cream-line lg:order-1 lg:h-[560px]">
         <RouteMap
           result={routeCompare ? result : { ...result, options: visibleOptions }}
           dongRisks={dongRisks}
@@ -75,16 +89,42 @@ export function RouteView({
 
       <div className="order-1 flex flex-col gap-3 lg:order-2">
         <ul className="flex flex-col gap-2.5">
-          {visibleOptions.map((option) => (
+          {visibleOptions.map((option, i) => (
             <li key={option.id}>
               <RouteOptionCard
                 option={option}
                 selected={option.id === selected.id}
                 onSelect={() => setSelectedId(option.id)}
+                maxShade={maxShade}
+                maxRoad={maxRoad}
+                index={i}
               />
             </li>
           ))}
         </ul>
+
+        {/*
+          아무 경로도 어느 니즈에서 앞서지 못한 경우.
+          예전에는 이때도 '가장 안전한 길'이라는 이름이 붙어 있었는데,
+          차이가 없는데 이름만 다르면 사람은 없는 이득을 보고 우회를 택한다.
+        */}
+        {visibleOptions[0]?.traits.night && (
+          <p className="rounded-xl border border-cream-line bg-cream-deep px-4 py-3 text-[0.75rem] leading-relaxed text-ink-500">
+            지금은 해가 진 뒤라 그늘 대신 <strong className="font-semibold">밤 조도</strong>로
+            비교합니다. 가로등 대장이 공개돼 있지 않아 도로 유형과 주변 건물 밀도로
+            추정한 값이며, 실제 점등 상태와 다를 수 있습니다.{' '}
+            <Link href="/guide#road" className="underline underline-offset-2">
+              계산 방법
+            </Link>
+          </p>
+        )}
+
+        {visibleOptions.every((o) => o.bestFor.length === 0) && (
+          <p className="rounded-xl border border-cream-line bg-cream-deep px-4 py-3 text-[0.75rem] leading-relaxed text-ink-500">
+            지금 이 구간에서는 경로안 사이에 뚜렷한 차이가 없습니다. 공기·그늘·큰길·시간
+            어느 쪽으로도 의미 있게 앞서는 길이 없어, 어느 길로 가셔도 비슷합니다.
+          </p>
+        )}
 
         {!routeCompare && hiddenCount > 0 && <RouteUpsell hiddenCount={hiddenCount} />}
 
@@ -123,7 +163,7 @@ function RouteDetailTabs({
   return (
     <div className="flex flex-col gap-2.5">
       <div
-        className="flex items-center gap-1 rounded-xl bg-surface-sunken p-1"
+        className="flex items-center gap-1 rounded-xl bg-cream-deep p-1"
         role="tablist"
         aria-label="경로 상세"
       >
@@ -157,14 +197,158 @@ function RouteDetailTabs({
   );
 }
 
+/**
+ * 경로 성격 칩.
+ *
+ * 카드 제목은 이 경로가 **가장 잘하는 것** 하나만 말한다. 둘 이상에서
+ * 앞서는 경로도 있고("그늘이 가장 많은 길"이면서 동시에 큰길도 덜 지나는),
+ * 그건 제목 한 줄에 안 들어간다. 칩으로 나머지를 마저 보여준다.
+ *
+ * 칩에 색을 쓰지 않는 게 중요하다. 이 화면에서 색은 위험 등급이 쓰고 있고,
+ * 칩까지 색을 입으면 "초록 칩이 붙었으니 안전한가" 같은 오독이 생긴다.
+ */
+const NEED_CHIP: Record<RouteNeedId, string> = {
+  clean: '공기 좋음',
+  shade: '그늘 많음',
+  quiet: '골목 위주',
+  fast: '빠름',
+  lit: '밤에 밝음',
+};
+
+function NeedChips({ option, selected }: { option: RouteOption; selected: boolean }) {
+  if (option.bestFor.length === 0) return null;
+  return (
+    <ul className="mt-3 flex flex-wrap gap-1.5">
+      {option.bestFor.map((need) => (
+        <li
+          key={need}
+          className={cn(
+            'rounded-full border px-2 py-0.5 text-[0.6875rem] font-medium',
+            selected
+              ? 'border-cream/25 text-cream/80'
+              : 'border-cream-line text-ink-500',
+          )}
+        >
+          {NEED_CHIP[need]}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * 그늘 · 큰길 두 줄짜리 막대.
+ *
+ * 숫자(0.42, 1.08)를 그대로 보여줘 봐야 아무 뜻도 전달되지 않는다. 사람이
+ * 알고 싶은 건 "다른 안보다 그늘이 많은가"라는 상대적인 것이라, 후보 중
+ * 최댓값을 100%로 두고 길이로만 비교하게 한다.
+ */
+function TraitBars({
+  option,
+  maxShade,
+  maxRoad,
+  selected,
+}: {
+  option: RouteOption;
+  maxShade: number;
+  maxRoad: number;
+  selected: boolean;
+}) {
+  /*
+    밤에는 그늘 자리에 조도를 놓는다.
+    해가 진 뒤 그늘 비율은 항상 0이라 막대가 전부 비어 보이고, 그 빈 막대가
+    "이 경로엔 그늘이 없다"로 잘못 읽힌다. 잴 이유가 없는 값은 빼는 게 맞다.
+  */
+  const rows = option.traits.night
+    ? [
+        {
+          label: '조도',
+          pct: option.traits.lighting * 100,
+          value: `${Math.round(option.traits.lighting * 100)}%`,
+        },
+        {
+          label: '골목',
+          pct: maxRoad > 0 ? (option.traits.roadFactor / maxRoad) * 100 : 0,
+          value:
+            option.traits.roadFactor <= 1.001
+              ? '많음'
+              : `×${option.traits.roadFactor.toFixed(2)}`,
+        },
+      ]
+    : [
+        {
+          label: '그늘',
+          pct: maxShade > 0 ? (option.traits.shadeFraction / maxShade) * 100 : 0,
+          value: `${Math.round(option.traits.shadeFraction * 100)}%`,
+        },
+        {
+          label: '큰길',
+          pct: maxRoad > 0 ? (option.traits.roadFactor / maxRoad) * 100 : 0,
+          value:
+            option.traits.roadFactor <= 1.001
+              ? '적음'
+              : `×${option.traits.roadFactor.toFixed(2)}`,
+        },
+      ];
+
+  return (
+    <dl className="mt-3 space-y-1.5">
+      {rows.map((row) => (
+        <div key={row.label} className="flex items-center gap-2">
+          <dt
+            className={cn(
+              'w-7 shrink-0 text-[0.6875rem]',
+              selected ? 'text-cream/55' : 'text-ink-400',
+            )}
+          >
+            {row.label}
+          </dt>
+          <dd className="flex flex-1 items-center gap-2">
+            <span
+              className={cn(
+                'h-1 flex-1 overflow-hidden rounded-full',
+                selected ? 'bg-cream/15' : 'bg-cream-deep',
+              )}
+            >
+              <span
+                className={cn(
+                  'block h-full rounded-full transition-[width] duration-700 ease-out',
+                  selected ? 'bg-cream/70' : 'bg-night/45',
+                )}
+                style={{ width: `${Math.max(3, Math.min(100, row.pct))}%` }}
+              />
+            </span>
+            <span
+              className={cn(
+                'tabular w-12 shrink-0 text-right text-[0.6875rem] font-medium',
+                selected ? 'text-cream/70' : 'text-ink-500',
+              )}
+            >
+              {row.value}
+            </span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 function RouteOptionCard({
   option,
   selected,
   onSelect,
+  maxShade,
+  maxRoad,
+  index,
 }: {
   option: RouteOption;
   selected: boolean;
   onSelect: () => void;
+  /** 후보들 중 최댓값 — 막대 길이의 기준 */
+  maxShade: number;
+  maxRoad: number;
+  /** 목록에서의 순서 — 등장 지연에 쓴다 */
+  index: number;
 }) {
   const color = scoreTextColor(option.exposureScore);
   const isBaseline = option.kind === 'fastest';
@@ -175,16 +359,38 @@ function RouteOptionCard({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        'w-full rounded-2xl border p-4 text-left transition-colors',
+        'lift w-full rounded-2xl border p-4 text-left',
+        /*
+          선택된 카드는 테두리만 바꾸지 않고 면째로 짙게 내린다.
+
+          이 목록은 세 안(가장 안전 · 균형 · 최단)을 나란히 비교하는 자리라,
+          어느 걸 고른 상태인지가 한눈에 보여야 한다. 예전에는 검정 테두리와
+          ring 1px 이었는데, 크림 지면 위 흰 카드 셋 사이에서 1px 차이는
+          훑어볼 때 잡히지 않았다.
+        */
         selected
-          ? 'elevated border-brand-600 bg-surface ring-1 ring-brand-600'
-          : 'border-line bg-surface hover:border-brand-200 hover:bg-surface-sunken',
+          ? 'elevated border-forest-700 bg-forest-900'
+          : 'border-cream-line bg-surface hover:border-night/25 hover:bg-cream-deep',
       )}
+      style={{ animationDelay: `${index * 70}ms` }}
+      data-rise=""
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[0.875rem] font-bold text-ink-900">{option.label}</p>
-          <p className="tabular mt-1 text-[0.8125rem] text-ink-500">
+          <p
+            className={cn(
+              'font-display text-[1.125rem] leading-none font-normal',
+              selected ? 'text-cream' : 'text-night',
+            )}
+          >
+            {option.label}
+          </p>
+          <p
+            className={cn(
+              'tabular mt-1.5 text-[0.8125rem]',
+              selected ? 'text-cream/70' : 'text-ink-500',
+            )}
+          >
             {formatDuration(option.durationSec)} · {formatDistance(option.distanceM)}
           </p>
         </div>
@@ -193,14 +399,29 @@ function RouteOptionCard({
 
       <div className="mt-3 flex items-end justify-between gap-3">
         <div>
-          <p className="text-[0.6875rem] text-ink-400">노출 점수</p>
-          <p className="tabular text-[1.25rem] leading-none font-bold" style={{ color }}>
+          <p
+            className={cn(
+              'text-[0.6875rem]',
+              selected ? 'text-cream/55' : 'text-ink-400',
+            )}
+          >
+            노출 점수
+          </p>
+          <p
+            className="tabular font-display text-[1.625rem] leading-none font-normal"
+            style={{ color: selected ? scoreColor(option.exposureScore) : color }}
+          >
             {Math.round(option.exposureScore)}
           </p>
         </div>
 
         {isBaseline ? (
-          <span className="rounded-full bg-surface-sunken px-2 py-1 text-[0.6875rem] font-medium text-ink-400">
+          <span
+            className={cn(
+              'rounded-full px-2 py-1 text-[0.6875rem] font-medium',
+              selected ? 'bg-cream/12 text-cream/70' : 'bg-cream-deep text-ink-400',
+            )}
+          >
             비교 기준
           </span>
         ) : (
@@ -209,13 +430,18 @@ function RouteOptionCard({
               'rounded-full px-2 py-1 text-[0.75rem] font-bold',
               improved
                 ? 'bg-risk-low/12 text-risk-low'
-                : 'bg-surface-sunken text-ink-400',
+                : selected
+                  ? 'bg-cream/12 text-cream/70'
+                  : 'bg-cream-deep text-ink-400',
             )}
           >
             추천 대비 {formatDelta(option.exposureDeltaPct, 1)}
           </span>
         )}
       </div>
+
+      <NeedChips option={option} selected={selected} />
+      <TraitBars option={option} maxShade={maxShade} maxRoad={maxRoad} selected={selected} />
     </button>
   );
 }
@@ -232,9 +458,9 @@ function SegmentList({ option }: { option: RouteOption }) {
   )[0];
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-4">
+    <div className="rounded-2xl border border-cream-line bg-surface p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[0.8125rem] font-semibold text-ink-900">
+        <p className="text-[0.8125rem] font-semibold text-night">
           지나가는 구간 {option.segments.length}곳
         </p>
         {worst && (
@@ -257,7 +483,7 @@ function SegmentList({ option }: { option: RouteOption }) {
                 style={{ backgroundColor: scoreColor(segment.effectiveScore) }}
                 aria-hidden="true"
               />
-              <span className="flex-1 truncate text-[0.8125rem] font-medium text-ink-900">
+              <span className="flex-1 truncate text-[0.8125rem] font-medium text-night">
                 {segment.areaName}
               </span>
 
@@ -288,7 +514,7 @@ function SegmentList({ option }: { option: RouteOption }) {
         })}
       </ul>
 
-      <p className="mt-3 border-t border-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
+      <p className="mt-3 border-t border-cream-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
         <span className="text-risk-high">▲</span> 표시는 바람이 불어오는 쪽에 더 나쁜
         지역이 있어 실제 노출이 그 지역 값보다 높게 잡힌 구간입니다. 색 배지는 도로
         유형에 따른 교통 배출 노출 보정입니다 —{' '}
@@ -338,7 +564,7 @@ function CanyonChip({ segment }: { segment: RouteSegment }) {
   return (
     <span
       title={`양옆 건물이 높아 배기가스가 빠져나가기 어려운 구간입니다. 교통 배출 노출 ×${segment.canyonFactor}`}
-      className="shrink-0 rounded bg-ink-900/8 px-1.5 py-px text-[0.6875rem] font-semibold text-ink-700"
+      className="shrink-0 rounded bg-night/8 px-1.5 py-px text-[0.6875rem] font-semibold text-ink-700"
     >
       고층 밀집
     </span>
@@ -380,8 +606,8 @@ function RoadChip({ segment }: { segment: RouteSegment }) {
  */
 function RouteUpsell({ hiddenCount }: { hiddenCount: number }) {
   return (
-    <div className="rounded-2xl border border-dashed border-brand-300 bg-brand-50/50 p-4">
-      <p className="text-[0.8125rem] font-bold text-brand-700">
+    <div className="rounded-2xl border border-dashed border-cream-line bg-cream-deep p-4">
+      <p className="text-[0.8125rem] font-bold text-night">
         경로 {hiddenCount}개를 더 계산했습니다
       </p>
       <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink-600">
@@ -423,10 +649,10 @@ function ExposureBreakdown({
   const maxPoints = Math.max(...area.breakdown.contributions.map((c) => c.points), 1);
 
   return (
-    <div className="rounded-2xl border border-brand-200 bg-brand-50/40 p-4">
+    <div className="rounded-2xl border border-forest-500/25 bg-forest-500/8 p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[0.8125rem] font-semibold text-brand-700">구간 위험 요인</p>
-        <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
+        <p className="text-[0.8125rem] font-semibold text-forest-700">구간 위험 요인</p>
+        <span className="rounded bg-forest-700 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-cream">
           프리미엄
         </span>
       </div>
@@ -466,7 +692,7 @@ function ExposureBreakdown({
         })}
       </ul>
 
-      <p className="mt-3 border-t border-brand-200/70 pt-2.5 text-[0.6875rem] leading-relaxed text-ink-500">
+      <p className="mt-3 border-t border-forest-500/20 pt-2.5 text-[0.6875rem] leading-relaxed text-ink-500">
         보정 전 {area.breakdown.baseScore}점에 대기정체 보정{' '}
         {formatDelta(area.breakdown.stagnationDeltaPct, 1)}를 적용해 최종{' '}
         {area.breakdown.score}점입니다.

@@ -281,6 +281,43 @@ export interface RouteGuide {
 
 export type RouteKind = 'safest' | 'balanced' | 'fastest';
 
+/**
+ * 경로안이 만족시키는 니즈.
+ *
+ * 노출 점수 하나로 줄을 세우면 후보들이 1~3점 차이에 몰려서, 화면에는
+ * 순위가 보이지만 사람은 고를 근거가 없다. 실제로 갈리는 건 다른 축이다.
+ *
+ *   clean  공기 — 노출 점수가 가장 낮다
+ *   shade  그늘 — 볕을 가장 적게 받는다 (여름에 가장 크게 체감)
+ *   quiet  큰길 — 차도에 가장 덜 붙어 걷는다
+ *   fast   시간 — 가장 빨리 도착한다
+ *   lit    조도 — 밤에 비교적 밝다 (해가 진 뒤에만 나온다)
+ *
+ * 한 경로가 둘 이상을 동시에 만족시킬 수 있다. 아무것도 앞서지 않으면
+ * 빈 배열이고, 그때 그 경로는 '추천 경로'로만 불린다.
+ */
+export type RouteNeedId = 'clean' | 'shade' | 'quiet' | 'fast' | 'lit';
+
+/** 경로의 성격 — 측정값 그대로. 라벨은 이 값들을 비교해서 붙인다. */
+export interface RouteTraits {
+  /** 그늘을 만날 비율 0~1 (거리 가중). 0은 '볕이 든다'가 아니라 '모른다'일 수 있다 */
+  shadeFraction: number;
+  /** 도로유형 보정 평균. 1이면 보정 없음, 클수록 차도에 붙어 걷는다 */
+  roadFactor: number;
+  /**
+   * 평균 도로 폭 (m) — 도로명 등급에서 추정. 작을수록 골목길 위주다.
+   * 대로 40 · 로 20 · 길 10 (lib/risk/road-exposure.ts 의 estimateRoadWidthM)
+   */
+  roadWidthM: number;
+  /**
+   * 야간 조도 추정 0~1 — 가로등 데이터가 아니라 도로 유형과 건폐율로 만든
+   * 추정치다. 밤이 아니면 화면에 꺼낼 이유가 없다 (lib/risk/lighting.ts).
+   */
+  lighting: number;
+  /** 이 경로를 계산한 시각이 밤이었는가 */
+  night: boolean;
+}
+
 export interface RouteOption {
   id: string;
   kind: RouteKind;
@@ -293,6 +330,16 @@ export interface RouteOption {
   level: RiskLevel;
   /** 최단경로 대비 노출 증감률 (-32 = 32% 감소) */
   exposureDeltaPct: number;
+  /** 이 경로의 측정된 성격 */
+  traits: RouteTraits;
+  /**
+   * 이 경로가 다른 후보들보다 앞서는 니즈.
+   *
+   * 생성 방식이 아니라 **측정 결과**로 붙인다. '그늘 우선으로 만든 경로'가
+   * 아니라 '실제로 재 보니 그늘이 가장 많은 경로'다. 의미 있는 차이가
+   * 없으면 아무것도 넣지 않는다 — 없는 이득을 있다고 말하지 않기 위해서다.
+   */
+  bestFor: RouteNeedId[];
   /** 턴바이턴 안내 — TMAP 경로에만 있다 (격자 경로에서는 빈 배열) */
   guides: RouteGuide[];
 }

@@ -155,15 +155,15 @@ function PlanCard({
 
       <h3
         className={cn(
-          'text-[1rem] font-bold',
-          plan.featured ? 'text-brand-700' : 'text-ink-900',
+          'font-display text-[1.25rem] leading-none font-normal',
+          plan.featured ? 'text-forest-700' : 'text-night',
         )}
       >
         {plan.name}
       </h3>
 
       <p className="mt-2 flex items-baseline gap-1.5">
-        <span className="tabular text-[1.25rem] leading-none font-bold text-ink-900">
+        <span className="tabular font-display text-[1.75rem] leading-none font-normal text-night">
           {plan.monthlyPrice === 0
             ? '0원'
             : `${plan.monthlyPrice.toLocaleString('ko-KR')}원`}

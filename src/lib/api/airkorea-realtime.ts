@@ -27,6 +27,9 @@ export function fetchAirRealtime(
       numOfRows: 100,
     },
     forceMock: preview,
+    // 에어코리아는 장애 중에도 '00 정상'과 함께 측정값 0건을 돌려준다.
+    // 그대로 받으면 미세먼지가 전부 빠진 채 '실시간'으로 표시되므로 실패로 본다.
+    requireItems: true,
     sink,
     revalidate: CACHE_TTL.airkorea,
     mock: () => buildRealtimeResponse(scenario),

@@ -14,7 +14,14 @@ import { cn } from '@/lib/utils/cn';
  * '가' 글자를 세 크기로 보여주는 건 국내 공공기관 사이트에서 널리 쓰이는
  * 표기라 별도 설명 없이도 무엇을 하는 버튼인지 알아볼 수 있다.
  */
-export function UiScaleToggle({ className }: { className?: string }) {
+export function UiScaleToggle({
+  className,
+  /** 어두운 면(홈 히어로 오버레이 헤더) 위에 놓일 때는 'light' */
+  tone = 'dark',
+}: {
+  className?: string;
+  tone?: 'dark' | 'light';
+}) {
   const [stored, setStored] = useStored<UiScale>(UI_SCALE_KEY, 'normal');
   const scale = isUiScale(stored) ? stored : 'normal';
 
@@ -48,9 +55,17 @@ export function UiScaleToggle({ className }: { className?: string }) {
             title={option.name}
             className={cn(
               'flex h-8 w-8 items-center justify-center rounded-full font-bold transition-colors',
-              active
-                ? 'bg-brand-600 text-white'
-                : 'text-ink-500 hover:bg-surface-sunken hover:text-ink-900',
+              /*
+                어두운 면 위에서는 검정 pill(bg-brand-600)이 배경에 묻혀
+                어느 단계가 켜져 있는지 보이지 않는다. 크림으로 반전한다.
+              */
+              tone === 'light'
+                ? active
+                  ? 'bg-cream text-night'
+                  : 'text-cream/70 hover:bg-cream/15 hover:text-cream'
+                : active
+                  ? 'bg-brand-600 text-white'
+                  : 'text-ink-500 hover:bg-surface-sunken hover:text-ink-900',
             )}
           >
             {/*

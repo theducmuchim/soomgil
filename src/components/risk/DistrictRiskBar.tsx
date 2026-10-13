@@ -4,6 +4,8 @@ import { INDICATORS, RISK_LEVELS } from '@/config/indicators';
 import { scoreTextColor } from '@/lib/risk/color';
 import { formatDelta } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
+import { GrowBar } from '@/components/motion/GrowBar';
+import { CountUp } from '@/components/motion/CountUp';
 
 /**
  * 자치구 한 곳의 위험도 막대.
@@ -32,25 +34,24 @@ export function DistrictRiskBar({
   const inner = (
     <>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[0.875rem] font-semibold text-ink-900">{area.areaName}</span>
+        <span className="text-[0.875rem] font-semibold text-night">{area.areaName}</span>
         <span className="flex items-baseline gap-1.5">
-          <span className="tabular text-[1rem] font-bold" style={{ color }}>
-            {Math.round(area.score)}
+          <span
+            className="font-display text-[1.25rem] leading-none font-normal"
+            style={{ color }}
+          >
+            <CountUp to={area.score} />
           </span>
           <span className="text-[0.75rem] font-medium text-ink-400">{levelLabel}</span>
         </span>
       </div>
 
-      <div
-        className="mt-2 h-2 w-full overflow-hidden rounded-full bg-line/70"
-        role="img"
-        aria-label={`${area.areaName} 위험도 ${Math.round(area.score)}점, ${levelLabel}`}
-      >
-        <div
-          className="h-full rounded-full transition-[width] duration-500"
-          style={{ width: `${widthPct}%`, backgroundColor: color }}
-        />
-      </div>
+      <GrowBar
+        pct={widthPct}
+        className="mt-2 h-2 bg-cream-deep"
+        style={{ backgroundColor: color }}
+        label={`${area.areaName} 위험도 ${Math.round(area.score)}점, ${levelLabel}`}
+      />
 
       {showBreakdown && (
         <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.75rem] text-ink-400">
@@ -75,7 +76,7 @@ export function DistrictRiskBar({
       href={href}
       className={cn(
         'block rounded-xl px-3 py-3 transition-colors',
-        '-mx-3 hover:bg-surface-sunken',
+        '-mx-3 hover:bg-cream-deep',
       )}
     >
       {inner}

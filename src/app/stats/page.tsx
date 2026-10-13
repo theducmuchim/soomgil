@@ -56,7 +56,7 @@ export default async function StatsPage({
           <div className="flex items-center gap-2.5 rounded-xl border border-line bg-surface px-4 py-2.5">
             <div>
               <p className="text-[0.6875rem] text-ink-400">대전 평균</p>
-              <p className="tabular text-[1.25rem] leading-tight font-bold text-ink-900">
+              <p className="tabular font-display text-[1.5rem] leading-none font-normal text-night">
                 {Math.round(snapshot.cityAverage.score)}
               </p>
             </div>
@@ -65,7 +65,7 @@ export default async function StatsPage({
         }
       />
 
-      <Container className="py-8 sm:py-10">
+      <Container reveal className="py-8 sm:py-10">
         {/* 결론 먼저 */}
         <div className="grid gap-3 sm:grid-cols-3">
           <SummaryCard
@@ -92,7 +92,7 @@ export default async function StatsPage({
           {/* 자치구 비교 */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[1rem] font-bold text-ink-900">자치구별 위험도</h2>
+              <h2 className="font-display font-normal text-[1rem] text-night">자치구별 위험도</h2>
               <p className="text-[0.75rem] text-ink-400">
                 대기정체 보정 후 · 100점 만점
               </p>
@@ -109,7 +109,7 @@ export default async function StatsPage({
           {/* 시간대별 추이 */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[1rem] font-bold text-ink-900">앞으로 24시간 추이</h2>
+              <h2 className="font-display font-normal text-[1rem] text-night">앞으로 24시간 추이</h2>
               <p className="text-[0.75rem] text-ink-400">대전 평균</p>
             </div>
             <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-ink-500">
@@ -125,7 +125,7 @@ export default async function StatsPage({
 
         {/* 안전한 시간대 추천 */}
         <section className="mt-5 rounded-2xl border border-brand-200 bg-brand-50/60 p-5 sm:p-6">
-          <h2 className="text-[1rem] font-bold text-brand-700">
+          <h2 className="font-display font-normal text-[1rem] text-brand-700">
             지금 이후 나가기 좋은 시간대
           </h2>
           <ul className="mt-4 grid gap-2.5 sm:grid-cols-3">
@@ -198,7 +198,7 @@ function SummaryCard({
           style={{ backgroundColor: color }}
           aria-hidden="true"
         />
-        <span className="text-[1.25rem] leading-none font-bold text-ink-900">{value}</span>
+        <span className="font-display text-[1.5rem] leading-none font-normal text-night">{value}</span>
       </p>
       <p className="tabular mt-1.5 text-[0.75rem] text-ink-500">{detail}</p>
     </div>

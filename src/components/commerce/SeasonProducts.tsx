@@ -35,7 +35,7 @@ export function SeasonProducts({
           <p className="text-[0.8125rem] font-semibold tracking-wide text-brand-600">
             {season.label}철 대비 용품
           </p>
-          <h2 className="mt-2 text-[1.25rem] leading-tight font-bold text-ink-900 sm:text-[1.25rem]">
+          <h2 className="font-display font-normal mt-2 text-[1.25rem] leading-[1.22] text-night sm:text-[1.25rem]">
             {urgent
               ? '오늘 같은 날 챙기면 좋은 것들'
               : '이 계절에 미리 챙겨두면 좋은 것들'}

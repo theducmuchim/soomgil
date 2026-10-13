@@ -48,3 +48,25 @@ export const pretendard = localFont({
     'sans-serif',
   ],
 });
+
+/**
+ * 제주돌담체 — 디스플레이 전용.
+ *
+ * 워드마크와 큰 제목에만 쓴다. 획이 굵고 자폭이 넓어 본문 크기(14px 이하)에서는
+ * 읽기 어렵다. 본문은 계속 Pretendard 다.
+ *
+ * 굵기가 하나뿐인 서체다. font-weight 를 걸면 브라우저가 가짜 볼드(synthetic
+ * bold)를 그려 획이 뭉개지므로, 이 서체를 쓰는 자리에서는 weight 를 400 으로
+ * 고정한다 (globals.css 의 .display 클래스가 그렇게 한다).
+ *
+ * 원본 TTF 는 한글 전체 글리프 때문에 2.5MB 다. Pretendard 와 같은 문자 집합
+ * (KS X 1001 2,350자 + 저장소 실사용 글자 + 기호)으로 서브셋해 124KB 가 됐다.
+ * 재현 절차는 scripts/build-fonts.md 와 같다 — 원본 경로만 바꾸면 된다.
+ */
+export const jejuDoldam = localFont({
+  src: [{ path: '../../public/fonts/JejuDoldam.woff2', weight: '400', style: 'normal' }],
+  display: 'swap',
+  variable: '--font-jeju-doldam',
+  // 서브셋에 없는 글자는 시스템 명조가 대신 그린다 — 세리프 톤이 끊기지 않게
+  fallback: ['Nanum Myeongjo', 'Apple SD Gothic Neo', 'Batang', 'ui-serif', 'Georgia', 'serif'],
+});

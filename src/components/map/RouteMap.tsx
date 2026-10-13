@@ -36,7 +36,7 @@ export default function RouteMap({
   const style = (feature?: Feature<Geometry, DongFeatureProps>): PathOptions => {
     const risk = feature ? riskById.get(feature.properties.id) : undefined;
     return {
-      fillColor: risk ? scoreColor(risk.score) : '#e2e2e2',
+      fillColor: risk ? scoreColor(risk.score) : '#e3ddcc', // = --color-line (Leaflet 은 SVG 속성이라 var() 가 안 먹는다)
       // 배경이 진하면 경로선이 묻힌다. 겨울처럼 시 전역이 붉은 날에도
       // 경로가 읽히도록 옅게 깐다.
       fillOpacity: 0.3,
@@ -63,9 +63,10 @@ export default function RouteMap({
       className="h-full w-full"
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        subdomains={['a', 'b', 'c', 'd']}
+        // 베이스맵 선택 이유와 z13 상한은 DaejeonMap.tsx 참고
+        maxNativeZoom={13}
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+        attribution='Tiles &copy; <a href="https://www.esri.com">Esri</a> &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
       <GeoJSON data={DONG_GEOJSON as never} style={style as never} />

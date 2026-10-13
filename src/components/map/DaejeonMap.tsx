@@ -60,7 +60,7 @@ export default function DaejeonMap({
     const selected = id === selectedId;
 
     return {
-      fillColor: risk ? scoreColor(risk.score) : '#e2e2e2',
+      fillColor: risk ? scoreColor(risk.score) : '#e3ddcc', // = --color-line (Leaflet 은 SVG 속성이라 var() 가 안 먹는다)
       fillOpacity: selected ? 0.92 : 0.74,
       color: selected ? '#000000' : '#ffffff',
       weight: selected ? 2.5 : 1.2,
@@ -107,15 +107,22 @@ export default function DaejeonMap({
     >
       <TileLayer
         /*
-         * Carto Positron(라벨 없음).
+         * Esri World Light Gray Base(라벨 없음).
          *
-         * 라벨 있는 버전은 지명이 영문(DAEJEON, Bugang-myeon)으로 나와서
+         * 라벨 있는 베이스맵은 지명이 영문(DAEJEON, Bugang-myeon)으로 나와서
          * 한국어 서비스 화면에 섞이면 어색하다. 지명은 우리가 한글로 직접 그리고,
          * 베이스맵은 도로·하천 같은 지리적 맥락만 담당하게 한다.
+         *
+         * 원래 Carto Positron 을 썼는데, Carto 가 키 없는 호출에
+         * 'API KEY REQUIRED' 워터마크를 박기 시작해 교체했다 (2026-09).
+         * Esri 타일 주소는 {z}/{y}/{x} 순서다.
+         *
+         * 한국 지역은 z13 까지만 실제 타일이 있고 z14 부터는
+         * 'Map data not yet available' 회색 타일이 온다. z13 을 확대해서 쓴다.
          */
-        url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        subdomains={['a', 'b', 'c', 'd']}
+        maxNativeZoom={13}
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+        attribution='Tiles &copy; <a href="https://www.esri.com">Esri</a> &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
       <GeoJSON

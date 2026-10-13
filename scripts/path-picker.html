@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>경로선 좌표 찍기 — 숨쉬는길</title>
+<style>
+  :root { --lime:#d8f34a; --night:#0f1417; --cream:#f7f4ec; --line:#e3ddcc; }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--night); color:var(--cream);
+    font-family:'Pretendard','Malgun Gothic',system-ui,sans-serif;
+  }
+  header { padding:16px 20px; border-bottom:1px solid rgb(247 244 236 / .15); }
+  h1 { margin:0; font-size:16px; font-weight:700; }
+  p.help { margin:8px 0 0; font-size:13px; line-height:1.6; color:rgb(247 244 236 / .65); }
+  kbd {
+    background:rgb(247 244 236 / .12); border:1px solid rgb(247 244 236 / .25);
+    border-radius:4px; padding:1px 5px; font-size:12px;
+  }
+  main { padding:20px; }
+  .stage { position:relative; display:inline-block; line-height:0; cursor:crosshair; }
+  .stage img { display:block; max-width:100%; height:auto; }
+  .stage svg { position:absolute; inset:0; width:100%; height:100%; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:14px 0; }
+  button {
+    font:inherit; font-size:13px; font-weight:600; cursor:pointer;
+    border-radius:999px; padding:8px 16px; border:1px solid rgb(247 244 236 / .3);
+    background:rgb(247 244 236 / .1); color:var(--cream);
+  }
+  button:hover { background:rgb(247 244 236 / .18); }
+  button.primary { background:var(--lime); color:#161a08; border-color:var(--lime); }
+  .out {
+    width:100%; min-height:120px; margin-top:12px; padding:12px 14px;
+    background:#0b1114; color:var(--lime); border:1px solid rgb(247 244 236 / .18);
+    border-radius:12px; font-family:ui-monospace,Consolas,monospace; font-size:12px;
+    line-height:1.7; white-space:pre; overflow:auto; resize:vertical;
+  }
+  .count { font-size:13px; color:rgb(247 244 236 / .6); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>경로선 좌표 찍기</h1>
+  <p class="help">
+    사진 위 <b>산책로를 따라 순서대로 클릭</b>하세요. 8~12개면 충분합니다.
+    점을 <b>드래그</b>하면 위치를 고칠 수 있고, 점을 <kbd>우클릭</kbd>하면 그 점만 지워집니다.<br>
+    다 찍었으면 <b>복사</b>를 눌러 나온 내용을 그대로 붙여넣어 주세요. 좌표는 사진 원본(1440×960) 기준으로 나옵니다.
+  </p>
+</header>
+
+<main>
+  <div class="stage" id="stage">
+    <img id="photo" src="../public/images/route-street.jpg" alt="">
+    <svg id="ov" viewBox="0 0 1440 960" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div class="bar">
+    <button class="primary" id="copy">복사</button>
+    <button id="undo">마지막 점 취소</button>
+    <button id="clear">전부 지우기</button>
+    <span class="count" id="count">점 0개</span>
+  </div>
+
+  <textarea class="out" id="out" readonly placeholder="점을 찍으면 여기에 결과가 나옵니다"></textarea>
+</main>
+
+<script>
+/*
+ * 좌표계.
+ *
+ * 화면에 몇 배로 줄여 보이든 상관없이, 클릭 위치를 항상 사진 원본
+ * (naturalWidth × naturalHeight = 1440×960) 기준으로 환산해 저장한다.
+ * 지금까지 어긋났던 이유가 정확히 이 환산을 눈대중으로 했기 때문이다.
+ */
+const W = 1440, H = 960;
+const stage = document.getElementById('stage');
+const ov = document.getElementById('ov');
+const out = document.getElementById('out');
+const countEl = document.getElementById('count');
+
+let pts = [];
+let dragging = -1;
+
+function toImage(ev) {
+  const r = stage.getBoundingClientRect();
+  return [
+    Math.round(((ev.clientX - r.left) / r.width) * W),
+    Math.round(((ev.clientY - r.top) / r.height) * H),
+  ];
+}
+
+/*
+ * Catmull-Rom 스플라인을 3차 베지어로 바꾼다.
+ *
+ * 찍은 점을 **모두 지나는** 매끄러운 곡선이 필요한데, 베지어 제어점을 손으로
+ * 고르면 그게 바로 지금까지 하던 눈대중이다. Catmull-Rom 은 점만 주면
+ * 제어점을 계산해 주고, 결과를 그대로 SVG d 문자열로 쓸 수 있다.
+ */
+function toPathD(p) {
+  if (p.length < 2) return '';
+  let d = `M ${p[0][0]} ${p[0][1]}`;
+  for (let i = 0; i < p.length - 1; i++) {
+    const p0 = p[i - 1] || p[i];
+    const p1 = p[i];
+    const p2 = p[i + 1];
+    const p3 = p[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C ${Math.round(c1[0])} ${Math.round(c1[1])}, ${Math.round(c2[0])} ${Math.round(c2[1])}, ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+
+function render() {
+  const d = toPathD(pts);
+  ov.innerHTML = `
+    ${d ? `<path d="${d}" fill="none" stroke="rgb(11 22 14 / .55)" stroke-width="13" stroke-linecap="round"/>` : ''}
+    ${d ? `<path d="${d}" fill="none" stroke="#d8f34a" stroke-width="7" stroke-linecap="round"/>` : ''}
+    ${pts.map(([x, y], i) => `
+      <g data-i="${i}" style="cursor:grab">
+        <circle cx="${x}" cy="${y}" r="16" fill="transparent"/>
+        <circle cx="${x}" cy="${y}" r="7" fill="#fff" stroke="#0f1417" stroke-width="2"/>
+        <text x="${x + 14}" y="${y - 12}" fill="#fff" font-size="20" font-weight="700"
+              style="paint-order:stroke;stroke:#0f1417;stroke-width:5px">${i + 1}</text>
+      </g>`).join('')}
+  `;
+
+  countEl.textContent = `점 ${pts.length}개`;
+  out.value = pts.length < 2 ? '' :
+`점 ${pts.length}개 (1440×960 기준)
+${pts.map(([x, y], i) => `${String(i + 1).padStart(2)}. ${x}, ${y}`).join('\n')}
+
+PATH_D = '${d}'`;
+}
+
+stage.addEventListener('pointerdown', (ev) => {
+  const g = ev.target.closest('g[data-i]');
+  if (g) {
+    if (ev.button === 2) return;         // 우클릭은 삭제(아래 contextmenu)에서 처리
+    dragging = +g.dataset.i;
+    stage.setPointerCapture(ev.pointerId);
+    return;
+  }
+  if (ev.button !== 0) return;
+  pts.push(toImage(ev));
+  render();
+});
+
+stage.addEventListener('pointermove', (ev) => {
+  if (dragging < 0) return;
+  pts[dragging] = toImage(ev);
+  render();
+});
+
+stage.addEventListener('pointerup', () => { dragging = -1; });
+
+stage.addEventListener('contextmenu', (ev) => {
+  const g = ev.target.closest('g[data-i]');
+  if (!g) return;
+  ev.preventDefault();
+  pts.splice(+g.dataset.i, 1);
+  render();
+});
+
+document.getElementById('undo').onclick = () => { pts.pop(); render(); };
+document.getElementById('clear').onclick = () => { pts = []; render(); };
+document.getElementById('copy').onclick = async () => {
+  if (!out.value) return;
+  try {
+    await navigator.clipboard.writeText(out.value);
+  } catch {
+    out.select();               // file:// 에서 클립보드가 막히는 브라우저 대비
+    document.execCommand('copy');
+  }
+  const b = document.getElementById('copy');
+  b.textContent = '복사됨';
+  setTimeout(() => (b.textContent = '복사'), 1200);
+};
+
+render();
+</script>
+</body>
+</html>

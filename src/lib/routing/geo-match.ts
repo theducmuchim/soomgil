@@ -1,6 +1,6 @@
 import type { AreaRisk, DistrictId, RoadKind, RoadPoint, RouteSegment } from '@/types';
 import { DONG_GEOJSON } from '@/data/geo/dong';
-import { ROAD_KINDS, roadKindOf } from '@/lib/risk/road-exposure';
+import { estimateRoadWidthM, ROAD_KINDS, roadKindOf } from '@/lib/risk/road-exposure';
 import {
   distanceM,
   geometryBbox,
@@ -343,16 +343,46 @@ function drivingKind(roadMeters: Map<RoadKind, number>): RoadKind {
   return best;
 }
 
-/** 경로 전체의 체류시간 가중 노출 점수 */
+/**
+ * 경로 전체의 체류시간 가중 노출 점수와 성격 지표.
+ *
+ * 노출 점수만으로는 경로안을 고를 수 없다는 게 실제로 써 보면 드러난다.
+ * 같은 출발-도착 사이의 후보들은 결국 같은 동네를 지나기 때문에 노출 점수가
+ * 1~3점 차이에 머무는 일이 흔하고, 그 차이는 사람이 결정을 바꿀 만한 크기가
+ * 아니다.
+ *
+ * 그래서 노출 말고도 **사람이 실제로 원하는 것**을 같이 잰다.
+ *   shadeFraction 이 경로에서 그늘을 만날 비율 — 한여름에 가장 크게 체감된다
+ *   roadFactor    큰길에 얼마나 붙어 걷는가 — 매연·소음·보행 스트레스
+ * 둘 다 이미 점마다 계산돼 있던 값이다. 여기서 거리 가중으로 모으기만 한다.
+ */
 export function exposureOfPath(
   points: AnnotatedPoint[],
   speedMs: number,
-): { score: number; distanceM: number; durationSec: number } {
-  if (points.length < 2) return { score: 0, distanceM: 0, durationSec: 0 };
+): {
+  score: number;
+  distanceM: number;
+  durationSec: number;
+  shadeFraction: number;
+  roadFactor: number;
+  roadWidthM: number;
+} {
+  const empty = {
+    score: 0,
+    distanceM: 0,
+    durationSec: 0,
+    shadeFraction: 0,
+    roadFactor: 1,
+    roadWidthM: 20,
+  };
+  if (points.length < 2) return empty;
 
   let weighted = 0;
   let totalTime = 0;
   let totalDist = 0;
+  let shadeDist = 0;
+  let roadDist = 0;
+  let widthDist = 0;
 
   for (let i = 0; i < points.length - 1; i++) {
     const a = points[i];
@@ -363,12 +393,38 @@ export function exposureOfPath(
     weighted += ((a.risk + b.risk) / 2) * t;
     totalTime += t;
     totalDist += d;
+
+    /*
+     * 그늘과 도로는 시간이 아니라 **거리** 가중이다.
+     * 노출량은 그 자리에 얼마나 오래 있었느냐의 문제지만, "이 길이 그늘진
+     * 길인가"는 길의 성격이라 얼마나 오래 걸었는지와 무관하다.
+     */
+    shadeDist += ((a.shadeFraction ?? 0) + (b.shadeFraction ?? 0)) / 2 * d;
+    roadDist += ((a.roadFactor ?? 1) + (b.roadFactor ?? 1)) / 2 * d;
+
+    /*
+     * 도로 폭 — '골목길인가'의 실제 지표.
+     *
+     * roadFactor 로 골목을 재려 했더니 실측에서 0.997~1.004 로 눌러앉았다.
+     * TMAP 이 주는 roadType 은 보행 구간 대부분을 '분리된 인도'(계수 1.0)로
+     * 분류해서, 대로변 인도와 주택가 골목이 같은 값을 받는다.
+     *
+     * 도로명은 다르다. 한국 도로명 체계는 폭을 등급으로 담고 있다 —
+     * 대로(40m) · 로(20m) · 길(10m). 'OO길'만 골라 걷는 경로는 실제로
+     * 골목길이고, 그 차이는 숫자로 크게 벌어진다.
+     */
+    widthDist += estimateRoadWidthM(a.roadName) * d;
   }
+
+  if (totalDist === 0) return empty;
 
   return {
     score: totalTime === 0 ? 0 : round1(weighted / totalTime),
     distanceM: Math.round(totalDist),
     durationSec: Math.round(totalTime),
+    shadeFraction: shadeDist / totalDist,
+    roadFactor: roadDist / totalDist,
+    roadWidthM: widthDist / totalDist,
   };
 }
 

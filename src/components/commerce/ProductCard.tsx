@@ -27,9 +27,9 @@ function buildShoppingUrl(product: Product): string {
 }
 
 const CATEGORY_TONE: Record<Product['category'], string> = {
-  보호구: 'bg-brand-50 text-brand-700',
+  보호구: 'bg-cream-deep text-night',
   의약품: 'bg-risk-high/10 text-risk-high',
-  생활용품: 'bg-surface-sunken text-ink-500',
+  생활용품: 'bg-cream-deep text-ink-500',
   가전: 'bg-layer-ozone/10 text-layer-ozone',
 };
 
@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
   const indicator = INDICATORS[product.indicator];
 
   return (
-    <li className="flex h-full flex-col rounded-xl border border-line bg-surface p-4">
+    <li className="flex h-full flex-col lift rounded-xl border border-cream-line bg-surface p-4">
       <div className="flex items-start justify-between gap-2">
         <span
           className={cn(
@@ -52,7 +52,7 @@ export function ProductCard({ product }: { product: Product }) {
         </span>
       </div>
 
-      <h3 className="mt-2.5 text-[0.875rem] leading-snug font-bold text-ink-900">
+      <h3 className="mt-2.5 text-[0.875rem] leading-snug font-bold text-night">
         {product.name}
       </h3>
       <p className="mt-1.5 flex-1 text-[0.8125rem] leading-relaxed text-ink-500">
@@ -80,7 +80,7 @@ export function ProductCard({ product }: { product: Product }) {
           className={cn(
             'mt-3 flex h-10 items-center justify-center gap-1.5 rounded-full text-[0.8125rem] font-semibold transition-colors',
             product.requiresPharmacy
-              ? 'border border-line-strong text-ink-700 hover:bg-surface-sunken'
+              ? 'border border-cream-line text-ink-700 hover:bg-cream-deep'
               : 'bg-brand-600 text-white hover:bg-brand-700',
           )}
         >

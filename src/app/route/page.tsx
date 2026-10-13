@@ -119,7 +119,7 @@ export default async function RoutePage({
               baseTime={snapshot.baseTime}
               preview={snapshot.source === 'mock'}
               degraded={snapshot.degradedSources}
-              className="rounded-full border border-line bg-surface px-2.5 py-1 text-ink-700"
+              className="rounded-full border border-cream-line bg-surface px-2.5 py-1 text-ink-700"
             />
 
             {/* 경로 출처를 숨기지 않는다 — 근사 경로를 실제 도로처럼 보이면 안 된다 */}
