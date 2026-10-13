@@ -47,7 +47,7 @@ export default async function NoticeDetailPage({
         <div className="flex flex-wrap items-center gap-2 border-b border-line pb-5">
           <span
             className={cn(
-              'rounded px-1.5 py-0.5 text-[0.6875rem] font-semibold',
+              'rounded px-1.5 py-0.5 text-[0.75rem] font-semibold',
               category.tone,
             )}
           >

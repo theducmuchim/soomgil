@@ -114,7 +114,7 @@ export default function HeroSection() {
                 */}
                 <Link
                   href="/risk-map"
-                  className="text-[0.9375rem] font-medium text-cream/75 underline decoration-cream/30 underline-offset-[6px] transition-colors hover:text-cream hover:decoration-cream/70"
+                  className="-my-2.5 inline-block py-2.5 text-[0.9375rem] font-medium text-cream/75 underline decoration-cream/30 underline-offset-[6px] transition-colors hover:text-cream hover:decoration-cream/70"
                 >
                   위험 지도 먼저 보기
                 </Link>

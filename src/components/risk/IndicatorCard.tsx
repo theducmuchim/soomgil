@@ -36,7 +36,7 @@ export function IndicatorCard({
       >
         <p className="text-[0.8125rem] font-semibold text-ink-400">{meta.shortLabel}</p>
         <p className="mt-2 text-[0.8125rem] font-medium text-ink-300">서비스 기간 아님</p>
-        <p className="mt-1.5 text-[0.6875rem] leading-snug text-ink-300">
+        <p className="mt-1.5 text-[0.75rem] leading-snug text-ink-300">
           {meta.serviceMonths
             ? `${meta.serviceMonths[0]}월~${meta.serviceMonths[meta.serviceMonths.length - 1]}월에만 제공됩니다`
             : '데이터를 받지 못했습니다'}
@@ -50,7 +50,7 @@ export function IndicatorCard({
       <div className="flex items-start justify-between gap-2">
         <p className="text-[0.8125rem] font-semibold text-ink-700">{meta.shortLabel}</p>
         {weight !== undefined && weight > 0 && (
-          <span className="tabular shrink-0 rounded bg-cream-deep px-1.5 py-0.5 text-[0.6875rem] font-medium text-ink-400">
+          <span className="tabular shrink-0 rounded bg-cream-deep px-1.5 py-0.5 text-[0.75rem] font-medium text-ink-400">
             비중 {Math.round(weight * 100)}%
           </span>
         )}
@@ -73,7 +73,7 @@ export function IndicatorCard({
         style={{ backgroundColor: color }}
       />
 
-      <p className="mt-2 flex items-center justify-between text-[0.6875rem]">
+      <p className="mt-2 flex items-center justify-between text-[0.75rem]">
         <span className="font-semibold" style={{ color: levelMeta.color }}>
           {levelMeta.label}
         </span>

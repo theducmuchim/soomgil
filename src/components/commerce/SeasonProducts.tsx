@@ -59,7 +59,7 @@ export function SeasonProducts({
         ))}
       </ul>
 
-      <p className="mt-4 text-[0.6875rem] leading-relaxed text-ink-400">
+      <p className="mt-4 text-[0.75rem] leading-relaxed text-ink-400">
         상품은 이번 계절의 핵심 위험 지표에 맞춰 자동으로 바뀝니다. 가격은 참고용이며
         실제 판매가와 다를 수 있습니다. 숨쉬는길은 특정 브랜드를 보증하지 않습니다.
       </p>

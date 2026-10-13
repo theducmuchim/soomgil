@@ -78,7 +78,7 @@ export function HourlyTrendChart({
                   label={{
                     value: label,
                     position: 'insideTopRight',
-                    fontSize: '0.625rem',
+                    fontSize: '0.75rem',
                     fill: 'var(--color-ink-300)',
                   }}
                 />
@@ -90,7 +90,7 @@ export function HourlyTrendChart({
               axisLine={false}
               tickLine={false}
               interval={2}
-              tick={{ fill: 'var(--color-ink-400)', fontSize: '0.6875rem' }}
+              tick={{ fill: 'var(--color-ink-400)', fontSize: '0.75rem' }}
               tickFormatter={(h: number) => `${h}시`}
             />
             <YAxis
@@ -99,7 +99,7 @@ export function HourlyTrendChart({
               axisLine={false}
               tickLine={false}
               width={44}
-              tick={{ fill: 'var(--color-ink-400)', fontSize: '0.6875rem' }}
+              tick={{ fill: 'var(--color-ink-400)', fontSize: '0.75rem' }}
             />
 
             <Tooltip
@@ -129,7 +129,7 @@ export function HourlyTrendChart({
                   value: `가장 안전 ${safest.hour}시`,
                   // 화면 끝에 붙은 점은 라벨이 잘리므로 안쪽을 보게 한다
                   position: edgeLabelPosition(safest.hour, 'bottom'),
-                  fontSize: '0.6875rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   fill: RISK_LEVELS.low.color,
                 }}
@@ -147,7 +147,7 @@ export function HourlyTrendChart({
                 label={{
                   value: `지금 ${Math.round(now.score)}`,
                   position: edgeLabelPosition(now.hour, 'top'),
-                  fontSize: '0.6875rem',
+                  fontSize: '0.75rem',
                   fontWeight: 700,
                   fill: 'var(--color-brand-700)',
                 }}
@@ -157,8 +157,8 @@ export function HourlyTrendChart({
         </ResponsiveContainer>
       </div>
 
-      <details className="mt-3 border-t border-line pt-3">
-        <summary className="cursor-pointer text-[0.75rem] font-medium text-ink-500 hover:text-ink-900">
+      <details className="mt-3 border-t border-line">
+        <summary className="cursor-pointer py-3 text-[0.75rem] font-medium text-ink-500 hover:text-ink-900">
           표로 보기
         </summary>
         <div className="mt-2.5 overflow-x-auto">

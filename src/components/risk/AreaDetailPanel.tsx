@@ -75,7 +75,7 @@ export function AreaDetailPanel({
             {b.score}
           </span>
         </div>
-        <p className="mt-2 text-[0.6875rem] leading-relaxed text-ink-400">
+        <p className="mt-2 text-[0.75rem] leading-relaxed text-ink-400">
           지표 가중합 {b.baseScore}점에 대기정체 보정
           {stagnation ? ` (지수 ${Math.round(stagnation.value)})` : ''}을 적용해{' '}
           <span className="font-semibold text-risk-high">
@@ -138,7 +138,7 @@ export function AreaDetailPanel({
           <p className="text-[0.8125rem] font-semibold text-night">
             {area.wind.label}풍 {area.wind.speed}m/s
           </p>
-          <p className="mt-0.5 text-[0.6875rem] text-ink-400">
+          <p className="mt-0.5 text-[0.75rem] text-ink-400">
             {area.wind.speed < 2
               ? '바람이 약해 오염물질이 잘 흩어지지 않습니다.'
               : '이 방향의 풍하측 지역으로 오염물질이 밀려갑니다.'}

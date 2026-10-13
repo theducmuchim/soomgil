@@ -46,7 +46,7 @@ export function ChartTooltip({
       </p>
 
       {kind === 'district' && (
-        <p className="mt-1.5 border-t border-line pt-1.5 text-[0.6875rem] leading-relaxed text-ink-500">
+        <p className="mt-1.5 border-t border-line pt-1.5 text-[0.75rem] leading-relaxed text-ink-500">
           주요 요인 {String(d.dominant)}
           <br />
           보정 전 {String(d.baseScore)} · 대기정체{' '}
@@ -55,7 +55,7 @@ export function ChartTooltip({
       )}
 
       {kind === 'hourly' && Boolean(d.isNow) && (
-        <p className="mt-1.5 border-t border-line pt-1.5 text-[0.6875rem] text-brand-600">
+        <p className="mt-1.5 border-t border-line pt-1.5 text-[0.75rem] text-brand-600">
           현재 시각
         </p>
       )}

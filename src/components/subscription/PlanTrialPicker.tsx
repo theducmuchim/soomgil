@@ -30,7 +30,7 @@ export function PlanTrialPicker({
     <>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display font-normal text-[1rem] text-night">요금제 체험</h2>
-        <span className="rounded-full bg-brand-600 px-2.5 py-0.5 text-[0.6875rem] font-semibold text-white">
+        <span className="rounded-full bg-brand-600 px-2.5 py-0.5 text-[0.75rem] font-semibold text-white">
           지금 {current.name}
         </span>
       </div>
@@ -63,7 +63,7 @@ export function PlanTrialPicker({
               <span className="text-[0.8125rem] font-bold">{option.name}</span>
               <span
                 className={cn(
-                  'tabular text-[0.6875rem]',
+                  'tabular text-[0.75rem]',
                   active ? 'text-white/75' : 'text-ink-400',
                 )}
               >
@@ -87,7 +87,7 @@ export function PlanTrialPicker({
       {!bare && (
         <Link
           href="/pricing"
-          className="mt-3 inline-block text-[0.8125rem] font-semibold text-brand-600 hover:text-brand-700"
+          className="mt-1 inline-block py-2.5 text-[0.8125rem] font-semibold text-brand-600 hover:text-brand-700"
         >
           요금제 비교 보기
         </Link>

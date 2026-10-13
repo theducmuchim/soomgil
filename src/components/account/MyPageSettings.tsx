@@ -183,7 +183,7 @@ export function MyPageSettings({ districts }: { districts: AreaRisk[] }) {
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-display font-normal text-[1rem] text-night">알림 기준 등급</h2>
           {!alerts && (
-            <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
+            <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.75rem] font-semibold text-white">
               프리미엄
             </span>
           )}
@@ -356,7 +356,7 @@ function FamilySeats({ seats }: { seats: number }) {
     <section className="rounded-2xl border border-brand-200 bg-brand-50/40 p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display font-normal text-[1rem] text-night">가족 계정</h2>
-        <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
+        <span className="rounded bg-brand-600 px-1.5 py-0.5 text-[0.75rem] font-semibold text-white">
           패밀리
         </span>
       </div>
@@ -380,7 +380,7 @@ function FamilySeats({ seats }: { seats: number }) {
             <span className="text-[0.8125rem] font-semibold text-ink-900">
               {i === 0 ? '나' : `자리 ${i + 1}`}
             </span>
-            <span className="text-[0.6875rem] text-ink-400">
+            <span className="text-[0.75rem] text-ink-400">
               {i === 0 ? '사용 중' : '비어 있음'}
             </span>
           </li>

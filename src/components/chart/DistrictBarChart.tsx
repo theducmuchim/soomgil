@@ -81,8 +81,8 @@ export function DistrictBarChart({ districts }: { districts: AreaRisk[] }) {
       </div>
 
       {/* 표 — 그래프를 못 읽는 환경에서도 같은 값에 닿게 한다 */}
-      <details className="mt-3 border-t border-line pt-3">
-        <summary className="cursor-pointer text-[0.75rem] font-medium text-ink-500 hover:text-ink-900">
+      <details className="mt-3 border-t border-line">
+        <summary className="cursor-pointer py-3 text-[0.75rem] font-medium text-ink-500 hover:text-ink-900">
           표로 보기
         </summary>
         <div className="mt-2.5 overflow-x-auto">

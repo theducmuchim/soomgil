@@ -118,7 +118,7 @@ export function AdSlot({
       aria-label="광고 영역"
     >
       {/* 광고 표시 — 실제 광고로 바꿔도 반드시 유지 */}
-      <span className="absolute top-2 right-2 rounded bg-ink-900/8 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-ink-400">
+      <span className="absolute top-2 right-2 rounded bg-ink-900/8 px-1.5 py-0.5 text-[0.75rem] font-semibold text-ink-400">
         광고
       </span>
 

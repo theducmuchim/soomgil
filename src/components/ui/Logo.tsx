@@ -79,7 +79,7 @@ export function Logo({
         {showTagline && (
           <span
             className={cn(
-              'mt-1.5 text-[0.6875rem] font-medium',
+              'mt-1.5 text-[0.75rem] font-medium',
               light ? 'text-cream/60' : 'text-ink-400',
             )}
           >

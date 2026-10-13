@@ -41,13 +41,13 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="flex items-start justify-between gap-2">
         <span
           className={cn(
-            'rounded px-1.5 py-0.5 text-[0.6875rem] font-semibold',
+            'rounded px-1.5 py-0.5 text-[0.75rem] font-semibold',
             CATEGORY_TONE[product.category],
           )}
         >
           {product.category}
         </span>
-        <span className="text-[0.6875rem] font-medium text-ink-400">
+        <span className="text-[0.75rem] font-medium text-ink-400">
           {indicator.shortLabel}
         </span>
       </div>
@@ -68,7 +68,7 @@ export function ProductCard({ product }: { product: Product }) {
         <p className="text-[0.75rem] text-ink-400">{product.priceHint}</p>
 
         {product.requiresPharmacy && (
-          <p className="mt-1 text-[0.6875rem] leading-snug text-ink-400">
+          <p className="mt-1 text-[0.75rem] leading-snug text-ink-400">
             일반의약품은 약국에서 약사와 상담 후 구매하세요.
           </p>
         )}

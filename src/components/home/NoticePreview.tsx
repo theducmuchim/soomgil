@@ -40,14 +40,14 @@ export function NoticePreview() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={cn(
-                        'rounded px-1.5 py-0.5 text-[0.6875rem] font-semibold',
+                        'rounded px-1.5 py-0.5 text-[0.75rem] font-semibold',
                         category.tone,
                       )}
                     >
                       {category.label}
                     </span>
                     {notice.pinned && (
-                      <span className="rounded bg-night px-1.5 py-0.5 text-[0.6875rem] font-semibold text-white">
+                      <span className="rounded bg-night px-1.5 py-0.5 text-[0.75rem] font-semibold text-white">
                         고정
                       </span>
                     )}

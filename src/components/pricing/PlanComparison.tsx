@@ -51,7 +51,7 @@ export function PlanComparison() {
                 >
                   {PLANS[id].name}
                   {plan === id && (
-                    <span className="ml-1.5 rounded bg-brand-600 px-1 py-px text-[0.6875rem] font-semibold text-white">
+                    <span className="ml-1.5 rounded bg-brand-600 px-1 py-px text-[0.75rem] font-semibold text-white">
                       사용 중
                     </span>
                   )}
@@ -142,12 +142,12 @@ function PlanCard({
       )}
     >
       {active ? (
-        <span className="absolute -top-2.5 left-5 rounded-full bg-brand-600 px-2.5 py-0.5 text-[0.6875rem] font-semibold text-white">
+        <span className="absolute -top-2.5 left-5 rounded-full bg-brand-600 px-2.5 py-0.5 text-[0.75rem] font-semibold text-white">
           지금 사용 중
         </span>
       ) : (
         plan.featured && (
-          <span className="absolute -top-2.5 left-5 rounded-full bg-brand-100 px-2.5 py-0.5 text-[0.6875rem] font-semibold text-brand-700">
+          <span className="absolute -top-2.5 left-5 rounded-full bg-brand-100 px-2.5 py-0.5 text-[0.75rem] font-semibold text-brand-700">
             가장 많이 고르는
           </span>
         )
@@ -224,7 +224,7 @@ function PlanCard({
       </button>
 
       {isPaid && !active && (
-        <p className="mt-2 text-center text-[0.6875rem] text-ink-400">
+        <p className="mt-2 text-center text-[0.75rem] text-ink-400">
           결제 없이 바로 적용됩니다
         </p>
       )}

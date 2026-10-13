@@ -84,7 +84,7 @@ export function RiskMapView({
                 {label}
                 <span
                   className={cn(
-                    'tabular ml-1.5 text-[0.6875rem]',
+                    'tabular ml-1.5 text-[0.75rem]',
                     resolution === value ? 'text-white/70' : 'text-ink-300',
                   )}
                 >
@@ -157,7 +157,7 @@ export function RiskMapView({
                       : 'hover:bg-surface-sunken',
                   )}
                 >
-                  <span className="tabular w-5 shrink-0 text-[0.6875rem] text-ink-300">
+                  <span className="tabular w-5 shrink-0 text-[0.75rem] text-ink-300">
                     {index + 1}
                   </span>
                   <span

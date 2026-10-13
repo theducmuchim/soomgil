@@ -35,10 +35,10 @@ export default async function RiskMapPage({
         actions={
           <div className="flex items-center gap-2.5 rounded-xl border border-line bg-surface px-4 py-2.5">
             <div>
-              <p className="text-[0.6875rem] text-ink-400">대전 평균</p>
+              <p className="text-[0.75rem] text-ink-400">대전 평균</p>
               <p className="tabular font-display text-[1.5rem] leading-none font-normal text-night">
                 {Math.round(snapshot.cityAverage.score)}
-                <span className="ml-1 text-[0.6875rem] font-medium text-ink-400">
+                <span className="ml-1 text-[0.75rem] font-medium text-ink-400">
                   대기정체 {formatDelta(snapshot.cityAverage.stagnationDeltaPct, 1)}
                 </span>
               </p>

@@ -153,12 +153,12 @@ export function LayerMapView({
                   />
                   {layer.label}
                   {st === 'off' && (
-                    <span className="text-[0.6875rem] font-medium">서비스 기간 아님</span>
+                    <span className="text-[0.75rem] font-medium">서비스 기간 아님</span>
                   )}
                   {st === 'zero' && (
                     <span
                       className={cn(
-                        'text-[0.6875rem] font-medium',
+                        'text-[0.75rem] font-medium',
                         on ? 'text-white/75' : 'text-ink-400',
                       )}
                     >
@@ -250,7 +250,7 @@ export function LayerMapView({
                     area.areaId === selectedId ? 'bg-brand-50' : 'hover:bg-surface-sunken',
                   )}
                 >
-                  <span className="tabular w-5 shrink-0 text-[0.6875rem] text-ink-300">
+                  <span className="tabular w-5 shrink-0 text-[0.75rem] text-ink-300">
                     {index + 1}
                   </span>
                   <span
@@ -356,7 +356,7 @@ function LayerDetail({
         })}
       </ul>
 
-      <p className="mt-4 border-t border-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
+      <p className="mt-4 border-t border-line pt-3 text-[0.75rem] leading-relaxed text-ink-400">
         행정동 값은 자치구 관측값을 바탕으로 한 추정치입니다.
       </p>
     </div>

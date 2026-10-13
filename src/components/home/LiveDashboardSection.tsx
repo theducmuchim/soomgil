@@ -73,7 +73,7 @@ export function LiveDashboardSection({ snapshot }: { snapshot: RiskSnapshot }) {
               {(['low', 'moderate', 'high', 'veryHigh'] as const).map((level) => (
                 <span
                   key={level}
-                  className="inline-flex items-center gap-1.5 text-[0.6875rem] text-ink-400"
+                  className="inline-flex items-center gap-1.5 text-[0.75rem] text-ink-400"
                 >
                   <span
                     className="h-2 w-2 rounded-full"

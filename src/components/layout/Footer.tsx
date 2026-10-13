@@ -53,7 +53,7 @@ export function Footer() {
                   <dd>
                     <a
                       href={`mailto:${FOOTER.team.contact}`}
-                      className="-my-1 inline-block py-1.5 underline underline-offset-2 hover:text-night"
+                      className="-my-2 inline-block py-2.5 underline underline-offset-2 hover:text-night"
                     >
                       {FOOTER.team.contact}
                     </a>
@@ -72,7 +72,7 @@ export function Footer() {
                   <li key={link.href + link.label}>
                     <Link
                       href={link.href}
-                      className="-my-1 inline-block py-1.5 text-[0.875rem] text-ink-500 transition-colors hover:text-night"
+                      className="-my-2 inline-block py-2.5 text-[0.875rem] text-ink-500 transition-colors hover:text-night"
                     >
                       {link.label}
                     </Link>
@@ -93,7 +93,7 @@ export function Footer() {
                       href={src.href}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="-my-1 inline-block py-1.5 text-[0.8125rem] leading-snug text-ink-500 transition-colors hover:text-night"
+                      className="-my-2 inline-block py-2.5 text-[0.8125rem] text-ink-500 transition-colors hover:text-night"
                     >
                       {src.label}
                     </a>

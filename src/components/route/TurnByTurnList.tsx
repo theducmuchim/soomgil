@@ -47,7 +47,7 @@ export function TurnByTurnList({
         <p className="text-[0.8125rem] font-semibold text-night">
           길 안내 {guides.length}단계
         </p>
-        <p className="tabular text-[0.6875rem] text-ink-400">
+        <p className="tabular text-[0.75rem] text-ink-400">
           합계 {formatDistance(totalM)}
         </p>
       </div>
@@ -63,7 +63,7 @@ export function TurnByTurnList({
               className="flex gap-2.5 rounded-xl px-1.5 py-2 hover:bg-cream-deep"
             >
               <span className="flex w-5 shrink-0 justify-center pt-0.5">
-                <span className="tabular text-[0.6875rem] font-semibold text-ink-300">
+                <span className="tabular text-[0.75rem] font-semibold text-ink-300">
                   {i + 1}
                 </span>
               </span>
@@ -79,7 +79,7 @@ export function TurnByTurnList({
                   TMAP 문구에는 이미 도로명이 들어 있어 중복해 쓰지 않는다.
                 */}
                 {guide.continuation && guide.roadName && (
-                  <p className="mt-0.5 text-[0.6875rem] text-ink-400">
+                  <p className="mt-0.5 text-[0.75rem] text-ink-400">
                     {guide.roadName}
                   </p>
                 )}
@@ -91,7 +91,7 @@ export function TurnByTurnList({
                     {formatDistance(guide.distanceM)}
                   </p>
                   {guide.durationSec >= 60 && (
-                    <p className="tabular text-[0.6875rem] text-ink-400">
+                    <p className="tabular text-[0.75rem] text-ink-400">
                       {formatDuration(guide.durationSec)}
                     </p>
                   )}
@@ -102,7 +102,7 @@ export function TurnByTurnList({
         })}
       </ol>
 
-      <p className="mt-3 border-t border-cream-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
+      <p className="mt-3 border-t border-cream-line pt-3 text-[0.75rem] leading-relaxed text-ink-400">
         회전 안내와 도로명은 TMAP 보행자 경로 응답을 그대로 옮긴 것입니다. 실제
         현장의 공사·통제 상황은 반영되지 않습니다.
       </p>

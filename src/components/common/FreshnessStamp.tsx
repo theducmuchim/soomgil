@@ -67,7 +67,7 @@ export function FreshnessStamp({
     <p
       className={cn(
         'inline-flex items-center gap-1.5 tabular',
-        size === 'sm' ? 'text-[0.6875rem]' : 'text-[0.75rem]',
+        size === 'sm' ? 'text-[0.75rem]' : 'text-[0.75rem]',
         className,
       )}
     >

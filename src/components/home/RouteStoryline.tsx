@@ -325,7 +325,7 @@ export function RouteStoryline() {
 
           {/* 머리말 — 사진 왼쪽 위, 선이 지나지 않는 자리 */}
           <div className="absolute top-[6%] left-[5%] max-w-[26rem]">
-            <p className="flex items-center gap-3 text-[0.6875rem] font-semibold tracking-[0.18em] text-cream/50">
+            <p className="flex items-center gap-3 text-[0.75rem] font-semibold tracking-[0.18em] text-cream/50">
               <span aria-hidden="true" className="h-px w-7 bg-cream/35" />
               길을 고르는 방식
             </p>

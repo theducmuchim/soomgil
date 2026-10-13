@@ -206,7 +206,7 @@ export function PlaceSearchInput({
 
       {/* 선택된 장소를 항상 보이게 — 입력창을 편집 중이어도 무엇이 잡혀 있는지 알아야 한다 */}
       {selectedName !== query && (
-        <p className="mt-1 truncate text-[0.6875rem] text-ink-400">
+        <p className="mt-1 truncate text-[0.75rem] text-ink-400">
           현재 선택: {selectedName}
         </p>
       )}
@@ -244,7 +244,7 @@ export function PlaceSearchInput({
                       {option.name}
                     </span>
                     {option.id === selectedId && (
-                      <span className="shrink-0 text-[0.6875rem] font-medium text-brand-600">
+                      <span className="shrink-0 text-[0.75rem] font-medium text-brand-600">
                         선택됨
                       </span>
                     )}
@@ -257,7 +257,7 @@ export function PlaceSearchInput({
             ))}
           </ul>
 
-          <p className="border-t border-line px-3.5 py-2 text-[0.6875rem] text-ink-400">
+          <p className="border-t border-line px-3.5 py-2 text-[0.75rem] text-ink-400">
             대전 안에 있는 장소만 검색됩니다.
           </p>
         </div>

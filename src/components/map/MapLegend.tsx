@@ -31,7 +31,7 @@ export function MapLegend({
         aria-label="위험도 0점에서 100점까지의 색상 범례"
       />
 
-      <div className="tabular mt-1.5 flex justify-between text-[0.6875rem] text-ink-400">
+      <div className="tabular mt-1.5 flex justify-between text-[0.75rem] text-ink-400">
         <span>0</span>
         <span>25</span>
         <span>50</span>
@@ -43,7 +43,7 @@ export function MapLegend({
         {(['low', 'moderate', 'high', 'veryHigh'] as const).map((level) => (
           <span
             key={level}
-            className="inline-flex items-center gap-1.5 text-[0.6875rem] text-ink-500"
+            className="inline-flex items-center gap-1.5 text-[0.75rem] text-ink-500"
           >
             <span
               className="h-2 w-2 rounded-full"
@@ -56,7 +56,7 @@ export function MapLegend({
       </div>
 
       {note && (
-        <p className="mt-3 border-t border-cream-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
+        <p className="mt-3 border-t border-cream-line pt-3 text-[0.75rem] leading-relaxed text-ink-400">
           {note}
         </p>
       )}

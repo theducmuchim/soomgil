@@ -223,7 +223,7 @@ function NeedChips({ option, selected }: { option: RouteOption; selected: boolea
         <li
           key={need}
           className={cn(
-            'rounded-full border px-2 py-0.5 text-[0.6875rem] font-medium',
+            'rounded-full border px-2 py-0.5 text-[0.75rem] font-medium',
             selected
               ? 'border-cream/25 text-cream/80'
               : 'border-cream-line text-ink-500',
@@ -297,7 +297,7 @@ function TraitBars({
         <div key={row.label} className="flex items-center gap-2">
           <dt
             className={cn(
-              'w-7 shrink-0 text-[0.6875rem]',
+              'w-7 shrink-0 text-[0.75rem]',
               selected ? 'text-cream/55' : 'text-ink-400',
             )}
           >
@@ -320,7 +320,7 @@ function TraitBars({
             </span>
             <span
               className={cn(
-                'tabular w-12 shrink-0 text-right text-[0.6875rem] font-medium',
+                'tabular w-12 shrink-0 text-right text-[0.75rem] font-medium',
                 selected ? 'text-cream/70' : 'text-ink-500',
               )}
             >
@@ -401,7 +401,7 @@ function RouteOptionCard({
         <div>
           <p
             className={cn(
-              'text-[0.6875rem]',
+              'text-[0.75rem]',
               selected ? 'text-cream/55' : 'text-ink-400',
             )}
           >
@@ -418,7 +418,7 @@ function RouteOptionCard({
         {isBaseline ? (
           <span
             className={cn(
-              'rounded-full px-2 py-1 text-[0.6875rem] font-medium',
+              'rounded-full px-2 py-1 text-[0.75rem] font-medium',
               selected ? 'bg-cream/12 text-cream/70' : 'bg-cream-deep text-ink-400',
             )}
           >
@@ -464,7 +464,7 @@ function SegmentList({ option }: { option: RouteOption }) {
           지나가는 구간 {option.segments.length}곳
         </p>
         {worst && (
-          <p className="text-[0.6875rem] text-ink-400">
+          <p className="text-[0.75rem] text-ink-400">
             최고 {worst.areaName} {Math.round(worst.effectiveScore)}
           </p>
         )}
@@ -502,7 +502,7 @@ function SegmentList({ option }: { option: RouteOption }) {
                 {Math.round(segment.effectiveScore)}
                 {windAdjusted > 0.5 && (
                   <span
-                    className="ml-0.5 text-[0.6875rem] text-risk-high"
+                    className="ml-0.5 text-[0.75rem] text-risk-high"
                     title={`풍향 보정 +${windAdjusted.toFixed(1)}`}
                   >
                     ▲
@@ -514,7 +514,7 @@ function SegmentList({ option }: { option: RouteOption }) {
         })}
       </ul>
 
-      <p className="mt-3 border-t border-cream-line pt-3 text-[0.6875rem] leading-relaxed text-ink-400">
+      <p className="mt-3 border-t border-cream-line pt-3 text-[0.75rem] leading-relaxed text-ink-400">
         <span className="text-risk-high">▲</span> 표시는 바람이 불어오는 쪽에 더 나쁜
         지역이 있어 실제 노출이 그 지역 값보다 높게 잡힌 구간입니다. 색 배지는 도로
         유형에 따른 교통 배출 노출 보정입니다 —{' '}
@@ -543,7 +543,7 @@ function ShadeChip({ segment }: { segment: RouteSegment }) {
     <span
       title={`이 구간의 약 ${pct}%가 건물 그늘입니다. 체감온도 몫에 ×${segment.shadeFactor}`}
       className={cn(
-        'shrink-0 rounded px-1.5 py-px text-[0.6875rem] font-semibold',
+        'shrink-0 rounded px-1.5 py-px text-[0.75rem] font-semibold',
         relief ? 'bg-risk-low/12 text-risk-low' : 'bg-brand-100 text-brand-700',
       )}
     >
@@ -564,7 +564,7 @@ function CanyonChip({ segment }: { segment: RouteSegment }) {
   return (
     <span
       title={`양옆 건물이 높아 배기가스가 빠져나가기 어려운 구간입니다. 교통 배출 노출 ×${segment.canyonFactor}`}
-      className="shrink-0 rounded bg-night/8 px-1.5 py-px text-[0.6875rem] font-semibold text-ink-700"
+      className="shrink-0 rounded bg-night/8 px-1.5 py-px text-[0.75rem] font-semibold text-ink-700"
     >
       고층 밀집
     </span>
@@ -587,7 +587,7 @@ function RoadChip({ segment }: { segment: RouteSegment }) {
     <span
       title={`${ROAD_KINDS[segment.roadDriver].note} 교통 배출 노출 ×${segment.roadFactor}`}
       className={cn(
-        'shrink-0 rounded px-1.5 py-px text-[0.6875rem] font-semibold',
+        'shrink-0 rounded px-1.5 py-px text-[0.75rem] font-semibold',
         raised
           ? 'bg-risk-high/12 text-risk-high'
           : 'bg-risk-low/12 text-risk-low',
@@ -652,7 +652,7 @@ function ExposureBreakdown({
     <div className="rounded-2xl border border-forest-500/25 bg-forest-500/8 p-4">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-[0.8125rem] font-semibold text-forest-700">구간 위험 요인</p>
-        <span className="rounded bg-forest-700 px-1.5 py-0.5 text-[0.6875rem] font-semibold text-cream">
+        <span className="rounded bg-forest-700 px-1.5 py-0.5 text-[0.75rem] font-semibold text-cream">
           프리미엄
         </span>
       </div>
@@ -692,7 +692,7 @@ function ExposureBreakdown({
         })}
       </ul>
 
-      <p className="mt-3 border-t border-forest-500/20 pt-2.5 text-[0.6875rem] leading-relaxed text-ink-500">
+      <p className="mt-3 border-t border-forest-500/20 pt-2.5 text-[0.75rem] leading-relaxed text-ink-500">
         보정 전 {area.breakdown.baseScore}점에 대기정체 보정{' '}
         {formatDelta(area.breakdown.stagnationDeltaPct, 1)}를 적용해 최종{' '}
         {area.breakdown.score}점입니다.

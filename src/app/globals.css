@@ -308,7 +308,7 @@ body {
   transform: translate(-50%, -50%);
   padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.71875rem;
+  font-size: 0.75rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
@@ -364,13 +364,13 @@ body {
   padding: 3px 9px;
   border-radius: 999px;
   color: #fff;
-  font-size: 0.71875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   box-shadow: 0 2px 6px rgb(20 24 29 / 0.28);
 }
 .soomgil-endpoint b {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   font-weight: 700;
   opacity: 0.75;
 }
@@ -392,6 +392,19 @@ body {
     height: 40px;
     line-height: 40px;
     font-size: 20px;
+  }
+
+  /*
+   * 입력창은 좁은 화면에서 16px 이상으로 둔다.
+   * 아이폰 사파리는 16px 미만 입력창을 탭하면 화면을 자동 확대하고, 다 쓴 뒤에도
+   * 원래 배율로 돌아오지 않는다. 경로 검색처럼 입력이 첫 동작인 화면에서 특히 거슬린다.
+   * Tailwind 유틸리티는 @layer 안에 있어서, 레이어 밖에 둔 이 규칙이 특이도와 무관하게 이긴다.
+   * 1rem 과 비교하는 건 글자 크기 3단계(--ui-scale)를 키웠을 때 그 값을 따라가게 하려는 것.
+   */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(16px, 1rem);
   }
 }
 
